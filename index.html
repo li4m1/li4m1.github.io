@@ -78,6 +78,93 @@
       background: #3a3a3a;
       transform: translateY(-2px);
     }
+    .music-section {
+  margin-top: 60px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.vinyl-image {
+  width: 220px;
+  height: 220px;
+  object-fit: cover;
+  margin-bottom: 35px;
+
+  transition: 0.3s ease;
+
+  filter: drop-shadow(0 10px 30px rgba(0,0,0,0.5));
+}
+
+.vinyl-image:hover {
+  transform: scale(1.03);
+}
+
+.playlist {
+
+  width: 100%;
+  max-width: 400px;
+  height: 220px;
+
+  overflow-y: auto;
+
+  background: #1f1f1f;
+
+  border-radius: 20px;
+
+  padding: 15px;
+
+  box-shadow:
+    0 10px 30px rgba(0,0,0,0.3);
+
+}
+
+.song {
+
+  background: #2a2a2a;
+
+  padding: 18px 20px;
+
+  border-radius: 14px;
+
+  margin-bottom: 12px;
+
+  cursor: pointer;
+
+  transition: 0.25s ease;
+
+}
+
+.song:hover {
+
+  background: #3a3a3a;
+
+  transform: translateY(-2px);
+
+}
+
+.song.active {
+
+  background: white;
+  color: black;
+
+}
+
+.spinning {
+  animation: spin 3s linear infinite;
+}
+
+@keyframes spin {
+
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+
+}
 
   </style>
 </head>
@@ -113,6 +200,61 @@
     </a>
 
   </div>
+<div class="music-section">
 
+  <img 
+    src="vinyl.png"
+    id="vinyl"
+    class="vinyl-image"
+    alt="Vinyl"
+  />
+
+  <div class="playlist">
+
+    <div class="song" onclick="playSong('music/song1.mp3', this)">
+      Song 1
+    </div>
+
+    <div class="song" onclick="playSong('music/song2.mp3', this)">
+      Song 2
+    </div>
+
+    <div class="song" onclick="playSong('music/song3.mp3', this)">
+      Song 3
+    </div>
+
+  </div>
+
+</div>
+
+<audio id="audio-player"></audio>
+<script>
+
+  const audioPlayer = document.getElementById("audio-player");
+  const vinyl = document.getElementById("vinyl");
+
+  function playSong(songPath, clickedSong) {
+
+    const allSongs = document.querySelectorAll(".song");
+
+    allSongs.forEach(song => {
+      song.classList.remove("active");
+    });
+
+    clickedSong.classList.add("active");
+
+    audioPlayer.src = songPath;
+
+    audioPlayer.play();
+
+    vinyl.classList.add("spinning");
+
+  }
+
+  audioPlayer.addEventListener("pause", () => {
+    vinyl.classList.remove("spinning");
+  });
+
+</script>
 </body>
 </html>
