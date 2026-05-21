@@ -4,6 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Liam Jansson</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
   <style>
 
     * {
@@ -158,6 +160,56 @@
       letter-spacing: 1px;
     }
 
+    /* ── Loading Screen ── */
+
+    .tv-loading {
+      position: absolute;
+      inset: 0;
+      background: #000;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      z-index: 1;
+      font-family: 'Press Start 2P', monospace;
+    }
+
+    .loading-title {
+      color: #c8c8e8;
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-shadow: 0 0 8px rgba(180,180,255,0.6);
+    }
+
+    .loading-bar-wrap {
+      width: 68%;
+      height: 14px;
+      border: 2px solid #666;
+      padding: 2px;
+      background: #000;
+    }
+
+    .loading-bar-fill {
+      height: 100%;
+      width: 0%;
+      background: #c8c8e8;
+      animation: loadbar 2.5s ease-out forwards;
+    }
+
+    @keyframes loadbar {
+      0%   { width: 0%; }
+      60%  { width: 78%; }
+      90%  { width: 92%; }
+      100% { width: 92%; }
+    }
+
+    .loading-sub {
+      color: #666;
+      font-size: 7px;
+      letter-spacing: 2px;
+    }
+
     /* ── Playlist ── */
 
     .playlist {
@@ -284,6 +336,13 @@
         <img src="tv.png" alt="TV" class="tv-img">
         <div class="tv-screen">
           <video id="video-player" loop></video>
+          <div class="tv-loading" id="tv-loading">
+            <div class="loading-title">NOW LOADING</div>
+            <div class="loading-bar-wrap">
+              <div class="loading-bar-fill" id="loading-bar-fill"></div>
+            </div>
+            <div class="loading-sub">PLEASE WAIT</div>
+          </div>
           <div class="tv-idle" id="tv-idle">SELECT A TRACK</div>
         </div>
       </div>
@@ -304,6 +363,20 @@
           <span class="song-year">1995</span>
         </div>
 
+        <div class="song" data-src="music/Group Home - Suspended In Time.mp4">
+          <button class="play-btn" aria-label="Play">&#9654;</button>
+          <span class="song-title">Suspended in Time</span>
+          <span class="song-artist">Group Home</span>
+          <span class="song-year">1995</span>
+        </div>
+
+        <div class="song" data-src="music/Group Home - Supa Star (Official Video) [Explicit].mp4">
+          <button class="play-btn" aria-label="Play">&#9654;</button>
+          <span class="song-title">Supa Star</span>
+          <span class="song-artist">Group Home</span>
+          <span class="song-year">1994</span>
+        </div>
+
       </div>
 
     </div>
@@ -311,14 +384,32 @@
   </div>
 
   <script>
-    const videoPlayer = document.getElementById("video-player");
-    const tvIdle = document.getElementById("tv-idle");
-    let activeSong = null;
+    const videoPlayer  = document.getElementById("video-player");
+    const tvIdle       = document.getElementById("tv-idle");
+    const tvLoading    = document.getElementById("tv-loading");
+    const loadingFill  = document.getElementById("loading-bar-fill");
+    let activeSong     = null;
+    let canPlayHandler = null;
 
     function setBtn(songEl, playing) {
       const btn = songEl.querySelector(".play-btn");
       btn.innerHTML = playing ? "&#9646;&#9646;" : "&#9654;";
       btn.setAttribute("aria-label", playing ? "Pause" : "Play");
+    }
+
+    function showLoading() {
+      tvIdle.style.display       = "none";
+      videoPlayer.style.display  = "none";
+      tvLoading.style.display    = "flex";
+      // restart bar animation
+      loadingFill.style.animation = "none";
+      loadingFill.offsetHeight;
+      loadingFill.style.animation = "";
+    }
+
+    function showVideo() {
+      tvLoading.style.display   = "none";
+      videoPlayer.style.display = "block";
     }
 
     document.querySelectorAll(".song").forEach(song => {
@@ -342,25 +433,27 @@
         activeSong = song;
         song.classList.add("active");
 
+        if (canPlayHandler) {
+          videoPlayer.removeEventListener("canplay", canPlayHandler);
+        }
+
+        showLoading();
         videoPlayer.src = song.dataset.src;
-        videoPlayer.style.display = "block";
-        tvIdle.style.display = "none";
-        videoPlayer.play();
-        setBtn(song, true);
+
+        canPlayHandler = function () {
+          canPlayHandler = null;
+          showVideo();
+          videoPlayer.play();
+          setBtn(activeSong, true);
+        };
+
+        videoPlayer.addEventListener("canplay", canPlayHandler, { once: true });
       });
     });
 
-    videoPlayer.addEventListener("pause", () => {
-      if (activeSong) setBtn(activeSong, false);
-    });
-
-    videoPlayer.addEventListener("play", () => {
-      if (activeSong) setBtn(activeSong, true);
-    });
-
-    videoPlayer.addEventListener("ended", () => {
-      if (activeSong) setBtn(activeSong, false);
-    });
+    videoPlayer.addEventListener("pause",  () => { if (activeSong) setBtn(activeSong, false); });
+    videoPlayer.addEventListener("play",   () => { if (activeSong) setBtn(activeSong, true);  });
+    videoPlayer.addEventListener("ended",  () => { if (activeSong) setBtn(activeSong, false); });
   </script>
 
 </body>
