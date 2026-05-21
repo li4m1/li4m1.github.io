@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Liam Jansson</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Caveat:wght@700&display=swap" rel="stylesheet">
   <style>
 
     * {
@@ -14,8 +14,12 @@
       box-sizing: border-box;
     }
 
+
     body {
-      background: #0f0f0f;
+      background-color: #2318f5;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.5' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)'/%3E%3C/svg%3E");
+      background-size: 400px 400px;
+      background-blend-mode: overlay;
       color: white;
       font-family: Arial, Helvetica, sans-serif;
       min-height: 100vh;
@@ -29,10 +33,7 @@
       max-width: 700px;
       width: 100%;
       text-align: center;
-      background: #181818;
       padding: 50px 35px;
-      border-radius: 24px;
-      box-shadow: 0 10px 40px rgba(0,0,0,0.4);
     }
 
     .profile-image {
@@ -103,6 +104,15 @@
       z-index: 2;
     }
 
+    .tv-crown {
+      position: absolute;
+      top: -27%;
+      right: -16%;
+      width: 52%;
+      z-index: 3;
+      pointer-events: none;
+    }
+
     .tv-screen {
       position: absolute;
       top: 17%;
@@ -160,6 +170,15 @@
       letter-spacing: 1px;
     }
 
+    #static-canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+      display: block;
+    }
+
     /* ── Loading Screen ── */
 
     .tv-loading {
@@ -210,6 +229,26 @@
       letter-spacing: 2px;
     }
 
+    /* ── Playlist Wrap ── */
+
+    .playlist-wrap {
+      position: relative;
+      width: 100%;
+      max-width: 480px;
+    }
+
+    .play-hint {
+      position: absolute;
+      left: -245px;
+      top: -130px;
+      width: 235px;
+      pointer-events: none;
+    }
+
+    @media (max-width: 750px) {
+      .play-hint { display: none; }
+    }
+
     /* ── Playlist ── */
 
     .playlist {
@@ -219,7 +258,8 @@
       overflow-y: auto;
       overflow-x: hidden;
       border-radius: 12px;
-      background: #1a1a1a;
+      background: transparent;
+      border: 1.5px solid #f3e9dc;
     }
 
     .playlist::-webkit-scrollbar {
@@ -227,11 +267,11 @@
     }
 
     .playlist::-webkit-scrollbar-track {
-      background: #1a1a1a;
+      background: transparent;
     }
 
     .playlist::-webkit-scrollbar-thumb {
-      background: #444;
+      background: #f3e9dc;
       border-radius: 3px;
     }
 
@@ -242,23 +282,25 @@
       padding: 11px 16px;
       cursor: pointer;
       transition: background 0.15s ease;
+      color: #f3e9dc;
     }
 
-    .song:nth-child(odd)  { background: #1e1e1e; }
-    .song:nth-child(even) { background: #262626; }
+    .song:nth-child(odd)  { background: transparent; color: #f3e9dc; }
+    .song:nth-child(even) { background: #f3e9dc;    color: #2318f5; }
 
-    .song:hover { background: #303030; }
+    .song:nth-child(odd):hover  { background: rgba(243,233,220,0.08); }
+    .song:nth-child(even):hover { background: #e8ddd1; }
 
     .song.active {
-      background: #2a2a3e;
-      border-left: 3px solid #aaa;
+      border-left: 3px solid #f3e9dc;
       padding-left: 13px;
     }
+
+    .song:nth-child(even).active { border-left-color: #2318f5; }
 
     .play-btn {
       background: none;
       border: none;
-      color: #aaa;
       font-size: 10px;
       cursor: pointer;
       flex-shrink: 0;
@@ -266,9 +308,8 @@
       text-align: center;
       padding: 0;
       line-height: 1;
+      color: inherit;
     }
-
-    .song.active .play-btn { color: white; }
 
     .song-title {
       flex: 1;
@@ -278,26 +319,86 @@
       overflow: hidden;
       text-overflow: ellipsis;
       text-align: left;
+      color: inherit;
     }
 
     .song-artist {
       font-size: 13px;
-      color: #888;
       flex-shrink: 0;
       white-space: nowrap;
+      color: inherit;
+      opacity: 0.75;
     }
-
-    .song.active .song-artist { color: #aaa; }
 
     .song-year {
       font-size: 12px;
-      color: #555;
       flex-shrink: 0;
       min-width: 36px;
       text-align: right;
+      color: inherit;
+      opacity: 0.6;
     }
 
-    .song.active .song-year { color: #888; }
+    .playlist-credit {
+      margin-top: 10px;
+      font-size: 12px;
+      color: #f3e9dc;
+      opacity: 0.6;
+      text-align: center;
+      letter-spacing: 0.5px;
+    }
+
+/* ── Mobile ── */
+
+    @media (max-width: 600px) {
+      body {
+        padding: 16px 12px;
+      }
+
+      .container {
+        padding: 28px 16px;
+        border-radius: 16px;
+      }
+
+      h1 { font-size: 28px; }
+
+      .role  { font-size: 15px; }
+      .about { font-size: 15px; }
+
+      .tv-section {
+        margin-top: 36px;
+        gap: 16px;
+      }
+
+      .play-btn {
+        width: 36px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 11px;
+      }
+
+      .song {
+        padding: 12px 12px;
+        gap: 8px;
+      }
+
+      .song-title  { font-size: 13px; }
+
+      .song-artist {
+        font-size: 11px;
+        max-width: 80px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .song-year { font-size: 11px; }
+
+      .loading-title    { font-size: 7px; }
+      .loading-bar-wrap { height: 10px; }
+      .loading-sub      { font-size: 5px; }
+    }
 
   </style>
 </head>
@@ -305,37 +406,14 @@
 <body>
   <div class="container">
 
-    <img
-      src="profile.jpg"
-      alt="Liam Jansson"
-      class="profile-image"
-    >
-
-    <h1>Liam</h1>
-
-    <p class="role">Videographer &amp; Editor</p>
-
-    <p class="about">
-      I create cinematic videos, edits, and visual content with a clean
-      and modern style. Passionate about storytelling, creativity,
-      and building meaningful digital experiences through film and design.
-    </p>
-
-    <a
-      href="https://instagram.com/YOURUSERNAME"
-      target="_blank"
-      class="instagram-link"
-    >
-      Instagram
-    </a>
-
     <!-- TV + Music Videos -->
     <div class="tv-section">
 
       <div class="tv">
         <img src="tv.png" alt="TV" class="tv-img">
+        <img src="Asset 4.png" alt="" class="tv-crown">
         <div class="tv-screen">
-          <video id="video-player" loop></video>
+          <video id="video-player" loop playsinline></video>
           <div class="tv-loading" id="tv-loading">
             <div class="loading-title">NOW LOADING</div>
             <div class="loading-bar-wrap">
@@ -343,11 +421,14 @@
             </div>
             <div class="loading-sub">PLEASE WAIT</div>
           </div>
-          <div class="tv-idle" id="tv-idle">SELECT A TRACK</div>
+          <canvas id="static-canvas"></canvas>
+          <div class="tv-idle" id="tv-idle"></div>
         </div>
       </div>
 
-      <div class="playlist">
+      <div class="playlist-wrap">
+        <img src="play me.png" alt="" class="play-hint">
+<div class="playlist">
 
         <div class="song" data-src="music/Black Star - Respiration ft. Common.mp4">
           <button class="play-btn" aria-label="Play">&#9654;</button>
@@ -377,7 +458,58 @@
           <span class="song-year">1994</span>
         </div>
 
+        <div class="song" data-src="music/Black Moon - Act Like U Want It (Video).mp4">
+          <button class="play-btn" aria-label="Play">&#9654;</button>
+          <span class="song-title">Act Like U Want It</span>
+          <span class="song-artist">Black Moon</span>
+          <span class="song-year">1993</span>
+        </div>
+
+        <div class="song" data-src="music/whereishe_.mp4">
+          <button class="play-btn" aria-label="Play">&#9654;</button>
+          <span class="song-title">whereishe_</span>
+          <span class="song-artist">BexBlu_</span>
+          <span class="song-year">2024</span>
+        </div>
+
+        <div class="song" data-src="music/Artifacts - The Ultimate  [Explicit].mp4">
+          <button class="play-btn" aria-label="Play">&#9654;</button>
+          <span class="song-title">The Ultimate</span>
+          <span class="song-artist">Artifacts</span>
+          <span class="song-year">1996</span>
+        </div>
+
+        <div class="song" data-src="music/Kool G Rap & DJ Polo - On The Run.mp4">
+          <button class="play-btn" aria-label="Play">&#9654;</button>
+          <span class="song-title">On The Run</span>
+          <span class="song-artist">Kool G Rap & DJ Polo</span>
+          <span class="song-year">1992</span>
+        </div>
+
+        <div class="song" data-src="music/king..mp4">
+          <button class="play-btn" aria-label="Play">&#9654;</button>
+          <span class="song-title">king.</span>
+          <span class="song-artist">db.</span>
+          <span class="song-year">2025</span>
+        </div>
+
+        <div class="song" data-src="music/slewdem_.mp4">
+          <button class="play-btn" aria-label="Play">&#9654;</button>
+          <span class="song-title">slewdem_</span>
+          <span class="song-artist">BexBlu</span>
+          <span class="song-year">2024</span>
+        </div>
+
+        <div class="song" data-src="music/stormzyfree_.mp4">
+          <button class="play-btn" aria-label="Play">&#9654;</button>
+          <span class="song-title">stormzyfree</span>
+          <span class="song-artist">BexBlu</span>
+          <span class="song-year">2024</span>
+        </div>
+
       </div>
+      <p class="playlist-credit">carefully handpicked tracks by liam</p>
+      </div><!-- end playlist-wrap -->
 
     </div>
 
@@ -388,8 +520,34 @@
     const tvIdle       = document.getElementById("tv-idle");
     const tvLoading    = document.getElementById("tv-loading");
     const loadingFill  = document.getElementById("loading-bar-fill");
+    const staticCanvas = document.getElementById("static-canvas");
+    const staticCtx    = staticCanvas.getContext("2d");
     let activeSong     = null;
     let canPlayHandler = null;
+    let staticRaf      = null;
+
+    function drawStatic() {
+      const w = staticCanvas.offsetWidth  || 1;
+      const h = staticCanvas.offsetHeight || 1;
+      if (staticCanvas.width !== w)  staticCanvas.width  = w;
+      if (staticCanvas.height !== h) staticCanvas.height = h;
+      const img = staticCtx.createImageData(w, h);
+      const d   = img.data;
+      for (let i = 0; i < d.length; i += 4) {
+        const v = Math.random() * 255 | 0;
+        d[i] = d[i+1] = d[i+2] = v;
+        d[i+3] = 255;
+      }
+      staticCtx.putImageData(img, 0, 0);
+      staticRaf = requestAnimationFrame(drawStatic);
+    }
+
+    function stopStatic() {
+      if (staticRaf) { cancelAnimationFrame(staticRaf); staticRaf = null; }
+      staticCanvas.style.display = "none";
+    }
+
+    drawStatic();
 
     function setBtn(songEl, playing) {
       const btn = songEl.querySelector(".play-btn");
@@ -398,6 +556,7 @@
     }
 
     function showLoading() {
+      stopStatic();
       tvIdle.style.display       = "none";
       videoPlayer.style.display  = "none";
       tvLoading.style.display    = "flex";
@@ -439,11 +598,11 @@
 
         showLoading();
         videoPlayer.src = song.dataset.src;
+        videoPlayer.play().catch(() => {});
 
         canPlayHandler = function () {
           canPlayHandler = null;
           showVideo();
-          videoPlayer.play();
           setBtn(activeSong, true);
         };
 
@@ -454,6 +613,7 @@
     videoPlayer.addEventListener("pause",  () => { if (activeSong) setBtn(activeSong, false); });
     videoPlayer.addEventListener("play",   () => { if (activeSong) setBtn(activeSong, true);  });
     videoPlayer.addEventListener("ended",  () => { if (activeSong) setBtn(activeSong, false); });
+
   </script>
 
 </body>
