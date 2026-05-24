@@ -8,6 +8,13 @@
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Caveat:wght@700&display=swap" rel="stylesheet">
   <style>
 
+    @font-face {
+      font-family: 'Nossible';
+      src: url('Nossible.otf') format('opentype');
+      font-weight: normal;
+      font-style: normal;
+    }
+
     * {
       margin: 0;
       padding: 0;
@@ -16,17 +23,122 @@
 
 
     body {
-      background-color: #2318f5;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.5' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)'/%3E%3C/svg%3E");
-      background-size: 400px 400px;
-      background-blend-mode: overlay;
+      background-color: #4e0099;
+      background-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.5' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)'/%3E%3C/svg%3E"),
+        radial-gradient(ellipse at 78% 78%, #8800dd 0%, #4e0099 60%),
+        radial-gradient(ellipse at 28% 55%, #7200c2 0%, #4e0099 55%),
+        radial-gradient(ellipse at 55% 98%, #8000d0 0%, #4e0099 50%),
+        radial-gradient(ellipse at 15% 20%, #6600b5 0%, #4e0099 48%);
+      background-size: 400px 400px, 100% 100%, 100% 100%, 100% 100%, 100% 100%;
+      background-blend-mode: overlay, normal, normal, normal, normal;
       color: white;
       font-family: Arial, Helvetica, sans-serif;
       min-height: 100vh;
+    }
+
+    /* ── Hero Landing ── */
+
+    .hero {
+      min-height: 100vh;
       display: flex;
-      justify-content: center;
+      align-items: center;
+      padding: 0 6%;
+      gap: 0;
+    }
+
+    .hero-left {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
       align-items: flex-start;
-      padding: 40px 20px;
+      justify-content: center;
+      padding-left: 4%;
+    }
+
+    .hero-name {
+      font-family: 'Nossible', sans-serif;
+      font-size: clamp(36px, 5.5vw, 80px);
+      color: #eeeeee;
+      letter-spacing: 2px;
+      margin-bottom: 12px;
+      line-height: 1;
+    }
+
+    .hero-title {
+      font-size: clamp(16px, 2.2vw, 32px);
+      font-weight: 700;
+      color: #eeeeee;
+      line-height: 1.15;
+      letter-spacing: -0.5px;
+      margin-bottom: 28px;
+      opacity: 0.75;
+    }
+
+    .type-cursor {
+      display: inline-block;
+      width: 0.55em;
+      height: 0.85em;
+      background: #eeeeee;
+      color: transparent;
+      vertical-align: text-bottom;
+      margin-left: 3px;
+      animation: cursorBlink 0.7s step-end infinite;
+    }
+
+    @keyframes cursorBlink {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0; }
+    }
+
+    .hero-skills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      max-width: 420px;
+    }
+
+    .skill-bubble {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #eeeeee;
+      font-size: 13px;
+      padding: 7px 14px;
+      border-radius: 999px;
+      backdrop-filter: blur(6px);
+      letter-spacing: 0.3px;
+    }
+
+    .hero-right {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: visible;
+    }
+
+    .hero-reel {
+      position: relative;
+      width: 100%;
+      height: 520px;
+    }
+
+    .hero-reel .cosmos-scene {
+      position: absolute;
+      inset: 0;
+      height: 100%;
+      transition: opacity 0.9s ease;
+    }
+
+    .hero-reel .spread-stage {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.9s ease;
     }
 
     .container {
@@ -34,6 +146,7 @@
       width: 100%;
       text-align: center;
       padding: 50px 35px;
+      margin: 0 auto;
     }
 
     .profile-image {
@@ -267,7 +380,7 @@
       overflow-x: hidden;
       border-radius: 12px;
       background: transparent;
-      border: 1.5px solid #f3e9dc;
+      border: 1.5px solid #eeeeee;
       font-family: 'American Typewriter', 'Courier New', monospace;
       box-shadow: 0 0 28px 8px rgba(255, 255, 255, 0.35);
     }
@@ -281,7 +394,7 @@
     }
 
     .playlist::-webkit-scrollbar-thumb {
-      background: #f3e9dc;
+      background: #eeeeee;
       border-radius: 3px;
     }
 
@@ -292,21 +405,21 @@
       padding: 11px 16px;
       cursor: pointer;
       transition: background 0.15s ease;
-      color: #f3e9dc;
+      color: #eeeeee;
     }
 
-    .song:nth-child(odd)  { background: transparent; color: #f3e9dc; }
-    .song:nth-child(even) { background: #f3e9dc;    color: #2318f5; }
+    .song:nth-child(odd)  { background: transparent; color: #eeeeee; }
+    .song:nth-child(even) { background: #eeeeee;    color: #3c096c; }
 
     .song:nth-child(odd):hover  { background: rgba(243,233,220,0.08); }
-    .song:nth-child(even):hover { background: #e8ddd1; }
+    .song:nth-child(even):hover { background: #d4d4d4; }
 
     .song.active {
-      border-left: 3px solid #f3e9dc;
+      border-left: 3px solid #eeeeee;
       padding-left: 13px;
     }
 
-    .song:nth-child(even).active { border-left-color: #2318f5; }
+    .song:nth-child(even).active { border-left-color: #3c096c; }
 
     .play-btn {
       background: none;
@@ -352,18 +465,215 @@
     .playlist-credit {
       margin-top: 10px;
       font-size: 12px;
-      color: #f3e9dc;
+      color: #eeeeee;
       opacity: 0.6;
       text-align: center;
       letter-spacing: 0.5px;
     }
 
-/* ── Mobile ── */
+    /* ── Spread Section ── */
+
+    .spread-section {
+      padding: 100px 0 120px;
+      overflow: visible;
+    }
+
+    .spread-stage {
+      position: relative;
+      height: 480px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .spread-card {
+      position: absolute;
+      width: 185px;
+      height: 270px;
+      border-radius: 8px;
+      overflow: hidden;
+      opacity: 0;
+      transform: translateX(0) translateY(0) scale(0.5);
+      transition:
+        transform 0.9s cubic-bezier(0.34, 1.15, 0.64, 1) calc(var(--d) * 160ms),
+        opacity   0.5s ease                               calc(var(--d) * 160ms);
+      box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5);
+      z-index: calc(4 - var(--d));
+    }
+
+    .spread-card.revealed {
+      opacity: 1;
+      transform:
+        translateX(calc(var(--i) * 178px))
+        translateY(calc(var(--i) * 30px))
+        rotate(calc(var(--i) * 3deg));
+    }
+
+    .spread-card video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    /* ── Clips Section ── */
+
+    .cosmos-scene {
+      perspective: 1100px;
+      perspective-origin: 50% 50%;
+      margin: 0;
+      height: 520px;
+      width: 100%;
+      position: relative;
+      overflow: visible;
+    }
+
+    .cosmos-wheel {
+      position: absolute;
+      inset: 0;
+      transform-style: preserve-3d;
+      transform: rotateX(0deg) rotateY(0deg);
+      animation: wheelSpin 28s linear infinite;
+      opacity: 0;
+      transition: opacity 1.2s ease;
+    }
+
+    .cosmos-wheel.revealed {
+      opacity: 1;
+    }
+
+    @keyframes wheelSpin {
+      from { transform: rotateX(0deg) rotateY(0deg);   }
+      to   { transform: rotateX(0deg) rotateY(360deg); }
+    }
+
+    .cosmos-panel {
+      position: absolute;
+      width: 170px;
+      height: 250px;
+      top: 50%;
+      left: 50%;
+      margin-left: -85px;
+      margin-top: -125px;
+      transform-style: preserve-3d;
+      transform:
+        rotateY(calc(var(--r) * 51.43deg))
+        translateZ(260px);
+      overflow: hidden;
+      border-radius: 6px;
+      box-shadow: 0 18px 50px rgba(0, 0, 0, 0.5);
+      backface-visibility: visible;
+    }
+
+    .cosmos-panel video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    /* ── Camera Section ── */
+
+    .camera-section {
+      margin: 100px auto 0;
+      max-width: 760px;
+      text-align: center;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 1s ease, transform 1s ease;
+    }
+
+    .camera-section.revealed {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    #camera-canvas {
+      width: 100%;
+      height: 500px;
+      display: block;
+      cursor: grab;
+    }
+    #camera-canvas:active { cursor: grabbing; }
+
+    /* ── Card Deck Section ── */
+
+    .deck-section {
+      margin: 120px auto 40px;
+      max-width: 760px;
+      text-align: center;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 1s ease, transform 1s ease;
+    }
+
+    .deck-section.revealed {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .deck-logo {
+      display: block;
+      margin: 0 auto 32px;
+      max-width: 360px;
+      width: 70%;
+      height: auto;
+      filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.45));
+    }
+
+    .deck-cards {
+      display: block;
+      margin: 0 auto;
+      max-width: 460px;
+      width: 85%;
+      height: auto;
+      transition: transform 0.6s cubic-bezier(.2, .8, .2, 1);
+      filter: drop-shadow(0 18px 40px rgba(0, 0, 0, 0.5));
+    }
+
+    .deck-cards:hover {
+      transform: scale(1.04) rotate(-1.5deg);
+    }
+
+    /* ── Mobile ── */
+
+    @media (max-width: 750px) {
+      .hero {
+        flex-direction: column;
+        min-height: auto;
+        padding: 80px 6% 40px;
+        gap: 40px;
+      }
+
+      .hero-left {
+        justify-content: center;
+        padding-left: 0;
+        text-align: center;
+      }
+
+      .hero-title {
+        font-size: clamp(28px, 8vw, 42px);
+      }
+
+      .hero-right {
+        width: 100%;
+      }
+
+      .cosmos-scene {
+        height: 380px;
+      }
+    }
 
     @media (max-width: 600px) {
       body {
-        padding: 16px 12px;
-        background-image: none;
+        padding: 0;
+        background-image:
+          radial-gradient(ellipse at 78% 78%, #8800dd 0%, #4e0099 60%),
+          radial-gradient(ellipse at 28% 55%, #7200c2 0%, #4e0099 55%),
+          radial-gradient(ellipse at 55% 98%, #8000d0 0%, #4e0099 50%),
+          radial-gradient(ellipse at 15% 20%, #6600b5 0%, #4e0099 48%);
+        background-size: 100% 100%, 100% 100%, 100% 100%, 100% 100%;
+        background-blend-mode: normal, normal, normal, normal;
       }
 
       .container {
@@ -409,12 +719,139 @@
       .loading-title    { font-size: 7px; }
       .loading-bar-wrap { height: 10px; }
       .loading-sub      { font-size: 5px; }
+
+      .cosmos-scene {
+        height: 380px;
+        margin-top: 50px;
+      }
+
+      .cosmos-panel {
+        width: 115px;
+        height: 170px;
+        margin-left: -57.5px;
+        margin-top: -85px;
+        transform:
+          rotateY(calc(var(--r) * 51.43deg))
+          translateZ(180px);
+      }
+
+      .deck-section {
+        margin-top: 70px;
+      }
+
+      .deck-logo {
+        max-width: 240px;
+        width: 75%;
+        margin-bottom: 24px;
+      }
+
+      .deck-cards {
+        max-width: 320px;
+        width: 90%;
+      }
     }
 
   </style>
 </head>
 
 <body>
+  <script>
+    (function () {
+      var CELL = 52;
+      var cols = Math.ceil(window.innerWidth  / CELL) + 1;
+      var rows = Math.ceil(window.innerHeight / CELL) + 1;
+
+      var ov = document.createElement('div');
+      ov.style.cssText = 'position:fixed;inset:0;z-index:9999;pointer-events:none;overflow:hidden;';
+      document.body.appendChild(ov);
+
+      // grid tracker so large squares don't overlap small ones
+      var grid = [];
+      for (var r = 0; r < rows; r++) { grid[r] = []; }
+
+      var cells = [];
+      var SIZES = [1, 1, 1, 2, 2, 2, 3, 3, 4]; // weighted mix: mostly small, some big
+
+      for (var r = 0; r < rows; r++) {
+        for (var c = 0; c < cols; c++) {
+          if (grid[r][c]) continue;
+
+          var span = SIZES[Math.floor(Math.random() * SIZES.length)];
+
+          // shrink span if it doesn't fit or cells are taken
+          while (span > 1) {
+            var fits = true;
+            for (var dr = 0; dr < span && fits; dr++)
+              for (var dc = 0; dc < span && fits; dc++)
+                if (r+dr >= rows || c+dc >= cols || grid[r+dr][c+dc]) fits = false;
+            if (fits) break;
+            span--;
+          }
+
+          for (var dr = 0; dr < span; dr++)
+            for (var dc = 0; dc < span; dc++)
+              grid[r+dr][c+dc] = true;
+
+          var sq = document.createElement('div');
+          sq.style.cssText =
+            'position:absolute;background:#fff;' +
+            'left:'   + (c * CELL) + 'px;' +
+            'top:'    + (r * CELL) + 'px;' +
+            'width:'  + (span * CELL) + 'px;' +
+            'height:' + (span * CELL) + 'px;';
+          ov.appendChild(sq);
+          cells.push(sq);
+        }
+      }
+
+      // shuffle
+      for (var i = cells.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var tmp = cells[i]; cells[i] = cells[j]; cells[j] = tmp;
+      }
+
+      var REVEAL = 550;
+      cells.forEach(function (cell, seq) {
+        setTimeout(function () {
+          cell.style.display = 'none';
+        }, 40 + (seq / cells.length) * REVEAL);
+      });
+
+      setTimeout(function () { ov.remove(); }, REVEAL + 200);
+    }());
+  </script>
+
+  <!-- Hero Landing -->
+  <section class="hero">
+    <div class="hero-left">
+      <p class="hero-name">Liam Jansson</p>
+      <h1 class="hero-title"><span id="typewriter"></span><span class="type-cursor">█</span></h1>
+      <div class="hero-skills">
+        <span class="skill-bubble">After Effects</span>
+        <span class="skill-bubble">DaVinci Resolve</span>
+        <span class="skill-bubble">Premiere Pro</span>
+        <span class="skill-bubble">CapCut</span>
+        <span class="skill-bubble">Photoshop</span>
+        <span class="skill-bubble">Illustrator</span>
+        <span class="skill-bubble">Figma</span>
+        <span class="skill-bubble">Claude</span>
+      </div>
+    </div>
+    <div class="hero-right">
+      <div class="cosmos-scene">
+        <div class="cosmos-wheel" id="cosmos-wheel">
+          <div class="cosmos-panel" style="--r:0"><video src="clips/4eva 1 new.mp4"       autoplay loop muted playsinline></video></div>
+          <div class="cosmos-panel" style="--r:1"><video src="clips/berlin final.mp4"      autoplay loop muted playsinline></video></div>
+          <div class="cosmos-panel" style="--r:2"><video src="clips/muay thai fight.mp4"   autoplay loop muted playsinline></video></div>
+          <div class="cosmos-panel" style="--r:3"><video src="clips/pool vid.mp4"          autoplay loop muted playsinline></video></div>
+          <div class="cosmos-panel" style="--r:4"><video src="clips/test grade 4eva.mp4"   autoplay loop muted playsinline></video></div>
+          <div class="cosmos-panel" style="--r:5"><video src="clips/where is he.mp4"       autoplay loop muted playsinline></video></div>
+          <div class="cosmos-panel" style="--r:6"><video src="clips/bts final.mp4"         autoplay loop muted playsinline></video></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <div class="container">
 
     <!-- TV + Music Videos -->
@@ -522,6 +959,30 @@
       <p class="playlist-credit">carefully handpicked tracks by liam</p>
       </div><!-- end playlist-wrap -->
 
+      <!-- Spread Reel -->
+      <section class="spread-section" id="spread-section">
+        <div class="spread-stage">
+          <div class="spread-card" style="--i:-3; --d:3"><video src="clips/shadowboxing final.mp4" autoplay loop muted playsinline></video></div>
+          <div class="spread-card" style="--i:-2; --d:2"><video src="clips/alex action final.mp4"  autoplay loop muted playsinline></video></div>
+          <div class="spread-card" style="--i:-1; --d:1"><video src="clips/C4809.mp4"              autoplay loop muted playsinline></video></div>
+          <div class="spread-card" style="--i:0;  --d:0"><video src="clips/Berlin41.mp4"           autoplay loop muted playsinline></video></div>
+          <div class="spread-card" style="--i:1;  --d:1"><video src="clips/4eva 3.mp4"             autoplay loop muted playsinline></video></div>
+          <div class="spread-card" style="--i:2;  --d:2"><video src="clips/aw26.mp4"               autoplay loop muted playsinline></video></div>
+          <div class="spread-card" style="--i:3;  --d:3"><video src="clips/nev final.mp4"          autoplay loop muted playsinline></video></div>
+        </div>
+      </section>
+
+      <!-- Camera Section -->
+      <section class="camera-section" id="camera-section">
+        <canvas id="camera-canvas"></canvas>
+      </section>
+
+      <!-- Card Deck Section -->
+      <section class="deck-section" id="deck-section">
+        <img class="deck-logo" src="carddeck/IMG_1190 1.png" alt="Königs Kärten logo">
+        <img class="deck-cards" src="carddeck/Component 29.png" alt="Königs Kärten card deck">
+      </section>
+
     </div>
 
   </div>
@@ -624,6 +1085,146 @@
     videoPlayer.addEventListener("pause",  () => { if (activeSong) setBtn(activeSong, false); });
     videoPlayer.addEventListener("play",   () => { if (activeSong) setBtn(activeSong, true);  });
     videoPlayer.addEventListener("ended",  () => { if (activeSong) setBtn(activeSong, false); });
+
+    (function () {
+      const words    = ["Videographer", "Editor", "Creative"];
+      const el       = document.getElementById("typewriter");
+      let wi = 0, ci = 0, deleting = false;
+
+      function tick() {
+        const word = words[wi];
+        if (!deleting) {
+          ci++;
+          el.textContent = word.slice(0, ci);
+          if (ci === word.length) {
+            setTimeout(() => { deleting = true; tick(); }, 1800);
+            return;
+          }
+          setTimeout(tick, 90);
+        } else {
+          ci--;
+          el.textContent = word.slice(0, ci);
+          if (ci === 0) {
+            deleting = false;
+            wi = (wi + 1) % words.length;
+            setTimeout(tick, 350);
+            return;
+          }
+          setTimeout(tick, 45);
+        }
+      }
+      setTimeout(tick, 700);
+    }());
+
+    const cosmosWheel = document.getElementById("cosmos-wheel");
+    setTimeout(() => cosmosWheel.classList.add("revealed"), 300);
+
+    const spreadCards = document.querySelectorAll(".spread-card");
+    const spreadObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          spreadCards.forEach(c => c.classList.add("revealed"));
+          spreadObserver.disconnect();
+        }
+      });
+    }, { threshold: 0.2 });
+    spreadObserver.observe(document.getElementById("spread-section"));
+
+    const cameraSection = document.getElementById("camera-section");
+    new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting) {
+        cameraSection.classList.add("revealed");
+      }
+    }, { threshold: 0.1 }).observe(cameraSection);
+
+    // Three.js camera viewer
+    (function () {
+      const script1 = document.createElement('script');
+      script1.src = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
+      script1.onload = function () {
+        const script2 = document.createElement('script');
+        script2.src = 'https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js';
+        script2.onload = function () {
+          const script3 = document.createElement('script');
+          script3.src = 'https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js';
+          script3.onload = initCamera;
+          document.head.appendChild(script3);
+        };
+        document.head.appendChild(script2);
+      };
+      document.head.appendChild(script1);
+
+      function initCamera() {
+        const canvas  = document.getElementById('camera-canvas');
+        const W = canvas.clientWidth;
+        const H = canvas.clientHeight;
+
+        const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.setSize(W, H);
+        renderer.outputEncoding = THREE.sRGBEncoding;
+
+        const scene  = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(45, W / H, 0.01, 1000);
+        camera.position.set(0, 0, 3);
+
+        const ambient = new THREE.AmbientLight(0xffffff, 1.2);
+        scene.add(ambient);
+        const dir = new THREE.DirectionalLight(0xffffff, 1.5);
+        dir.position.set(5, 10, 7);
+        scene.add(dir);
+        const dir2 = new THREE.DirectionalLight(0xffffff, 0.6);
+        dir2.position.set(-5, -5, -5);
+        scene.add(dir2);
+
+        const controls = new THREE.OrbitControls(camera, canvas);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.08;
+        controls.autoRotate = true;
+        controls.autoRotateSpeed = 1.5;
+        controls.enableZoom = true;
+        controls.minDistance = 1;
+        controls.maxDistance = 8;
+
+        const loader = new THREE.GLTFLoader();
+        loader.load('camera/SONY ZV-E10.glb', function (gltf) {
+          const model = gltf.scene;
+          // center & scale
+          const box = new THREE.Box3().setFromObject(model);
+          const center = box.getCenter(new THREE.Vector3());
+          const size   = box.getSize(new THREE.Vector3());
+          const maxDim = Math.max(size.x, size.y, size.z);
+          model.position.sub(center);
+          model.scale.setScalar(2 / maxDim);
+          scene.add(model);
+        });
+
+        function animate() {
+          requestAnimationFrame(animate);
+          controls.update();
+          renderer.render(scene, camera);
+        }
+        animate();
+
+        window.addEventListener('resize', () => {
+          const w = canvas.clientWidth, h = canvas.clientHeight;
+          camera.aspect = w / h;
+          camera.updateProjectionMatrix();
+          renderer.setSize(w, h);
+        });
+      }
+    }());
+
+    const deckSection = document.getElementById("deck-section");
+    const deckObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          deckSection.classList.add("revealed");
+          deckObserver.disconnect();
+        }
+      });
+    }, { threshold: 0.2 });
+    deckObserver.observe(deckSection);
 
   </script>
 

@@ -1,0 +1,55 @@
+{
+  "accessors": [
+    {
+      "bufferView": 0,
+      "byteOffset": 0,
+      "componentType": 5126,
+      "normalized": false,
+      "count": 76669,
+      "type": "VEC3",
+      "max": [
+        0.11550000309944153,
+        0.10459999740123749,
+        0.06912600249052048
+      ],
+      "min": [
+        -0.0754999965429306,
+        -0.0006000000284984708,
+        -0.0033760000951588154
+      ]
+    },
+    {
+      "bufferView": 1,
+      "byteOffset": 0,
+      "componentType": 5125,
+      "normalized": false,
+      "count": 279162,
+      "type": "SCALAR"
+    }
+  ],
+  "asset": {
+    "generator": "pygltflib@v1.16.5",
+    "version": "2.0"
+  },
+  "bufferViews": [
+    {
+      "buffer": 0,
+      "byteOffset": 0,
+      "byteLength": 920028
+    },
+    {
+      "buffer": 0,
+      "byteOffset": 920028,
+      "byteLength": 1116648
+    }
+  ],
+  "buffers": [
+    {
+      "byteLength": 0
+    }
+  ],
+  "scene": 0,
+  "scenes": [
+    {}
+  ]
+}
