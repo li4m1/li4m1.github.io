@@ -339,6 +339,8 @@
     .hero-role .role-accent { color: var(--color-pop); }
     /* line reveal — masked rise, staggered via --d (replaces the typewriter) */
     .line-reveal { display: block; overflow: hidden; }
+    /* room for descenders (the J of Jansson) inside the clipping wrapper */
+    .hero-name.line-reveal > span { padding-bottom: 0.14em; }
     .line-reveal > span {
       display: block;
       transform: translateY(110%);
@@ -687,7 +689,7 @@
     .service-num {
       font-family: var(--font-mono);
       font-size: var(--fs-label);
-      color: var(--color-text-mut);
+      color: var(--color-pop);
       letter-spacing: var(--tracking-label);
     }
     .service-title {
@@ -766,27 +768,6 @@
       border: 1px solid var(--color-line);
       letter-spacing: -0.025em;
     }
-    .about-camera {
-      grid-column: 1 / -1;
-      margin-top: var(--sp-8);
-      padding-top: var(--sp-8);
-      border-top: 1px solid var(--color-line);
-      text-align: center;
-      opacity: 0; transform: translateY(20px);
-      transition: opacity 1s var(--ease), transform 1s var(--ease);
-    }
-    .about-camera.revealed { opacity: 1; transform: translateY(0); }
-    .about-camera .mono-label { display: block; margin-bottom: var(--sp-3); }
-    #camera-canvas {
-      width: 100%; max-width: 720px;
-      height: 420px;
-      margin: 0 auto;
-      display: block;
-      cursor: grab;
-      border-radius: var(--radius-lg);
-    }
-    #camera-canvas:active { cursor: grabbing; }
-
     /* ============ HANDPICKED (06) ============ */
     #handpicked .handpicked-inner {
       display: grid;
@@ -795,7 +776,10 @@
       align-items: start;
     }
     .handpicked-header { grid-column: 1 / span 5; }
-    .handpicked-header .section-title { margin-bottom: var(--sp-4); }
+    .handpicked-header .section-title {
+      margin-bottom: var(--sp-4);
+      font-size: var(--fs-h2); /* long sentence — display size was overwhelming */
+    }
     .handpicked-blurb {
       font-size: var(--fs-body);
       color: var(--color-text-mut);
@@ -1130,12 +1114,13 @@
       to   { transform: translateX(-48%); }
     }
 
-    /* duotone at rest → true colour floods in on hover (crown grade) */
-    .work-thumb video, .work-thumb img, .about-photo, .cosmos-panel video {
+    /* duotone at rest → true colour floods in on hover (crown grade).
+       Cosmos carousel stays full colour by request. */
+    .work-thumb video, .work-thumb img, .about-photo {
       filter: grayscale(1) contrast(1.06) brightness(0.92);
       transition: filter 0.45s var(--ease);
     }
-    .work-thumb::after, .cosmos-panel::after {
+    .work-thumb::after {
       content: ''; position: absolute; inset: 0; z-index: 1;
       background: linear-gradient(150deg, var(--color-accent-soft), rgba(240,180,41,0.18));
       mix-blend-mode: color;
@@ -1280,7 +1265,6 @@
       .about-grid { grid-template-columns: 1fr; }
       .about-portrait { grid-column: 1; max-width: 280px; margin: 0 auto; }
       .about-content { grid-column: 1; }
-      #camera-canvas { height: 320px; }
 
       #handpicked .handpicked-inner { grid-template-columns: 1fr; }
       .handpicked-header, .handpicked-list { grid-column: 1; }
@@ -1598,7 +1582,7 @@
   </section>
 
   <!-- ── 04 Services ── -->
-  <section id="services" class="bg-cream" data-section-label="04 / Services">
+  <section id="services" class="bg-ink" data-section-label="04 / Services">
     <div class="section-inner">
       <div class="section-eyebrow">
         <span class="num">04</span><span>Services</span><span class="rule"></span>
@@ -1675,10 +1659,6 @@
               <span class="tool-pill">Claude</span>
             </div>
           </div>
-        </div>
-        <div class="about-camera" id="about-camera">
-          <span class="mono-label">// The tool — Sony ZV-E10</span>
-          <canvas id="camera-canvas"></canvas>
         </div>
       </div>
     </div>
@@ -2557,63 +2537,6 @@
     }());
 
 
-    /* ============ CAMERA (Three.js) ============ */
-    const aboutCamera = document.getElementById("about-camera");
-    const aboutCamObs = new IntersectionObserver(entries => {
-      if (entries[0].isIntersecting) { aboutCamera.classList.add("revealed"); aboutCamObs.disconnect(); }
-    }, { threshold: 0.15 });
-    aboutCamObs.observe(aboutCamera);
-
-    (function() {
-      const s1 = document.createElement('script');
-      s1.src = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
-      s1.onload = function () {
-        const s2 = document.createElement('script');
-        s2.src = 'https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js';
-        s2.onload = function () {
-          const s3 = document.createElement('script');
-          s3.src = 'https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js';
-          s3.onload = initCamera;
-          document.head.appendChild(s3);
-        };
-        document.head.appendChild(s2);
-      };
-      document.head.appendChild(s1);
-
-      function initCamera() {
-        const canvas = document.getElementById('camera-canvas');
-        const W = canvas.clientWidth, H = canvas.clientHeight;
-        const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
-        renderer.setPixelRatio(window.devicePixelRatio);
-        renderer.setSize(W, H);
-        renderer.outputEncoding = THREE.sRGBEncoding;
-        const scene = new THREE.Scene();
-        const cam = new THREE.PerspectiveCamera(45, W/H, 0.01, 1000);
-        cam.position.set(0, 0, 3);
-        scene.add(new THREE.AmbientLight(0xffffff, 1.2));
-        const d1 = new THREE.DirectionalLight(0xffffff, 1.5); d1.position.set(5,10,7); scene.add(d1);
-        const d2 = new THREE.DirectionalLight(0xffffff, 0.6); d2.position.set(-5,-5,-5); scene.add(d2);
-        const controls = new THREE.OrbitControls(cam, canvas);
-        controls.enableDamping = true; controls.dampingFactor = 0.08;
-        controls.autoRotate = true; controls.autoRotateSpeed = 1.5;
-        controls.enableZoom = true; controls.minDistance = 1; controls.maxDistance = 8;
-        new THREE.GLTFLoader().load('camera/SONY ZV-E10.glb', function (gltf) {
-          const model = gltf.scene;
-          const box = new THREE.Box3().setFromObject(model);
-          model.position.sub(box.getCenter(new THREE.Vector3()));
-          const size = box.getSize(new THREE.Vector3());
-          model.scale.setScalar(2 / Math.max(size.x, size.y, size.z));
-          scene.add(model);
-        });
-        (function animate() {
-          requestAnimationFrame(animate); controls.update(); renderer.render(scene, cam);
-        }());
-        window.addEventListener('resize', () => {
-          const w = canvas.clientWidth, h = canvas.clientHeight;
-          cam.aspect = w/h; cam.updateProjectionMatrix(); renderer.setSize(w, h);
-        });
-      }
-    }());
   </script>
 
 </body>
