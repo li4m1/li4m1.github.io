@@ -5,6 +5,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Liam Jansson — Videographer, Editor, Creative</title>
   <meta name="description" content="Liam Jansson — videographer, editor and creative. Music videos, brand films and street-culture stories, shot and cut in Berlin.">
+  <link rel="canonical" href="https://janssonliam.de/">
+  <meta name="theme-color" content="#6C1ADB">
+  <link rel="icon" type="image/png" href="Component 12-3.png">
+  <link rel="apple-touch-icon" href="Component 12-3.png">
+  <!-- social share card -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://janssonliam.de/">
+  <meta property="og:title" content="Liam Jansson — Videographer, Editor, Creative">
+  <meta property="og:description" content="Music videos, brand films and street-culture stories, shot and cut in Berlin.">
+  <meta property="og:image" content="https://janssonliam.de/og-image.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://janssonliam.de/og-image.jpg">
+  <link rel="preload" href="Captions.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Press+Start+2P&display=swap" rel="stylesheet">
@@ -12,24 +25,27 @@
 
     @font-face {
       font-family: 'Captions';
-      src: url('Captions.otf') format('opentype');
+      src: url('Captions.woff2') format('woff2'),
+           url('Captions.otf') format('opentype');
       font-weight: normal;
       font-style: normal;
       font-display: swap;
     }
 
     :root {
-      /* COLOR */
+      /* COLOR — crown system: vivid purple leads, gold pops, blue is dead */
       --color-bg:        #02010A;
-      --color-bg-deep:   #350D8C;
-      --color-ink:       #120A2E;
-      --color-accent:    #2B3FE0;
-      --color-pop:       #FFD11A;
+      --color-bg-deep:   #2B0A72;
+      --color-ink:       #140933;
+      --color-accent:    #6C1ADB;
+      --color-accent-soft: rgba(108,26,219,0.35);
+      --color-pop:       #F0B429;
       --color-surface:   #F4F1EA;
       --color-text:      #F4F1EA;
       --color-text-dark: #161616;
       --color-text-mut:  #B7A9E6;
       --color-line:      rgba(244,241,234,0.16);
+      --color-line-dark: rgba(22,22,22,0.16);
 
       /* TYPOGRAPHY */
       --font-display: 'Captions', 'Arial Black', sans-serif;
@@ -73,7 +89,8 @@
       /* ELEVATION */
       --shadow-sm:  0 2px 12px rgba(0,0,0,0.18);
       --shadow:     0 12px 40px rgba(0,0,0,0.28);
-      --shadow-pop: 0 12px 40px rgba(255,209,26,0.25);
+      --shadow-pop: 0 12px 40px rgba(240,180,41,0.25);
+      --glow-accent: 0 0 60px rgba(108,26,219,0.35);
 
       /* MOTION */
       --ease:        cubic-bezier(0.22, 1, 0.36, 1);
@@ -306,29 +323,29 @@
     }
     .hero-name {
       font-family: var(--font-display);
-      font-size: clamp(2rem, 4.5vw, 4rem);
+      font-size: clamp(3rem, 6.5vw, 6rem);
       color: var(--color-text);
       line-height: var(--lh-tight);
       letter-spacing: 0.01em;
       margin-top: var(--sp-1);
     }
-    .hero-typewriter {
+    .hero-role {
       font-family: var(--font-body);
-      font-size: clamp(1.75rem, 3.5vw, 2.75rem);
+      font-size: clamp(1.5rem, 3vw, 2.5rem);
       color: #9e9e9e;
       font-weight: 600;
-      min-height: 2.5rem;
-      display: flex; align-items: center;
+      letter-spacing: -0.03em;
     }
-    .type-cursor {
-      display: inline-block;
-      width: 0.5em; height: 0.85em;
-      background: #9e9e9e;
-      vertical-align: text-bottom;
-      margin-left: 4px;
-      animation: cursorBlink 0.7s step-end infinite;
+    .hero-role .role-accent { color: var(--color-pop); }
+    /* line reveal — masked rise, staggered via --d (replaces the typewriter) */
+    .line-reveal { display: block; overflow: hidden; }
+    .line-reveal > span {
+      display: block;
+      transform: translateY(110%);
+      animation: lineUp 0.9s var(--ease) forwards;
+      animation-delay: calc(0.75s + var(--d, 0) * 110ms);
     }
-    @keyframes cursorBlink { 0%,100%{opacity:1} 50%{opacity:0} }
+    @keyframes lineUp { to { transform: translateY(0); } }
     .hero-positioning {
       font-family: var(--font-body);
       font-size: var(--fs-body-lg);
@@ -1062,6 +1079,165 @@
     .reveal.visible { opacity: 1; transform: translateY(0); }
     .reveal-stagger > * { transition-delay: calc(var(--i, 0) * 60ms); }
 
+    /* Native scroll-driven reveals where supported (compositor thread, zero JS);
+       the IntersectionObserver path above stays as the fallback */
+    @supports (animation-timeline: view()) {
+      .reveal {
+        opacity: 1; transform: none; transition: none;
+        animation: sdReveal 1ms var(--ease) both;
+        animation-timeline: view();
+        animation-range: entry 0% entry 45%;
+      }
+    }
+    @keyframes sdReveal {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ============ CROWN LANGUAGE (grid lines · bg word · duotone · badge · marquee · glass) ============ */
+
+    /* exposed column grid (inspo: swiss-grid agency hero) */
+    .grid-lines { position: relative; }
+    .grid-lines::before {
+      content: ''; position: absolute; inset: 0;
+      pointer-events: none; z-index: 0;
+      background-image: repeating-linear-gradient(
+        to right, var(--color-line) 0 1px, transparent 1px calc(100% / 6));
+      opacity: 0.35;
+      -webkit-mask-image: linear-gradient(to bottom, transparent, black 12%, black 88%, transparent);
+      mask-image: linear-gradient(to bottom, transparent, black 12%, black 88%, transparent);
+    }
+
+    /* giant cropped background word (inspo: BR●●DING) */
+    .bg-word {
+      position: absolute; left: 50%; bottom: -0.14em;
+      transform: translateX(-50%);
+      font-family: var(--font-display);
+      font-size: clamp(6rem, 21vw, 19rem);
+      line-height: 1; white-space: nowrap;
+      color: transparent;
+      -webkit-text-stroke: 1.5px rgba(183,169,230,0.14);
+      pointer-events: none; user-select: none; z-index: 0;
+    }
+    @supports (animation-timeline: view()) {
+      .bg-word {
+        animation: bgDrift 1ms linear both;
+        animation-timeline: view();
+      }
+    }
+    @keyframes bgDrift {
+      from { transform: translateX(-52%); }
+      to   { transform: translateX(-48%); }
+    }
+
+    /* duotone at rest → true colour floods in on hover (crown grade) */
+    .work-thumb video, .work-thumb img, .about-photo, .cosmos-panel video {
+      filter: grayscale(1) contrast(1.06) brightness(0.92);
+      transition: filter 0.45s var(--ease);
+    }
+    .work-thumb::after, .cosmos-panel::after {
+      content: ''; position: absolute; inset: 0; z-index: 1;
+      background: linear-gradient(150deg, var(--color-accent-soft), rgba(240,180,41,0.18));
+      mix-blend-mode: color;
+      pointer-events: none;
+      transition: opacity 0.45s var(--ease);
+    }
+    .about-photo-wrap { position: relative; display: block; }
+    .about-photo-wrap::after {
+      content: ''; position: absolute; inset: 0; border-radius: var(--radius-lg);
+      background: linear-gradient(150deg, var(--color-accent-soft), rgba(240,180,41,0.18));
+      mix-blend-mode: color; pointer-events: none;
+    }
+    .work-card:hover .work-thumb video,
+    .work-card:focus-visible .work-thumb video { filter: none; }
+    .work-card:hover .work-thumb::after,
+    .work-card:focus-visible .work-thumb::after { opacity: 0; }
+
+    /* rotating circular badge (inspo: "project view" coin) */
+    .orbit-badge {
+      position: absolute; top: -34px; right: 4%;
+      width: 110px; height: 110px; z-index: 4;
+      pointer-events: none;
+      animation: orbitSpin 14s linear infinite;
+    }
+    .orbit-badge text {
+      font-family: var(--font-mono); font-size: 11px;
+      letter-spacing: 0.22em; text-transform: uppercase;
+      fill: var(--color-pop);
+    }
+    @keyframes orbitSpin { to { transform: rotate(360deg); } }
+
+    /* marquee (pause on hover) */
+    .marquee {
+      overflow: hidden; white-space: nowrap;
+      background: var(--color-bg-deep);
+      border-top: 1px solid var(--color-line);
+      padding: var(--sp-3) 0;
+    }
+    .marquee-track {
+      display: inline-block;
+      animation: marqueeShift 24s linear infinite;
+    }
+    .marquee:hover .marquee-track { animation-play-state: paused; }
+    .marquee-track span {
+      font-family: var(--font-display);
+      font-size: clamp(1.5rem, 3.2vw, 2.75rem);
+      color: var(--color-pop);
+      padding-right: var(--sp-6);
+    }
+    .marquee-track span em {
+      font-style: normal; color: transparent;
+      -webkit-text-stroke: 1px var(--color-pop);
+    }
+    @keyframes marqueeShift { to { transform: translateX(-50%); } }
+
+    /* glass card (contact form) over a purple glow field */
+    #contact { position: relative; overflow: hidden; }
+    #contact::before {
+      content: ''; position: absolute;
+      width: 720px; height: 720px; right: -180px; top: -220px;
+      background: radial-gradient(circle, rgba(108,26,219,0.35), transparent 65%);
+      pointer-events: none;
+    }
+    .contact-form {
+      background: rgba(244,241,234,0.04);
+      border: 1px solid var(--color-line);
+      border-radius: var(--radius-lg);
+      padding: var(--sp-5);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+    }
+
+    /* cream editorial section (services) — the one light beat in the dark page */
+    section.bg-cream { background: var(--color-surface); }
+    section.bg-cream .section-eyebrow { color: rgba(22,22,22,0.55); }
+    section.bg-cream .section-eyebrow .num { color: var(--color-text-dark); }
+    section.bg-cream .section-eyebrow .rule { background: var(--color-line-dark); }
+    section.bg-cream .section-title { color: var(--color-text-dark); }
+    section.bg-cream .service-card {
+      background: #fff;
+      box-shadow: 0 2px 20px rgba(22,22,22,0.07);
+    }
+    section.bg-cream .service-num { color: var(--color-accent); font-weight: 500; }
+    section.bg-cream .service-title { color: var(--color-text-dark); }
+    section.bg-cream .service-desc { color: rgba(22,22,22,0.62); }
+    section.bg-cream .service-includes { border-top-color: var(--color-line-dark); }
+    section.bg-cream .service-includes li { color: rgba(22,22,22,0.62); }
+    section.bg-cream .service-includes li::before { color: var(--color-accent); }
+
+    /* line-reveal wrapper keeps the CTA row's flex layout */
+    .hero-ctas.line-reveal > span {
+      display: flex; align-items: center; gap: var(--sp-3); flex-wrap: wrap;
+      transform: translateY(110%);
+      animation: lineUp 0.9s var(--ease) forwards;
+      animation-delay: calc(0.75s + var(--d, 0) * 110ms);
+    }
+    @media (max-width: 768px) {
+      .orbit-badge { display: none; }
+      .bg-word { font-size: 4.5rem; }
+      .marquee-track span { font-size: 1.4rem; }
+    }
+
     /* ============ MOBILE ============ */
     @media (max-width: 1024px) {
       .work-grid { grid-template-columns: repeat(2, 1fr); }
@@ -1225,28 +1401,28 @@
 
   <!-- ── 01 Hero ── -->
   <div id="hero-bg">
-  <section id="hero" data-section-label="01 / Hero">
+  <section id="hero" class="grid-lines" data-section-label="01 / Hero">
     <div class="hero-left">
-      <p class="hero-eyebrow">01 — Videographer / Editor</p>
-      <h1 class="hero-name">Liam Jansson</h1>
-      <p class="hero-typewriter"><span id="typewriter"></span><span class="type-cursor" aria-hidden="true"></span></p>
-      <p class="hero-positioning">Music videos, brand films and street-culture stories, shot and cut in Berlin.</p>
-      <div class="hero-ctas">
+      <span class="line-reveal"><span style="--d:0" class="hero-eyebrow">01 — Videographer / Editor</span></span>
+      <h1 class="hero-name line-reveal"><span style="--d:1">Liam Jansson</span></h1>
+      <p class="hero-role line-reveal"><span style="--d:2">Videographer · Editor · <span class="role-accent">Creative</span></span></p>
+      <span class="line-reveal"><span style="--d:3" class="hero-positioning">Music videos, brand films and street-culture stories, shot and cut in Berlin.</span></span>
+      <div class="hero-ctas line-reveal"><span style="--d:4">
         <a href="#showreel" class="btn btn-primary">Watch the reel</a>
         <a href="#work" class="btn-text">See selected work →</a>
-      </div>
+      </span></div>
     </div>
     <div class="hero-right">
       <canvas id="hero-grid" aria-hidden="true"></canvas>
       <div class="cosmos-scene" aria-hidden="true" style="position:relative;z-index:1;">
         <div class="cosmos-wheel" id="cosmos-wheel">
-          <div class="cosmos-panel" style="--r:0"><video src="clips/4eva 1 new.mp4"     autoplay loop muted playsinline preload="metadata"></video></div>
-          <div class="cosmos-panel" style="--r:1"><video src="clips/berlin final.mp4"    autoplay loop muted playsinline preload="metadata"></video></div>
-          <div class="cosmos-panel" style="--r:2"><video src="clips/muay thai fight.mp4" autoplay loop muted playsinline preload="metadata"></video></div>
-          <div class="cosmos-panel" style="--r:3"><video src="clips/pool vid.mp4"        autoplay loop muted playsinline preload="metadata"></video></div>
-          <div class="cosmos-panel" style="--r:4"><video src="clips/test grade 4eva.mp4" autoplay loop muted playsinline preload="metadata"></video></div>
-          <div class="cosmos-panel" style="--r:5"><video src="clips/where is he.mp4"     autoplay loop muted playsinline preload="metadata"></video></div>
-          <div class="cosmos-panel" style="--r:6"><video src="clips/bts final.mp4"       autoplay loop muted playsinline preload="metadata"></video></div>
+          <div class="cosmos-panel" style="--r:0"><video src="clips/previews/4eva 1 new.mp4"     poster="clips/posters/4eva 1 new.jpg"     autoplay loop muted playsinline preload="metadata"></video></div>
+          <div class="cosmos-panel" style="--r:1"><video src="clips/previews/berlin final.mp4"    poster="clips/posters/berlin final.jpg"    autoplay loop muted playsinline preload="metadata"></video></div>
+          <div class="cosmos-panel" style="--r:2"><video src="clips/previews/muay thai fight.mp4" poster="clips/posters/muay thai fight.jpg" autoplay loop muted playsinline preload="metadata"></video></div>
+          <div class="cosmos-panel" style="--r:3"><video src="clips/previews/pool vid.mp4"        poster="clips/posters/pool vid.jpg"        autoplay loop muted playsinline preload="metadata"></video></div>
+          <div class="cosmos-panel" style="--r:4"><video src="clips/previews/test grade 4eva.mp4" poster="clips/posters/test grade 4eva.jpg" autoplay loop muted playsinline preload="metadata"></video></div>
+          <div class="cosmos-panel" style="--r:5"><video src="clips/previews/where is he.mp4"     poster="clips/posters/where is he.jpg"     autoplay loop muted playsinline preload="metadata"></video></div>
+          <div class="cosmos-panel" style="--r:6"><video src="clips/previews/bts final.mp4"       poster="clips/posters/bts final.jpg"       autoplay loop muted playsinline preload="metadata"></video></div>
         </div>
       </div>
     </div>
@@ -1254,17 +1430,22 @@
   </div>
 
   <!-- ── 02 Showreel ── -->
-  <section id="showreel" class="bg-ink" data-section-label="02 / Showreel">
-    <div class="section-inner">
+  <section id="showreel" class="bg-ink" data-section-label="02 / Showreel" style="position:relative;overflow:hidden;">
+    <span class="bg-word" aria-hidden="true">JANSSON</span>
+    <div class="section-inner" style="position:relative;z-index:1;">
       <div class="section-eyebrow">
         <span class="num">02</span><span>Showreel</span><span class="rule"></span>
       </div>
-      <div class="showreel-stage">
+      <div class="showreel-stage" style="position:relative;">
+        <svg class="orbit-badge" viewBox="0 0 110 110" aria-hidden="true">
+          <defs><path id="orbitPath" d="M55,55 m-40,0 a40,40 0 1,1 80,0 a40,40 0 1,1 -80,0"/></defs>
+          <text><textPath href="#orbitPath">· SHOWREEL · 2023—2026 · PRESS PLAY </textPath></text>
+        </svg>
         <div class="tv">
           <img src="tv.png" alt="" aria-hidden="true" class="tv-img">
           <img src="Asset 4.png" alt="" aria-hidden="true" class="tv-crown">
           <div class="tv-screen" id="tv-screen" role="button" tabindex="0" aria-label="Play showreel with sound">
-            <video id="reel-video" muted loop playsinline preload="metadata">
+            <video id="reel-video" muted loop playsinline preload="metadata" poster="clips/posters/berlin final.jpg">
               <source src="clips/berlin final.mp4" type="video/mp4">
             </video>
             <canvas id="static-canvas" aria-hidden="true"></canvas>
@@ -1279,7 +1460,7 @@
   </section>
 
   <!-- ── 03 Selected Work ── -->
-  <section id="work" class="bg-bg" data-section-label="03 / Selected Work">
+  <section id="work" class="bg-bg grid-lines" data-section-label="03 / Selected Work">
     <div class="section-inner">
       <div class="section-eyebrow">
         <span class="num">03</span><span>Selected Work</span><span class="rule"></span>
@@ -1287,13 +1468,13 @@
       <h2 class="work-display-title">Work</h2>
 
       <div class="spread-flourish" id="spread-section" aria-hidden="true">
-        <div class="spread-card" style="--i:-3; --d:3"><video src="clips/shadowboxing final.mp4" autoplay loop muted playsinline preload="metadata"></video></div>
-        <div class="spread-card" style="--i:-2; --d:2"><video src="clips/alex action final.mp4"  autoplay loop muted playsinline preload="metadata"></video></div>
-        <div class="spread-card" style="--i:-1; --d:1"><video src="clips/C4809.mp4"              autoplay loop muted playsinline preload="metadata"></video></div>
-        <div class="spread-card" style="--i:0;  --d:0"><video src="clips/Berlin41.mp4"           autoplay loop muted playsinline preload="metadata"></video></div>
-        <div class="spread-card" style="--i:1;  --d:1"><video src="clips/4eva 3.mp4"             autoplay loop muted playsinline preload="metadata"></video></div>
-        <div class="spread-card" style="--i:2;  --d:2"><video src="clips/aw26.mp4"               autoplay loop muted playsinline preload="metadata"></video></div>
-        <div class="spread-card" style="--i:3;  --d:3"><video src="clips/nev final.mp4"          autoplay loop muted playsinline preload="metadata"></video></div>
+        <div class="spread-card" style="--i:-3; --d:3"><video src="clips/previews/shadowboxing final.mp4" poster="clips/posters/shadowboxing final.jpg" autoplay loop muted playsinline preload="metadata"></video></div>
+        <div class="spread-card" style="--i:-2; --d:2"><video src="clips/previews/alex action final.mp4"  poster="clips/posters/alex action final.jpg"  autoplay loop muted playsinline preload="metadata"></video></div>
+        <div class="spread-card" style="--i:-1; --d:1"><video src="clips/previews/C4809.mp4"              poster="clips/posters/C4809.jpg"              autoplay loop muted playsinline preload="metadata"></video></div>
+        <div class="spread-card" style="--i:0;  --d:0"><video src="clips/previews/Berlin41.mp4"           poster="clips/posters/Berlin41.jpg"           autoplay loop muted playsinline preload="metadata"></video></div>
+        <div class="spread-card" style="--i:1;  --d:1"><video src="clips/previews/4eva 3.mp4"             poster="clips/posters/4eva 3.jpg"             autoplay loop muted playsinline preload="metadata"></video></div>
+        <div class="spread-card" style="--i:2;  --d:2"><video src="clips/previews/aw26.mp4"               poster="clips/posters/aw26.jpg"               autoplay loop muted playsinline preload="metadata"></video></div>
+        <div class="spread-card" style="--i:3;  --d:3"><video src="clips/previews/nev final.mp4"          poster="clips/posters/nev final.jpg"          autoplay loop muted playsinline preload="metadata"></video></div>
       </div>
 
       <div class="work-controls">
@@ -1312,7 +1493,7 @@
       <div class="work-grid" id="work-grid">
         <article class="work-card" data-cat="street" tabindex="0" data-src="clips/shadowboxing final.mp4">
           <div class="work-thumb">
-            <video src="clips/shadowboxing final.mp4" muted loop playsinline preload="none"></video>
+            <video src="clips/previews/shadowboxing final.mp4" poster="clips/posters/shadowboxing final.jpg" muted loop playsinline preload="none"></video>
             <button class="play-circle" aria-label="Play">▶</button>
           </div>
           <div class="work-info">
@@ -1322,7 +1503,7 @@
         </article>
         <article class="work-card" data-cat="street" tabindex="0" data-src="clips/alex action final.mp4">
           <div class="work-thumb">
-            <video src="clips/alex action final.mp4" muted loop playsinline preload="none"></video>
+            <video src="clips/previews/alex action final.mp4" poster="clips/posters/alex action final.jpg" muted loop playsinline preload="none"></video>
             <button class="play-circle" aria-label="Play">▶</button>
           </div>
           <div class="work-info">
@@ -1332,7 +1513,7 @@
         </article>
         <article class="work-card" data-cat="brand" tabindex="0" data-src="clips/Berlin41.mp4">
           <div class="work-thumb">
-            <video src="clips/Berlin41.mp4" muted loop playsinline preload="none"></video>
+            <video src="clips/previews/Berlin41.mp4" poster="clips/posters/Berlin41.jpg" muted loop playsinline preload="none"></video>
             <button class="play-circle" aria-label="Play">▶</button>
           </div>
           <div class="work-info">
@@ -1342,7 +1523,7 @@
         </article>
         <article class="work-card" data-cat="music" tabindex="0" data-src="clips/4eva 3.mp4">
           <div class="work-thumb">
-            <video src="clips/4eva 3.mp4" muted loop playsinline preload="none"></video>
+            <video src="clips/previews/4eva 3.mp4" poster="clips/posters/4eva 3.jpg" muted loop playsinline preload="none"></video>
             <button class="play-circle" aria-label="Play">▶</button>
           </div>
           <div class="work-info">
@@ -1352,7 +1533,7 @@
         </article>
         <article class="work-card" data-cat="brand" tabindex="0" data-src="clips/aw26.mp4">
           <div class="work-thumb">
-            <video src="clips/aw26.mp4" muted loop playsinline preload="none"></video>
+            <video src="clips/previews/aw26.mp4" poster="clips/posters/aw26.jpg" muted loop playsinline preload="none"></video>
             <button class="play-circle" aria-label="Play">▶</button>
           </div>
           <div class="work-info">
@@ -1362,7 +1543,7 @@
         </article>
         <article class="work-card" data-cat="music" tabindex="0" data-src="clips/nev final.mp4">
           <div class="work-thumb">
-            <video src="clips/nev final.mp4" muted loop playsinline preload="none"></video>
+            <video src="clips/previews/nev final.mp4" poster="clips/posters/nev final.jpg" muted loop playsinline preload="none"></video>
             <button class="play-circle" aria-label="Play">▶</button>
           </div>
           <div class="work-info">
@@ -1372,7 +1553,7 @@
         </article>
         <article class="work-card" data-cat="street" tabindex="0" data-src="clips/muay thai fight.mp4">
           <div class="work-thumb">
-            <video src="clips/muay thai fight.mp4" muted loop playsinline preload="none"></video>
+            <video src="clips/previews/muay thai fight.mp4" poster="clips/posters/muay thai fight.jpg" muted loop playsinline preload="none"></video>
             <button class="play-circle" aria-label="Play">▶</button>
           </div>
           <div class="work-info">
@@ -1382,7 +1563,7 @@
         </article>
         <article class="work-card" data-cat="street" tabindex="0" data-src="clips/bts final.mp4">
           <div class="work-thumb">
-            <video src="clips/bts final.mp4" muted loop playsinline preload="none"></video>
+            <video src="clips/previews/bts final.mp4" poster="clips/posters/bts final.jpg" muted loop playsinline preload="none"></video>
             <button class="play-circle" aria-label="Play">▶</button>
           </div>
           <div class="work-info">
@@ -1392,7 +1573,7 @@
         </article>
         <article class="work-card" data-cat="street" tabindex="0" data-src="clips/pool vid.mp4">
           <div class="work-thumb">
-            <video src="clips/pool vid.mp4" muted loop playsinline preload="none"></video>
+            <video src="clips/previews/pool vid.mp4" poster="clips/posters/pool vid.jpg" muted loop playsinline preload="none"></video>
             <button class="play-circle" aria-label="Play">▶</button>
           </div>
           <div class="work-info">
@@ -1417,7 +1598,7 @@
   </section>
 
   <!-- ── 04 Services ── -->
-  <section id="services" class="bg-bg-deep" data-section-label="04 / Services">
+  <section id="services" class="bg-cream" data-section-label="04 / Services">
     <div class="section-inner">
       <div class="section-eyebrow">
         <span class="num">04</span><span>Services</span><span class="rule"></span>
@@ -1425,7 +1606,7 @@
       <h2 class="section-title">Services</h2>
       <div class="services-grid">
         <article class="service-card reveal">
-          <div class="service-num">//01</div>
+          <div class="service-num">.01</div>
           <h3 class="service-title">Music Videos</h3>
           <p class="service-desc">Concept-to-grade production with directors and artists. Street energy, choreography or cinematic.</p>
           <ul class="service-includes">
@@ -1433,7 +1614,7 @@
           </ul>
         </article>
         <article class="service-card reveal">
-          <div class="service-num">//02</div>
+          <div class="service-num">.02</div>
           <h3 class="service-title">Brand Films & Commercials</h3>
           <p class="service-desc">Ads, promos and social content that move product while keeping a distinct visual identity.</p>
           <ul class="service-includes">
@@ -1441,7 +1622,7 @@
           </ul>
         </article>
         <article class="service-card reveal">
-          <div class="service-num">//03</div>
+          <div class="service-num">.03</div>
           <h3 class="service-title">Event & Street Coverage</h3>
           <p class="service-desc">Live shows, pop-ups and cultural events captured with fast turnaround.</p>
           <ul class="service-includes">
@@ -1449,7 +1630,7 @@
           </ul>
         </article>
         <article class="service-card reveal">
-          <div class="service-num">//04</div>
+          <div class="service-num">.04</div>
           <h3 class="service-title">Editing & Post</h3>
           <p class="service-desc">Send raw footage — get back a film. Color grading, sound design, motion graphics.</p>
           <ul class="service-includes">
@@ -1468,7 +1649,7 @@
       </div>
       <div class="about-grid">
         <div class="about-portrait">
-          <img class="about-photo" src="Asset 3.png" alt="Portrait of Liam Jansson">
+          <span class="about-photo-wrap"><img class="about-photo" src="Asset 3.png" alt="Portrait of Liam Jansson"></span>
         </div>
         <div class="about-content">
           <h2 class="section-title">About</h2>
@@ -1660,6 +1841,13 @@
     </div>
   </section>
 
+  <!-- ── Marquee ── -->
+  <div class="marquee" aria-hidden="true">
+    <div class="marquee-track">
+      <span>LET'S WORK TOGETHER <em>—</em> BERLIN &amp; WORLDWIDE <em>—</em> </span><span>LET'S WORK TOGETHER <em>—</em> BERLIN &amp; WORLDWIDE <em>—</em> </span>
+    </div>
+  </div>
+
   <!-- ── Footer ── -->
   <footer>
     <div class="footer-inner">
@@ -1718,32 +1906,20 @@
       if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); activateReel(); }
     });
 
-    /* ============ TYPEWRITER ============ */
+    /* ============ MAGNETIC BUTTONS ============ */
     (function() {
-      const words = ["Videographer", "Editor", "Creative"];
-      const el = document.getElementById("typewriter");
-      let wi = 0, ci = 0, deleting = false;
-      function tick() {
-        const word = words[wi];
-        if (!deleting) {
-          el.textContent = word.slice(0, ++ci);
-          if (ci === word.length) { setTimeout(() => { deleting = true; tick(); }, 1800); return; }
-          setTimeout(tick, 80 + Math.random() * 40);
-        } else {
-          ci--;
-          if (ci <= 1) {
-            wi = (wi + 1) % words.length;
-            ci = 1;
-            deleting = false;
-            el.textContent = words[wi].slice(0, 1);
-            setTimeout(tick, 400);
-            return;
-          }
-          el.textContent = word.slice(0, ci);
-          setTimeout(tick, 45 + Math.random() * 20);
-        }
-      }
-      setTimeout(tick, 700);
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      if (!window.matchMedia('(hover: hover)').matches) return;
+      document.querySelectorAll('.btn-primary').forEach(btn => {
+        const strength = 12;
+        btn.addEventListener('mousemove', (e) => {
+          const r = btn.getBoundingClientRect();
+          const x = (e.clientX - r.left - r.width / 2) / (r.width / 2);
+          const y = (e.clientY - r.top - r.height / 2) / (r.height / 2);
+          btn.style.transform = `translate(${x * strength}px, ${y * strength}px)`;
+        });
+        btn.addEventListener('mouseleave', () => { btn.style.transform = ''; });
+      });
     }());
 
     /* ============ COSMOS ============ */
@@ -1949,7 +2125,7 @@
         seed: 20240525,
         bgColor: '#080808',
         cellSize: 14, dotSize: 1, squareSize: 4,
-        colorRGB: '255,255,255',
+        colorRGB: '196,170,255',
         dotOpacity: 0.10,
         cellOpacityMin: 0.32, cellOpacityMax: 0.62,
         detailOpacity: 0.78, accentOpacity: 0.95,
