@@ -18,16 +18,29 @@
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:image" content="https://janssonliam.de/og-image.jpg">
   <link rel="preload" href="Captions.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link rel="preload" href="fonts/Inter-var.woff2" as="font" type="font/woff2" crossorigin>
   <style>
 
+    /* All fonts self-hosted — no visitor data leaves this domain (DSGVO). */
     @font-face {
       font-family: 'Captions';
       src: url('Captions.woff2') format('woff2'),
            url('Captions.otf') format('opentype');
       font-weight: normal;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: 'Inter';
+      src: url('fonts/Inter-var.woff2') format('woff2');
+      font-weight: 400 700;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: 'JetBrains Mono';
+      src: url('fonts/JetBrainsMono-var.woff2') format('woff2');
+      font-weight: 400 500;
       font-style: normal;
       font-display: swap;
     }
@@ -1861,6 +1874,8 @@
         <a href="#services">Services</a>
         <a href="#about">About</a>
         <a href="#contact">Contact</a>
+        <a href="impressum.html">Impressum</a>
+        <a href="datenschutz.html">Datenschutz</a>
       </div>
       <span class="footer-copy">© 2026 Liam Jansson</span>
       <a href="#hero" class="footer-copy" style="color:var(--color-text)">↑ Back to top</a>
