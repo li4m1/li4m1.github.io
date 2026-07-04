@@ -117,6 +117,7 @@
       -webkit-font-smoothing: antialiased;
       text-rendering: optimizeLegibility;
       letter-spacing: -0.025em;
+      overflow-x: clip; /* oversized display words can never cause sideways scroll */
     }
 
     img, video, canvas { display: block; max-width: 100%; }
@@ -1239,7 +1240,15 @@
       #main-nav { padding: var(--sp-2) var(--gutter-sm); }
       .nav-links { display: none; }
       .nav-status { display: none; }
-      .nav-hamburger { display: flex; }
+      .nav-hamburger { display: flex; padding: var(--sp-2); margin: calc(-1 * var(--sp-1)); } /* ≥44px hit area */
+
+      /* battery: the animated HUD canvas is a desktop garnish */
+      #hero-grid { display: none; }
+
+      /* comfortable touch targets (44px-ish) */
+      .filter-pill { padding: 0.7em 1.2em; }
+      .view-btn { padding: 0.7em 1.2em; }
+      .song { padding: var(--sp-3); }
 
       #hero {
         grid-template-columns: 1fr;
@@ -1289,6 +1298,20 @@
       .spread-card.revealed {
         transform: translateX(calc(var(--i) * 85px)) translateY(calc(var(--i) * 12px)) rotate(calc(var(--i) * 3deg));
       }
+      /* the outermost fan cards don't fit a phone anyway — 2 fewer videos decoding */
+      .spread-card[style*="--d:3"] { display: none; }
+      /* index table: year column overflows a small viewport */
+      .work-index { font-size: var(--fs-label); }
+      .work-index .col-year { display: none; }
+      .work-index th, .work-index td { padding: var(--sp-2) var(--sp-1); }
+    }
+
+    /* ============ TOUCH DEVICES ============ */
+    /* no hover = the colour flood can never trigger — show the true grade by default */
+    @media (hover: none) {
+      .work-thumb video, .work-thumb img, .about-photo { filter: none; }
+      .work-thumb::after, .about-photo-wrap::after { opacity: 0; }
+      .play-circle { opacity: 1; transform: translate(-50%, -50%) scale(1); } /* tap affordance always visible */
     }
 
     /* ============ REDUCED MOTION ============ */
@@ -2095,6 +2118,25 @@
       });
     }, { threshold: 0.12 });
     document.querySelectorAll(".reveal").forEach(el => revealObs.observe(el));
+
+    /* ============ OFFSCREEN VIDEO PAUSE (battery / decode) ============ */
+    (function () {
+      const loops = document.querySelectorAll('.cosmos-panel video, .spread-card video, .tv-screen video');
+      if (!loops.length || !('IntersectionObserver' in window)) return;
+      const vidObs = new IntersectionObserver((entries) => {
+        entries.forEach(e => {
+          const v = e.target;
+          if (e.isIntersecting) {
+            if (v.autoplay || !v.paused || v.dataset.wasPlaying) v.play().catch(() => {});
+            delete v.dataset.wasPlaying;
+          } else if (!v.paused) {
+            v.dataset.wasPlaying = '1';
+            v.pause();
+          }
+        });
+      }, { rootMargin: '100px' });
+      loops.forEach(v => vidObs.observe(v));
+    })();
 
     /* ============ HUD GRID TEXTURE (animated) ============ */
     (function() {
