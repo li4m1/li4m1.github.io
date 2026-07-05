@@ -359,7 +359,7 @@
       display: block;
       transform: translateY(110%);
       animation: lineUp 0.9s var(--ease) forwards;
-      animation-delay: calc(0.75s + var(--d, 0) * 110ms);
+      animation-delay: calc(0.15s + var(--d, 0) * 110ms);
     }
     @keyframes lineUp { to { transform: translateY(0); } }
     .hero-positioning {
@@ -1229,7 +1229,7 @@
       display: flex; align-items: center; gap: var(--sp-3); flex-wrap: wrap;
       transform: translateY(110%);
       animation: lineUp 0.9s var(--ease) forwards;
-      animation-delay: calc(0.75s + var(--d, 0) * 110ms);
+      animation-delay: calc(0.15s + var(--d, 0) * 110ms);
     }
     @media (max-width: 768px) {
       .orbit-badge { display: none; }
@@ -1345,54 +1345,11 @@
 </head>
 <body>
 
-  <!-- Page reveal animation -->
+  <!-- start at the top on reload -->
   <script>
-    (function () {
-      if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
-      window.scrollTo(0, 0);
-      window.addEventListener('load', function() { window.scrollTo(0, 0); });
-      document.addEventListener('DOMContentLoaded', function() { window.scrollTo(0, 0); });
-      var CELL = 52;
-      var cols = Math.ceil(window.innerWidth  / CELL) + 1;
-      var rows = Math.ceil(window.innerHeight / CELL) + 1;
-      var ov = document.createElement('div');
-      ov.style.cssText = 'position:fixed;inset:0;z-index:9999;pointer-events:none;overflow:hidden;';
-      document.body.appendChild(ov);
-      var grid = [];
-      for (var r = 0; r < rows; r++) { grid[r] = []; }
-      var cells = [];
-      var SIZES = [1,1,1,2,2,2,3,3,4];
-      for (var ri = 0; ri < rows; ri++) {
-        for (var ci = 0; ci < cols; ci++) {
-          if (grid[ri][ci]) continue;
-          var span = SIZES[Math.floor(Math.random()*SIZES.length)];
-          while (span > 1) {
-            var fits = true;
-            for (var dr = 0; dr < span && fits; dr++)
-              for (var dc = 0; dc < span && fits; dc++)
-                if (ri+dr >= rows || ci+dc >= cols || grid[ri+dr][ci+dc]) fits = false;
-            if (fits) break;
-            span--;
-          }
-          for (var dr = 0; dr < span; dr++)
-            for (var dc = 0; dc < span; dc++)
-              grid[ri+dr][ci+dc] = true;
-          var sq = document.createElement('div');
-          sq.style.cssText = 'position:absolute;background:#fff;left:'+(ci*CELL)+'px;top:'+(ri*CELL)+'px;width:'+(span*CELL)+'px;height:'+(span*CELL)+'px;';
-          ov.appendChild(sq);
-          cells.push(sq);
-        }
-      }
-      for (var i = cells.length-1; i > 0; i--) {
-        var j = Math.floor(Math.random()*(i+1));
-        var tmp = cells[i]; cells[i] = cells[j]; cells[j] = tmp;
-      }
-      var REVEAL = 550;
-      cells.forEach(function(cell, seq) {
-        setTimeout(function(){ cell.style.display='none'; }, 40+(seq/cells.length)*REVEAL);
-      });
-      setTimeout(function(){ ov.remove(); }, REVEAL+200);
-    }());
+    if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+    window.scrollTo(0, 0);
+    window.addEventListener('load', function() { window.scrollTo(0, 0); });
   </script>
 
   <!-- ── 00 Navigation ── -->
