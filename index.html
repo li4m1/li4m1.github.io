@@ -1871,10 +1871,28 @@
 
     function activateReel() {
       reelVideo.muted = false;
-      reelVideo.currentTime = 0;
-      reelVideo.play().catch(() => {});
+      // seeking before metadata exists throws on some WebKit builds — guard it
+      try { if (reelVideo.readyState > 0) reelVideo.currentTime = 0; } catch (e) {}
+      const p = reelVideo.play();
+      if (p && p.catch) p.catch(() => {});
       tvUnmute.hidden = true;
     }
+    /* warm the reel as soon as the TV scrolls near, so play is instant */
+    const reelWarm = new IntersectionObserver(([e]) => {
+      if (e.isIntersecting) {
+        reelVideo.preload = 'auto';
+        reelVideo.load();
+        reelWarm.disconnect();
+      }
+    }, { rootMargin: '300px' });
+    reelWarm.observe(reelVideo);
+    /* buffering feedback: thin the static while the stream catches up */
+    reelVideo.addEventListener('waiting', () => { staticCanvas.style.opacity = 0.5; });
+    reelVideo.addEventListener('error', () => {
+      staticCanvas.style.opacity = 0.15;
+      tvUnmute.hidden = false;
+      tvUnmute.textContent = 'Video failed — tap to retry';
+    });
     tvScreen.addEventListener('click', activateReel);
     tvUnmute.addEventListener('click', (e) => { e.stopPropagation(); activateReel(); });
     tvScreen.addEventListener('keydown', (e) => {
