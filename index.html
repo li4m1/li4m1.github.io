@@ -244,6 +244,15 @@
       min-height: 100svh; display: flex; flex-direction: column; justify-content: center;
       overflow: hidden;
     }
+    /* dark scrim over the film strip so the white wordmark stays legible on any
+       video frame (bright frames were washing out the thin J-tail). left-weighted:
+       heavy where the text sits, clearing to the right so the strip still shows. */
+    #hero::before {
+      content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none;
+      background: linear-gradient(103deg,
+        rgba(2,1,10,0.94) 0%, rgba(2,1,10,0.88) 30%, rgba(2,1,10,0.6) 52%,
+        rgba(2,1,10,0.2) 72%, transparent 88%);
+    }
     /* film strip sliding behind the name */
     .hero-strip {
       position: absolute; top: 50%; left: -10vw; width: 140vw;
@@ -268,6 +277,8 @@
       font-family: var(--font-display); font-size: var(--fs-mega); line-height: 0.92;
       letter-spacing: 0.01em; display: flex; align-items: baseline; flex-wrap: nowrap;
       user-select: none;
+      /* soft dark backing keeps the white letters (esp. the thin J-tail) solid over video */
+      text-shadow: 0 2px 30px rgba(2,1,10,0.7), 0 0 10px rgba(2,1,10,0.55);
     }
     .hero-name .ch {
       display: inline-block; opacity: 0; transform: translateY(0.45em) rotate(3deg);
@@ -282,6 +293,7 @@
     .hero-name .crown-o {
       width: 1em; transform: translateY(0.16em); transform-origin: 50% 80%;
       transition: transform var(--dur) var(--eo);
+      filter: drop-shadow(0 2px 12px rgba(2,1,10,0.55));
     }
     .hero-name:hover .crown-o { transform: translateY(0.16em) rotate(-12deg); }
     /* mobile-first: three lines stacked cleanly below the wordmark */
