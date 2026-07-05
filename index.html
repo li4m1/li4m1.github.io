@@ -296,25 +296,14 @@
       filter: drop-shadow(0 2px 12px rgba(2,1,10,0.55));
     }
     .hero-name:hover .crown-o { transform: translateY(0.16em) rotate(-12deg); }
-    /* mobile-first: three lines stacked cleanly below the wordmark */
+    /* three lines stacked cleanly below the wordmark — no overlap, all sizes */
     .hero-role {
-      margin-top: 1.75rem; font-size: var(--fs-body-lg); line-height: 1.5;
+      margin-top: clamp(1.75rem, 3vw, 2.75rem); font-size: var(--fs-body-lg); line-height: 1.5;
       color: var(--cream); max-width: 40ch;
       text-shadow: 0 2px 22px rgba(2,1,10,0.9), 0 0 6px rgba(2,1,10,0.7);
     }
     .hero-role span { display: block; }
     .hero-role strong { color: var(--gold); font-weight: 600; }
-    /* desktop enhancement: tuck the three lines up beside the J's tail so the
-       negative space under the wordmark reads as composed, not empty.
-       z-index lifts them above the wordmark's will-change stacking contexts. */
-    @media (min-width: 900px) {
-      .hero-role {
-        position: relative; z-index: 3;
-        margin-top: clamp(-3rem, -3.4vw, -1.75rem);
-        margin-left: clamp(2.75rem, 10vw, 9.5rem);
-        line-height: 1.4; max-width: none;
-      }
-    }
     .hero-ctas { display: flex; gap: 1.25rem; align-items: center; margin-top: 2.25rem; flex-wrap: wrap; }
 
     .btn {
