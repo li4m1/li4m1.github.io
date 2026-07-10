@@ -26,9 +26,12 @@
         <h2>Drop a photo here</h2>
         <p>Click to browse, drag &amp; drop, or paste from clipboard. JPG · PNG · WebP. Everything stays on your machine.</p>
         <span class="k">⌘V works too</span>
-        <button class="btn" id="demoBtn" type="button">Load demo image</button>
       </div>
       <canvas id="view" hidden></canvas>
+      <div class="filmstrip" id="filmstrip" hidden>
+        <button class="add-tile" id="addBtn" type="button" aria-label="Add more pictures">+</button>
+        <div class="thumbs" id="thumbs"></div>
+      </div>
       <div class="meta" id="meta"></div>
     </section>
 
@@ -43,14 +46,13 @@
       </div>
       <div class="group" id="sliderGroup"></div>
       <div class="foot">
-        <button class="btn" id="newBtn" type="button">New image</button>
         <button class="btn primary" id="dlBtn" type="button" disabled>Download full-res PNG</button>
-        <div class="hint">Hold the image to compare with the original. Export always re-renders at the source resolution.</div>
+        <div class="hint">Hold the image to compare with the original. Use + to add more pictures and switch between them below. Export always re-renders at the source resolution.</div>
       </div>
     </aside>
   </main>
 </div>
 
-<input type="file" id="file" accept="image/*" hidden>
+<input type="file" id="file" accept="image/*" multiple hidden>
 </body>
 </html>

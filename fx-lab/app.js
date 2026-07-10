@@ -3,11 +3,12 @@
 /* ---------- state ---------- */
 const $ = s => document.querySelector(s);
 let currentFx = 'thermal';
-let sourceFull = null;   // full-resolution source canvas
-let sourcePrev = null;   // preview-scale source canvas
+let images = [];   // {full, prev, thumb, W, H}
+let cur = -1;      // index of active image
 const PREVIEW_MAX = 1200;
 
 const view = $('#view'), drop = $('#drop'), meta = $('#meta');
+const filmstrip = $('#filmstrip'), thumbs = $('#thumbs');
 
 /* ---------- rendering ---------- */
 function applyEffect(src, scale){
@@ -23,64 +24,72 @@ function applyEffect(src, scale){
 
 let raf = 0;
 function render(){
-  if(!sourcePrev) return;
+  if(cur < 0) return;
   cancelAnimationFrame(raf);
   raf = requestAnimationFrame(() => {
-    const out = applyEffect(sourcePrev, 1);
+    const out = applyEffect(images[cur].prev, 1);
     view.width = out.width; view.height = out.height;
     view.getContext('2d').drawImage(out,0,0);
   });
 }
 
-function setImage(bitmap){
+/* ---------- image management ---------- */
+function addImage(bitmap){
   const W = bitmap.width, H = bitmap.height;
-  sourceFull = makeCanvas(W,H);
-  sourceFull.getContext('2d').drawImage(bitmap,0,0);
+  const full = makeCanvas(W,H);
+  full.getContext('2d').drawImage(bitmap,0,0);
   const k = Math.min(1, PREVIEW_MAX/Math.max(W,H));
-  sourcePrev = makeCanvas(Math.round(W*k), Math.round(H*k));
-  sourcePrev.getContext('2d').drawImage(bitmap,0,0,sourcePrev.width,sourcePrev.height);
+  const prev = makeCanvas(Math.round(W*k), Math.round(H*k));
+  prev.getContext('2d').drawImage(bitmap,0,0,prev.width,prev.height);
+  // square center-crop thumbnail
+  const T = 112, thumb = makeCanvas(T,T);
+  const s = Math.min(W,H);
+  thumb.getContext('2d').drawImage(full,(W-s)/2,(H-s)/2,s,s,0,0,T,T);
+  images.push({full, prev, thumb, W, H});
+  select(images.length-1);
+}
+
+function select(i){
+  cur = i;
+  const img = images[cur];
   drop.hidden = true;
   view.hidden = false;
+  filmstrip.hidden = false;
   $('#dlBtn').disabled = false;
-  meta.textContent = `${W}×${H}px · preview ${sourcePrev.width}×${sourcePrev.height}`;
+  meta.textContent = `${img.W}×${img.H}px · preview ${img.prev.width}×${img.prev.height}`;
+  buildThumbs();
   render();
 }
 
-async function loadFile(file){
-  if(!file || !file.type.startsWith('image/')) return;
-  try{
-    const bmp = await createImageBitmap(file, {imageOrientation:'from-image'});
-    setImage(bmp);
-  }catch(e){
-    const url = URL.createObjectURL(file);
-    const img = new Image();
-    img.onload = () => { setImage(img); URL.revokeObjectURL(url); };
-    img.src = url;
-  }
+function buildThumbs(){
+  thumbs.innerHTML = '';
+  images.forEach((img,i) => {
+    const b = document.createElement('button');
+    b.className = 'thumb' + (i===cur ? ' on' : '');
+    b.type = 'button';
+    b.setAttribute('aria-label', `Picture ${i+1}${i===cur?' (active)':''}`);
+    b.appendChild(img.thumb);
+    b.onclick = () => { if(i !== cur) select(i); };
+    thumbs.appendChild(b);
+  });
 }
 
-/* ---------- demo image (procedural skull-ish study) ---------- */
-function demoImage(){
-  const c = makeCanvas(900,1200), x = c.getContext('2d');
-  x.fillStyle = '#0e0e16'; x.fillRect(0,0,900,1200);
-  let g = x.createRadialGradient(450,510,60, 450,530,430);
-  g.addColorStop(0,'#ece5d8'); g.addColorStop(0.5,'#8a857c');
-  g.addColorStop(0.82,'#3a3830'); g.addColorStop(1,'#0e0e16');
-  x.fillStyle = g;
-  x.beginPath(); x.ellipse(450,540,305,385,0,0,7); x.fill();
-  x.fillStyle = 'rgba(8,8,14,0.88)';
-  x.beginPath(); x.ellipse(338,478,72,48,-0.18,0,7); x.fill();
-  x.beginPath(); x.ellipse(562,478,72,48,0.18,0,7); x.fill();
-  x.beginPath(); x.moveTo(450,555); x.lineTo(412,655); x.lineTo(488,655); x.closePath(); x.fill();
-  for(let i=0;i<6;i++){
-    x.fillStyle = '#d6cfc0';
-    x.fillRect(332+i*40, 718, 28, 92);
+async function loadFiles(fileList){
+  for(const file of [...(fileList||[])]){
+    if(!file || !file.type.startsWith('image/')) continue;
+    try{
+      const bmp = await createImageBitmap(file, {imageOrientation:'from-image'});
+      addImage(bmp);
+    }catch(e){
+      await new Promise(res => {
+        const url = URL.createObjectURL(file);
+        const img = new Image();
+        img.onload = () => { addImage(img); URL.revokeObjectURL(url); res(); };
+        img.onerror = res;
+        img.src = url;
+      });
+    }
   }
-  x.fillStyle = 'rgba(8,8,14,0.62)'; x.fillRect(315,704,275,15);
-  x.fillStyle = 'rgba(240,240,255,0.07)';
-  const rnd = mulberry32(42);
-  for(let i=0;i<50;i++) x.fillRect(rnd()*900, rnd()*1200, rnd()*200, 2);
-  return c;
 }
 
 /* ---------- UI construction ---------- */
@@ -139,11 +148,10 @@ function buildSliders(){
 }
 
 /* ---------- events ---------- */
-$('#file').onchange = e => loadFile(e.target.files[0]);
+$('#file').onchange = e => { loadFiles(e.target.files); e.target.value = ''; };
 drop.onclick = () => $('#file').click();
 drop.onkeydown = e => { if(e.key==='Enter'||e.key===' '){ e.preventDefault(); $('#file').click(); } };
-$('#demoBtn').onclick = e => { e.stopPropagation(); setImage(demoImage()); };
-$('#newBtn').onclick = () => $('#file').click();
+$('#addBtn').onclick = () => $('#file').click();
 
 ['dragover','dragenter'].forEach(ev => document.addEventListener(ev, e => {
   e.preventDefault(); drop.classList.add('over');
@@ -151,26 +159,27 @@ $('#newBtn').onclick = () => $('#file').click();
 ['dragleave','drop'].forEach(ev => document.addEventListener(ev, e => {
   e.preventDefault(); drop.classList.remove('over');
 }));
-document.addEventListener('drop', e => loadFile(e.dataTransfer.files[0]));
+document.addEventListener('drop', e => loadFiles(e.dataTransfer.files));
 document.addEventListener('paste', e => {
-  const item = [...(e.clipboardData?.items||[])].find(i => i.type.startsWith('image/'));
-  if(item) loadFile(item.getAsFile());
+  const items = [...(e.clipboardData?.items||[])].filter(i => i.type.startsWith('image/'));
+  if(items.length) loadFiles(items.map(i => i.getAsFile()));
 });
 
 /* hold to compare with original */
 view.addEventListener('pointerdown', () => {
-  if(sourcePrev) view.getContext('2d').drawImage(sourcePrev,0,0);
+  if(cur >= 0) view.getContext('2d').drawImage(images[cur].prev,0,0);
 });
 ['pointerup','pointerleave'].forEach(ev => view.addEventListener(ev, render));
 
 /* full-res export */
 $('#dlBtn').onclick = () => {
-  if(!sourceFull) return;
+  if(cur < 0) return;
   const btn = $('#dlBtn');
   btn.disabled = true; btn.textContent = 'Rendering…';
   setTimeout(() => {
-    const scale = sourceFull.width / sourcePrev.width;
-    const out = applyEffect(sourceFull, scale);
+    const img = images[cur];
+    const scale = img.full.width / img.prev.width;
+    const out = applyEffect(img.full, scale);
     out.toBlob(blob => {
       const a = document.createElement('a');
       a.href = URL.createObjectURL(blob);

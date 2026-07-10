@@ -92,3 +92,22 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
 .hint{font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.04em;line-height:1.6}
 
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
+
+/* hidden must always win, even over display rules above */
+[hidden]{display:none!important}
+
+.filmstrip{display:flex;align-items:center;gap:8px;max-width:100%;overflow-x:auto;padding:4px 2px;-webkit-overflow-scrolling:touch}
+.thumbs{display:flex;gap:8px}
+.add-tile{
+  flex:0 0 auto;width:56px;height:56px;border:1px dashed var(--line);border-radius:6px;
+  background:transparent;color:var(--muted);font-size:26px;line-height:1;cursor:pointer;
+  transition:border-color .12s,color .12s;
+}
+.add-tile:hover{border-color:var(--accent);color:var(--accent)}
+.thumb{
+  flex:0 0 auto;width:56px;height:56px;padding:0;border:1px solid var(--line);border-radius:6px;
+  overflow:hidden;cursor:pointer;background:#000;transition:border-color .12s;
+}
+.thumb canvas{width:100%;height:100%;display:block}
+.thumb:hover{border-color:#3a3a46}
+.thumb.on{border:2px solid var(--accent)}
