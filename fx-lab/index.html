@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>FX LAB — image effects</title>
+  <meta name="description" content="Upload a photo, apply thermal / duotone / glitch / poster effects in your browser, download full-res. Nothing uploads — everything runs locally.">
+  <meta property="og:title" content="FX LAB — image effects">
+  <meta property="og:description" content="Browser image effects. Upload, dial in, download. Nothing leaves your machine.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💀</text></svg>">
+  <link rel="stylesheet" href="styles.css">
+  <script src="effects.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+<div id="app">
+  <header>
+    <div class="brand">FX<em>—</em>LAB</div>
+    <div class="strip" aria-hidden="true"></div>
+    <span class="tag">runs in your browser · nothing uploads</span>
+  </header>
+
+  <main>
+    <section class="stage">
+      <div class="drop" id="drop" role="button" tabindex="0" aria-label="Load an image">
+        <h2>Drop a photo here</h2>
+        <p>Click to browse, drag &amp; drop, or paste from clipboard. JPG · PNG · WebP. Everything stays on your machine.</p>
+        <span class="k">⌘V works too</span>
+        <button class="btn" id="demoBtn" type="button">Load demo image</button>
+      </div>
+      <canvas id="view" hidden></canvas>
+      <div class="meta" id="meta"></div>
+    </section>
+
+    <aside class="rail">
+      <div class="group">
+        <label>Effect</label>
+        <div class="chips" id="fxChips"></div>
+      </div>
+      <div class="group" id="paletteGroup" hidden>
+        <label>Palette</label>
+        <div class="swatches" id="swatches"></div>
+      </div>
+      <div class="group" id="sliderGroup"></div>
+      <div class="foot">
+        <button class="btn" id="newBtn" type="button">New image</button>
+        <button class="btn primary" id="dlBtn" type="button" disabled>Download full-res PNG</button>
+        <div class="hint">Hold the image to compare with the original. Export always re-renders at the source resolution.</div>
+      </div>
+    </aside>
+  </main>
+</div>
+
+<input type="file" id="file" accept="image/*" hidden>
+</body>
+</html>
