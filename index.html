@@ -8,7 +8,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Liam Jansson — Videographer, Editor, Creative</title>
-  <meta name="description" content="Liam Jansson — video creator based in Berlin. Music videos, brand films and street-culture stories.">
+  <meta name="description" content="Liam Jansson — video creator based in Berlin. Music videos, brand films, street-culture stories — and live tools I build.">
   <meta name="theme-color" content="#02010A">
   <link rel="canonical" href="https://janssonliam.de/">
   <link rel="icon" type="image/png" href="crown.png">
@@ -17,7 +17,7 @@
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://janssonliam.de/">
   <meta property="og:title" content="Liam Jansson — Videographer, Editor, Creative">
-  <meta property="og:description" content="Video creator based in Berlin — music videos, brand films and street-culture stories.">
+  <meta property="og:description" content="Video creator based in Berlin — music videos, brand films, street-culture stories, and live tools I build.">
   <meta property="og:image" content="https://janssonliam.de/og-image.jpg">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:image" content="https://janssonliam.de/og-image.jpg">
@@ -449,22 +449,68 @@
       .work-card:hover .play-circle { opacity: 1; transform: translate(-50%,-50%) scale(1); }
     }
 
-    /* blank slots — reserved for the next drops */
+    /* blank slots — reserved for the next drops (work grid + lab share these) */
     .work-card.slot-empty { cursor: default; outline: 1px dashed rgba(240,180,41,0.35); outline-offset: -1px; }
     .work-card.slot-empty .work-thumb::after { display: none; }
-    .work-card.slot-empty .slot-tag {
+    .work-card.slot-empty .slot-tag, .lab-card.slot-empty .slot-tag {
       position: absolute; inset: 0; display: flex; flex-direction: column;
       align-items: center; justify-content: center; gap: 0.4rem; z-index: 2;
     }
-    .work-card.slot-empty .slot-tag b {
+    .work-card.slot-empty .slot-tag b, .lab-card.slot-empty .slot-tag b {
       font-family: var(--font-display); font-size: 1.5rem; letter-spacing: 0.04em; color: var(--gold);
     }
-    .work-card.slot-empty .slot-tag span {
+    .work-card.slot-empty .slot-tag span, .lab-card.slot-empty .slot-tag span {
       font-family: var(--font-mono); font-size: var(--fs-label); letter-spacing: 0.2em;
       text-transform: uppercase; color: var(--text-mut);
     }
 
-    /* ============ 05 SERVICES — paper section ============ */
+    /* ============ 05 LAB — live builds. coded previews, no screenshots:
+       each card's canvas runs a miniature of the actual product ============ */
+    .lab-lead {
+      max-width: 56ch; color: var(--text-mut); font-size: var(--fs-body-lg);
+      margin: -1rem 0 2.5rem;
+    }
+    .lab-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: clamp(1rem, 2.5vw, 2rem); }
+    .lab-card {
+      display: flex; flex-direction: column; border-radius: var(--radius); overflow: hidden;
+      background: var(--night); border: 1px solid var(--line);
+      transition: transform var(--dur) var(--eo), box-shadow var(--dur) ease, border-color var(--dur) ease;
+    }
+    .lab-chrome { display: flex; align-items: center; gap: 0.75rem; padding: 0.7rem 1rem; border-bottom: 1px solid var(--line); }
+    .lab-dots { display: flex; gap: 5px; }
+    .lab-dots i { width: 9px; height: 9px; border-radius: 50%; background: var(--line); }
+    .lab-url {
+      font-family: var(--font-mono); font-size: var(--fs-label); letter-spacing: 0.04em;
+      color: var(--text-mut); flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .lab-live {
+      display: flex; align-items: center; gap: 0.4rem;
+      font-family: var(--font-mono); font-size: 0.6875rem; letter-spacing: 0.14em; color: var(--gold);
+    }
+    .lab-live i { width: 7px; height: 7px; border-radius: 50%; background: var(--gold); animation: pulse 2.4s ease-in-out infinite; }
+    .lab-view { position: relative; aspect-ratio: 16/10; background: var(--night); }
+    .lab-view canvas { width: 100%; height: 100%; display: block; }
+    .lab-view canvas.px { image-rendering: pixelated; } /* thermal cams are chunky on purpose */
+    .lab-open {
+      position: absolute; right: 0.9rem; bottom: 0.9rem; padding: 0.55em 1.2em; border-radius: var(--pill);
+      background: var(--gold); color: var(--ink); font-family: var(--font-mono); font-size: var(--fs-label);
+      letter-spacing: 0.08em; text-transform: uppercase;
+      opacity: 0; transform: translateY(6px);
+      transition: opacity var(--dur-fast) ease, transform var(--dur) var(--eo);
+    }
+    @media (hover: none) { .lab-open { opacity: 1; transform: none; } } /* touch: affordance always on */
+    .lab-info { padding: 1.1rem 1.25rem 1.3rem; }
+    .lab-title { font-family: var(--font-display); font-size: var(--fs-h3); letter-spacing: 0.01em; }
+    .lab-meta { font-family: var(--font-mono); font-size: var(--fs-label); letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-mut); margin-top: 0.3rem; }
+    .lab-desc { color: var(--text-mut); font-size: var(--fs-small); margin-top: 0.55rem; max-width: 46ch; }
+    @media (hover: hover) and (pointer: fine) {
+      .lab-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-pop); border-color: rgba(240,180,41,0.45); }
+      .lab-card:hover .lab-open { opacity: 1; transform: none; }
+    }
+    .lab-card:focus-visible { border-color: var(--gold); }
+    .lab-card.slot-empty { border-style: dashed; border-color: rgba(240,180,41,0.35); }
+
+    /* ============ 06 SERVICES — paper section ============ */
     .services-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: clamp(1rem, 2vw, 1.75rem); }
     .service-card {
       position: relative; background: #FFFDF7; border-radius: var(--radius-sm);
@@ -494,7 +540,7 @@
     .service-includes li { font-family: var(--font-mono); font-size: var(--fs-label); letter-spacing: 0.04em; color: var(--ink-text); }
     .service-includes li::before { content: "♛ "; color: var(--gold); }
 
-    /* ============ 06 ABOUT — paper section ============ */
+    /* ============ 07 ABOUT — paper section ============ */
     #about { overflow: hidden; }
     .about-grid { display: grid; grid-template-columns: 0.9fr 1.1fr; gap: clamp(2rem, 5vw, 5rem); align-items: center; }
     .about-portrait { position: relative; }
@@ -549,7 +595,7 @@
     .marquee-track span em { font-style: normal; color: var(--gold); }
     @keyframes marqueeShift { to { transform: translateX(-50%); } }
 
-    /* ============ 07 CONTACT ============ */
+    /* ============ 08 CONTACT ============ */
     #contact { overflow: hidden; }
     .contact-headline {
       font-family: var(--font-display); font-size: var(--fs-display); line-height: 0.98;
@@ -624,6 +670,7 @@
     /* ============ RESPONSIVE ============ */
     @media (max-width: 1000px) {
       .work-grid { grid-template-columns: repeat(2, 1fr); }
+      .lab-grid { grid-template-columns: 1fr; }
       .services-grid { grid-template-columns: repeat(2, 1fr); row-gap: 2rem; }
       .feat-sticky { grid-template-columns: 1fr; align-content: center; gap: 1.5rem; }
       .feat-num { font-size: 3.5rem; }
@@ -652,7 +699,7 @@
       }
       .reveal, .hero-name .ch, .feat-title, .feat-stage video { opacity: 1 !important; transform: none !important; }
       .strip-track, .marquee-track, .orbit-badge { animation: none !important; }
-      .scroll-hint, .chip .dot-live { animation: none !important; }
+      .scroll-hint, .chip .dot-live, .lab-live i { animation: none !important; }
       #loader { display: none !important; }
     }
   </style>
@@ -682,9 +729,10 @@
     <a href="#showreel" data-sec="showreel"><span>02</span><span class="tip">Showreel</span></a>
     <a href="#featured" data-sec="featured"><span>03</span><span class="tip">Featured</span></a>
     <a href="#work"     data-sec="work"><span>04</span><span class="tip">Work</span></a>
-    <a href="#services" data-sec="services"><span>05</span><span class="tip">Services</span></a>
-    <a href="#about"    data-sec="about"><span>06</span><span class="tip">About</span></a>
-    <a href="#contact"  data-sec="contact"><span>07</span><span class="tip">Contact</span></a>
+    <a href="#lab"      data-sec="lab"><span>05</span><span class="tip">Lab</span></a>
+    <a href="#services" data-sec="services"><span>06</span><span class="tip">Services</span></a>
+    <a href="#about"    data-sec="about"><span>07</span><span class="tip">About</span></a>
+    <a href="#contact"  data-sec="contact"><span>08</span><span class="tip">Contact</span></a>
   </nav>
 
   <!-- ── 01 Hero ── -->
@@ -852,11 +900,185 @@
     </div>
   </section>
 
-  <!-- ── 05 Services (paper) ── -->
+  <!-- ── 05 Lab — live builds ── -->
+  <section id="lab" class="bg-ink">
+    <div class="inner">
+      <div class="eyebrow"><span class="num">05</span><span>The Lab</span><span class="rule"></span></div>
+      <h2 class="work-display-title reveal">I also <em>build</em>.</h2>
+      <p class="lab-lead reveal" style="--d:1">
+        Not everything I make is a film. These are live sites and tools I designed
+        and shipped — the previews below aren't screenshots, they're each product's
+        own code running in miniature. Click in and use them.
+      </p>
+      <div class="lab-grid" id="lab-grid"><!-- cards render from the LAB array below --></div>
+    </div>
+  </section>
+
+  <script>
+    /* ═══ THE LAB — to add a project, add ONE entry here:
+         { num:"L03", title:"NAME", url:"https://…", kind:"Tool", year:"2026",
+           desc:"One honest line.", draw:"noise" }
+       draw: "thermal" | "sunpath" | "noise" (default). Card, chrome bar,
+       reveal wiring and the animated preview all build themselves. ═══ */
+    (() => {
+      "use strict";
+      const LAB = [
+        { num: "L01", title: "FX LAB", url: "https://janssonliam.de/fx-lab/",
+          kind: "Image tool", year: "2026", draw: "thermal",
+          desc: "Upload a photo, run it through thermal, duotone, glitch and poster effects, download full-res. Runs entirely in your browser — nothing uploads." },
+        { num: "L02", title: "41SHOOTS", url: "https://41shoots.janssonliam.de/",
+          kind: "Web app", year: "2026", draw: "sunpath",
+          desc: "ShotPlan — plan a shoot end to end: brief, dual-order shot list, crew, gear and sun-path light planning. Walk in as a guest and look around." },
+        { num: "L03", title: "Untitled", url: "", kind: "Next build", year: "2026", draw: "noise", desc: "" },
+      ];
+
+      const grid = document.getElementById("lab-grid");
+      const painters = [];
+
+      LAB.forEach((p, i) => {
+        const live = Boolean(p.url);
+        const el = document.createElement(live ? "a" : "article");
+        el.className = "lab-card reveal" + (live ? "" : " slot-empty");
+        el.style.setProperty("--d", i % 2);
+        if (live) {
+          el.href = p.url; el.target = "_blank"; el.rel = "noopener";
+          el.setAttribute("aria-label", p.title + " — opens in a new tab");
+        } else {
+          el.setAttribute("aria-label", "Reserved slot for the next build");
+        }
+        el.innerHTML = `
+          <div class="lab-chrome" aria-hidden="true">
+            <span class="lab-dots"><i></i><i></i><i></i></span>
+            <span class="lab-url">${live ? p.url.replace("https://", "").replace(/\/$/, "") : "coming soon"}</span>
+            ${live ? '<span class="lab-live"><i></i>LIVE</span>' : ""}
+          </div>
+          <div class="lab-view">
+            <canvas${p.draw === "sunpath" ? "" : ' class="px"'} aria-hidden="true"></canvas>
+            ${live ? '<span class="lab-open">Open ↗</span>' : '<div class="slot-tag"><b>SOON</b><span>reserved</span></div>'}
+          </div>
+          <div class="lab-info">
+            <h3 class="lab-title">${p.title}</h3>
+            <div class="lab-meta">//${p.num} · ${p.kind} · ${p.year}</div>
+            ${p.desc ? `<p class="lab-desc">${p.desc}</p>` : ""}
+          </div>`;
+        grid.appendChild(el);
+        painters.push({ canvas: el.querySelector("canvas"), mode: p.draw || "noise", t: Math.random() * 100 });
+      });
+
+      /* ── coded previews ─────────────────────────────────────────────── */
+
+      /* FX LAB: its real SKULL gradient-map — luminance → colour LUT */
+      const LUT = (() => {
+        const stops = [[0,10,10,46],[0.18,28,28,216],[0.42,43,106,90],[0.58,110,122,82],[0.72,240,58,140],[0.87,255,210,31],[1,255,246,200]];
+        const t = new Uint8ClampedArray(256 * 3);
+        for (let i = 0; i < 256; i++) {
+          const x = i / 255;
+          let a = stops[0], b = stops[stops.length - 1];
+          for (let s = 0; s < stops.length - 1; s++)
+            if (x >= stops[s][0] && x <= stops[s + 1][0]) { a = stops[s]; b = stops[s + 1]; break; }
+          const f = (x - a[0]) / ((b[0] - a[0]) || 1);
+          t[i*3] = a[1] + (b[1]-a[1])*f; t[i*3+1] = a[2] + (b[2]-a[2])*f; t[i*3+2] = a[3] + (b[3]-a[3])*f;
+        }
+        return t;
+      })();
+
+      function drawThermal(ctx, w, h, t) {
+        const img = ctx.createImageData(w, h), d = img.data;
+        for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+          const dx = x - w * 0.5 - Math.sin(t * 0.7) * w * 0.08;
+          const dy = y - h * 0.52 - Math.cos(t * 0.5) * h * 0.06;
+          let v = 1 - Math.hypot(dx, dy) / (h * 0.72);
+          v += Math.sin(x * 0.05 + t) * 0.04 + Math.sin(y * 0.09 - t * 1.3) * 0.03;
+          v += (Math.random() - 0.5) * 0.07;
+          const l = Math.max(0, Math.min(255, v * 255)) | 0, i = (y * w + x) * 4;
+          d[i] = LUT[l*3]; d[i+1] = LUT[l*3+1]; d[i+2] = LUT[l*3+2]; d[i+3] = 255;
+        }
+        ctx.putImageData(img, 0, 0);
+      }
+
+      /* 41SHOOTS: sun-path arc + a shot list ticking itself off as the day runs */
+      function drawSunpath(ctx, w, h, t) {
+        const k = w / 192;
+        ctx.fillStyle = "#02010A"; ctx.fillRect(0, 0, w, h);
+        const hy = h * 0.5, cx = w * 0.5, r = w * 0.28;
+        ctx.strokeStyle = "rgba(244,241,234,0.16)"; ctx.lineWidth = k;
+        ctx.beginPath(); ctx.moveTo(0, hy); ctx.lineTo(w, hy); ctx.stroke();
+        ctx.setLineDash([3 * k, 4 * k]);
+        ctx.strokeStyle = "rgba(108,26,219,0.9)"; ctx.lineWidth = 1.5 * k;
+        ctx.beginPath(); ctx.arc(cx, hy, r, Math.PI, 0); ctx.stroke();
+        ctx.setLineDash([]);
+        const ph = (Math.sin(t * 0.3) + 1) / 2;                  // dawn → dusk, forever
+        const a = Math.PI + ph * Math.PI;
+        const sx = cx + Math.cos(a) * r, sy = hy + Math.sin(a) * r;
+        const g = ctx.createRadialGradient(sx, sy, 0, sx, sy, 16 * k);
+        g.addColorStop(0, "rgba(240,180,41,0.85)"); g.addColorStop(1, "rgba(240,180,41,0)");
+        ctx.fillStyle = g; ctx.fillRect(sx - 16 * k, sy - 16 * k, 32 * k, 32 * k);
+        ctx.fillStyle = "#F0B429";
+        ctx.beginPath(); ctx.arc(sx, sy, 4 * k, 0, 7); ctx.fill();
+        const widths = [0.42, 0.30, 0.50, 0.36];
+        for (let i = 0; i < 4; i++) {
+          const y = h * 0.58 + i * 13 * k;
+          const done = ph * 4.8 > i + 0.5;
+          ctx.strokeStyle = done ? "#F0B429" : "rgba(183,169,230,0.5)";
+          ctx.lineWidth = k;
+          ctx.strokeRect(14 * k, y - 4 * k, 7 * k, 7 * k);
+          if (done) { ctx.fillStyle = "#F0B429"; ctx.fillRect(16 * k, y - 2 * k, 3 * k, 3 * k); }
+          ctx.fillStyle = done ? "rgba(240,180,41,0.55)" : "rgba(108,26,219,0.5)";
+          ctx.fillRect(28 * k, y - 3 * k, widths[i] * w, 5 * k);
+        }
+      }
+
+      /* reserved slot: same soft signal-noise as the work grid */
+      function drawNoise(ctx, w, h) {
+        const img = ctx.createImageData(w, h), d = img.data;
+        for (let i = 0; i < d.length; i += 4) {
+          const v = Math.random() * 34 + 6;
+          d[i] = v; d[i+1] = v; d[i+2] = v + 9; d[i+3] = 255;
+        }
+        ctx.putImageData(img, 0, 0);
+      }
+
+      const paint = (p) => {
+        const ctx = p.canvas.getContext("2d");
+        if (p.mode === "thermal") drawThermal(ctx, p.canvas.width, p.canvas.height, p.t);
+        else if (p.mode === "sunpath") drawSunpath(ctx, p.canvas.width, p.canvas.height, p.t);
+        else drawNoise(ctx, p.canvas.width, p.canvas.height);
+      };
+
+      painters.forEach(p => {
+        const hi = p.mode === "sunpath";                 // arc wants crisp lines
+        p.canvas.width = hi ? 384 : 176; p.canvas.height = hi ? 240 : 110;
+        paint(p);                                        // static first frame for everyone
+      });
+
+      /* animate at 15fps (thermal cams are choppy on purpose), only while the
+         section is on screen, never for reduced-motion visitors */
+      if (!matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        let visible = false, raf = 0, last = 0, frame = 0;
+        const loop = (ts) => {
+          if (!visible) { raf = 0; return; }
+          raf = requestAnimationFrame(loop);
+          if (ts - last < 66) return;
+          last = ts; frame++;
+          painters.forEach(p => {
+            p.t += 0.08;
+            if (p.mode !== "noise") paint(p);
+            else if (frame % 6 === 0) paint(p);          // slot flickers lazily
+          });
+        };
+        new IntersectionObserver(es => {
+          visible = es.some(e => e.isIntersecting);
+          if (visible && !raf) raf = requestAnimationFrame(loop);
+        }, { threshold: 0.1 }).observe(grid);
+      }
+    })();
+  </script>
+
+  <!-- ── 06 Services (paper) ── -->
   <svg class="rip" viewBox="0 0 1440 42" preserveAspectRatio="none" aria-hidden="true"><path d="M0,42 L0,20 L48,26 L96,14 L160,24 L220,10 L290,22 L350,12 L420,26 L490,14 L560,24 L640,8 L710,22 L790,12 L860,24 L930,10 L1000,20 L1080,10 L1150,24 L1230,12 L1300,22 L1370,14 L1440,24 L1440,42 Z"/></svg>
   <section id="services" class="bg-cream">
     <div class="inner">
-      <div class="eyebrow"><span class="num" style="color:var(--purple)">05</span><span>Services</span><span class="rule"></span></div>
+      <div class="eyebrow"><span class="num" style="color:var(--purple)">06</span><span>Services</span><span class="rule"></span></div>
       <div class="services-grid">
         <article class="service-card reveal" style="--d:0">
           <div class="service-num">.01</div>
@@ -886,10 +1108,10 @@
     </div>
   </section>
 
-  <!-- ── 06 About (paper) ── -->
+  <!-- ── 07 About (paper) ── -->
   <section id="about" class="bg-cream">
     <div class="inner" style="padding-top:0">
-      <div class="eyebrow"><span class="num" style="color:var(--purple)">06</span><span>About</span><span class="rule"></span></div>
+      <div class="eyebrow"><span class="num" style="color:var(--purple)">07</span><span>About</span><span class="rule"></span></div>
       <div class="about-grid">
         <div class="about-portrait reveal">
           <img class="about-photo" src="Asset 3.png" alt="Portrait of Liam Jansson">
@@ -928,11 +1150,11 @@
     </div>
   </div>
 
-  <!-- ── 07 Contact ── -->
+  <!-- ── 08 Contact ── -->
   <section id="contact" class="bg-ink">
     <span class="bg-word" aria-hidden="true">CONTACT</span>
     <div class="inner">
-      <div class="eyebrow"><span class="num">07</span><span>Contact</span><span class="rule"></span></div>
+      <div class="eyebrow"><span class="num">08</span><span>Contact</span><span class="rule"></span></div>
       <h2 class="contact-headline reveal">
         <span class="w">Let's</span> <span class="w">make</span> <span class="w">something.</span>
       </h2>
@@ -964,7 +1186,7 @@
     <div class="footer-inner">
       <a href="#hero" class="footer-logo" aria-label="Back to top"><img src="crown.png" alt=""></a>
       <div class="footer-links">
-        <a href="#showreel">Showreel</a><a href="#work">Work</a><a href="#services">Services</a>
+        <a href="#showreel">Showreel</a><a href="#work">Work</a><a href="#lab">Lab</a><a href="#services">Services</a>
         <a href="#about">About</a><a href="#contact">Contact</a>
         <a href="https://janssonliam.de/impressum.html">Impressum</a>
         <a href="https://janssonliam.de/datenschutz.html">Datenschutz</a>
