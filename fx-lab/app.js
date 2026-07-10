@@ -104,6 +104,27 @@ function buildChips(){
     b.onclick = () => { currentFx = id; buildChips(); buildPalettes(); buildSliders(); render(); };
     wrap.appendChild(b);
   });
+  const s = document.createElement('button');
+  s.className = 'chip surprise';
+  s.textContent = 'Surprise me';
+  s.type = 'button';
+  s.onclick = surprise;
+  wrap.appendChild(s);
+}
+
+function surprise(){
+  const ids = Object.keys(EFFECTS);
+  currentFx = ids[(Math.random()*ids.length)|0];
+  const fx = EFFECTS[currentFx];
+  if(fx.palettes){
+    const names = Object.keys(fx.palettes);
+    fx.palette = names[(Math.random()*names.length)|0];
+  }
+  fx.params.forEach(pr => {
+    const steps = Math.round((pr.max - pr.min) / pr.step);
+    pr.value = +(pr.min + ((Math.random()*(steps+1))|0) * pr.step).toFixed(2);
+  });
+  buildChips(); buildPalettes(); buildSliders(); render();
 }
 
 function buildPalettes(){
@@ -171,24 +192,41 @@ view.addEventListener('pointerdown', () => {
 });
 ['pointerup','pointerleave'].forEach(ev => view.addEventListener(ev, render));
 
-/* full-res export */
-$('#dlBtn').onclick = () => {
+/* full-res export: native share sheet on touch devices (one-tap "Save
+   Image" on iOS/Android instead of the blob opening in a new tab),
+   classic download link on desktop */
+$('#dlBtn').onclick = async () => {
   if(cur < 0) return;
   const btn = $('#dlBtn');
   btn.disabled = true; btn.textContent = 'Rendering…';
-  setTimeout(() => {
+  await new Promise(r => requestAnimationFrame(r));
+  try{
     const img = images[cur];
     const scale = img.full.width / img.prev.width;
     const out = applyEffect(img.full, scale);
-    out.toBlob(blob => {
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = `fxlab-${currentFx}-${Date.now()}.png`;
-      a.click();
-      URL.revokeObjectURL(a.href);
-      btn.disabled = false; btn.textContent = 'Download full-res PNG';
-    }, 'image/png');
-  }, 30);
+    const blob = await new Promise(r => out.toBlob(r, 'image/png'));
+    const name = `fxlab-${currentFx}-${Date.now()}.png`;
+    const file = new File([blob], name, {type:'image/png'});
+    const touch = matchMedia('(pointer: coarse)').matches;
+    if(touch && navigator.canShare && navigator.canShare({files:[file]})){
+      try{
+        await navigator.share({files:[file]});
+        return;
+      }catch(e){
+        if(e.name === 'AbortError') return;  // user closed the sheet
+        // NotAllowedError etc. → fall back to download link below
+      }
+    }
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = name;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+  }finally{
+    btn.disabled = false; btn.textContent = 'Download full-res PNG';
+  }
 };
 
 buildChips(); buildPalettes(); buildSliders();

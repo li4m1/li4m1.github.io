@@ -35,9 +35,10 @@ function buildLUT(stops, contrast, invert){
   return lut;
 }
 
-/* Bright-trail smear: ghost the image sideways with lighten blending */
+/* Bright-trail smear: ghost the image sideways with lighten blending.
+   Positive = trail to the right, negative = to the left. */
 function smear(canvas, amountPx){
-  if(amountPx <= 0) return;
+  if(amountPx === 0) return;
   const ctx = canvas.getContext('2d');
   const snap = makeCanvas(canvas.width, canvas.height);
   snap.getContext('2d').drawImage(canvas,0,0);
@@ -78,7 +79,7 @@ const EFFECTS = {
     palette: 'SKULL',
     params: [
       {key:'contrast', name:'Contrast', min:0.4, max:2.6, step:0.05, value:1.25},
-      {key:'smear',    name:'Smear',    min:0,   max:60,  step:1,    value:18},
+      {key:'smear',    name:'Smear ←→', min:-60, max:60,  step:1,    value:0},
       {key:'grain',    name:'Grain',    min:0,   max:90,  step:1,    value:28},
     ],
     render(work, p, scale, stops){

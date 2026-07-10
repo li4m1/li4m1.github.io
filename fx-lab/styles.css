@@ -111,3 +111,10 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
 .thumb canvas{width:100%;height:100%;display:block}
 .thumb:hover{border-color:#3a3a46}
 .thumb.on{border:2px solid var(--accent)}
+
+.chip.surprise{
+  color:var(--ink);border:1px solid transparent;
+  background:linear-gradient(var(--panel),var(--panel)) padding-box,
+             linear-gradient(90deg,var(--heat-blue),var(--heat-pink),var(--heat-yellow)) border-box;
+}
+.chip.surprise:hover{color:#fff;filter:brightness(1.25)}
