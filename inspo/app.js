@@ -40,6 +40,20 @@ function load(){
   try{
     const raw = localStorage.getItem('inspo-board');
     if(raw){ const s = JSON.parse(raw); if(s.nodes) state = s; }
+    // migrate v1 music nodes (big embeds) to slim bars
+    for(const n of state.nodes){
+      if(n.type !== 'music' || n.provider) continue;
+      let m;
+      if((m = (n.embed||'').match(/youtube-nocookie\.com\/embed\/([\w-]+)/))){
+        n.provider = 'youtube'; n.media = m[1]; n.url = `https://youtu.be/${m[1]}`;
+      }else if((m = (n.embed||'').match(/open\.spotify\.com\/embed\/(track|album|playlist|artist)\/(\w+)/))){
+        n.provider = 'spotify'; n.kind = m[1]; n.media = m[2];
+        n.url = `https://open.spotify.com/${m[1]}/${m[2]}`;
+      }else if((m = (n.embed||'').match(/w\.soundcloud\.com\/player\/\?url=([^&]+)/))){
+        n.provider = 'soundcloud'; n.url = decodeURIComponent(m[1]);
+      }else{ continue; }
+      delete n.embed; n.w = 340; n.h = 44; n.title = '';
+    }
   }catch{ /* fresh board */ }
 }
 let saveT = 0;
@@ -103,8 +117,19 @@ function renderNode(n){
       el.querySelector('.txt').textContent = n.text || '';
       el.querySelector('.txt').addEventListener('input', ev => { n.text = ev.target.textContent; save(); });
     }else if(n.type === 'music'){
+      el.classList.add('music');
       el.insertAdjacentHTML('afterbegin',
-        `<div class="bar">♪ ${n.label || 'music'}</div><iframe src="${n.embed}" loading="lazy" allow="encrypted-media; autoplay"></iframe>`);
+        `<div class="mbar">
+           <button class="play" aria-label="Play">\u25B6</button>
+           <span class="mtitle"></span>
+           <span class="mprov"></span>
+         </div><div class="mplayer" hidden></div>`);
+      el.querySelector('.mtitle').textContent = n.title || '\u2026';
+      el.querySelector('.mprov').textContent = n.provider || '';
+      if(!n.title) fetchTitle(n);
+      const btn = el.querySelector('.play');
+      btn.addEventListener('pointerdown', ev => ev.stopPropagation());
+      btn.addEventListener('click', () => togglePlay(n));
     }
     world.appendChild(el);
   }
@@ -181,23 +206,113 @@ function addNoteAt(at, text){
   setTimeout(() => txt.focus(), 30);
 }
 
-/* music: paste a link, get an embedded player */
-function musicEmbed(url){
+/* music: paste a link, get a slim player bar */
+function musicInfo(url){
+  url = (url || '').trim();
   let m;
   if((m = url.match(/(?:youtube\.com\/(?:watch\?.*v=|shorts\/)|youtu\.be\/)([\w-]{6,})/)))
-    return { embed: `https://www.youtube-nocookie.com/embed/${m[1]}`, label: 'youtube', w: 340, h: 214 };
+    return { provider: 'youtube', media: m[1], url };
   if((m = url.match(/open\.spotify\.com\/(track|album|playlist|artist)\/(\w+)/)))
-    return { embed: `https://open.spotify.com/embed/${m[1]}/${m[2]}`, label: 'spotify', w: 320, h: m[1] === 'track' ? 174 : 302 };
+    return { provider: 'spotify', kind: m[1], media: m[2], url };
   if(/soundcloud\.com\//.test(url))
-    return { embed: `https://w.soundcloud.com/player/?url=${encodeURIComponent(url)}&color=%23f0b429`, label: 'soundcloud', w: 340, h: 188 };
+    return { provider: 'soundcloud', url };
   return null;
 }
 
+const musicEmbed = musicInfo;   // paste/drop handlers use this as a "is it music?" check
+
 function addMusic(url, at){
-  const e = musicEmbed((url || '').trim());
+  const info = musicInfo(url);
   const p = at || viewCenter();
-  if(!e){ addNoteAt(p, url); return; }
-  addNode({ id: uid(), type: 'music', embed: e.embed, label: e.label, x: p.x - e.w/2, y: p.y - e.h/2, w: e.w, h: e.h });
+  if(!info){ addNoteAt(p, url); return; }
+  const n = addNode({ id: uid(), type: 'music', ...info, title: '', x: p.x - 170, y: p.y - 22, w: 340, h: 44 });
+  fetchTitle(n);
+}
+
+async function fetchTitle(n){
+  try{
+    const api = n.provider === 'spotify'
+      ? `https://open.spotify.com/oembed?url=${encodeURIComponent(n.url)}`
+      : `https://noembed.com/embed?url=${encodeURIComponent(n.url)}`;
+    const o = await (await fetch(api)).json();
+    if(o && o.title){
+      n.title = o.title;
+      const el = nodeEl(n.id);
+      if(el) el.querySelector('.mtitle').textContent = o.title;
+      save();
+    }
+  }catch{ /* keep the ellipsis */ }
+}
+
+/* playback: YouTube + SoundCloud play through hidden widgets driven by
+   postMessage; Spotify only plays inside its own player, so its bar
+   expands a compact embed instead */
+const players = new Map();
+
+function setIcon(id, playing){
+  const el = nodeEl(id);
+  if(el) el.querySelector('.play').textContent = playing ? '\u275A\u275A' : '\u25B6';
+}
+
+function pausePlayer(id){
+  const p = players.get(id);
+  if(!p || !p.playing) return;
+  if(p.kind === 'yt')
+    p.f.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":[]}', '*');
+  else if(p.kind === 'sc')
+    p.f.contentWindow.postMessage(JSON.stringify({ method: 'pause' }), 'https://w.soundcloud.com');
+  else if(p.kind === 'sp'){
+    p.f.remove(); players.delete(id);
+    const n = state.nodes.find(x => x.id === id);
+    const el = nodeEl(id);
+    if(el) el.querySelector('.mplayer').hidden = true;
+    if(n){ n.h = 44; renderNode(n); drawWires(); save(); }
+  }
+  p.playing = false;
+  setIcon(id, false);
+}
+
+function togglePlay(n){
+  const p = players.get(n.id);
+  if(p && p.playing){ pausePlayer(n.id); return; }
+  for(const id of players.keys()) if(id !== n.id) pausePlayer(id);
+  const el = nodeEl(n.id);
+  if(n.provider === 'youtube'){
+    if(p){
+      p.f.contentWindow.postMessage('{"event":"command","func":"playVideo","args":[]}', '*');
+      p.playing = true;
+    }else{
+      const f = document.createElement('iframe');
+      f.className = 'ghost';
+      f.allow = 'autoplay; encrypted-media';
+      f.src = `https://www.youtube-nocookie.com/embed/${n.media}?autoplay=1&enablejsapi=1&playsinline=1`;
+      el.appendChild(f);
+      players.set(n.id, { kind: 'yt', f, playing: true });
+    }
+  }else if(n.provider === 'soundcloud'){
+    if(p){
+      p.f.contentWindow.postMessage(JSON.stringify({ method: 'play' }), 'https://w.soundcloud.com');
+      p.playing = true;
+    }else{
+      const f = document.createElement('iframe');
+      f.className = 'ghost';
+      f.allow = 'autoplay';
+      f.src = `https://w.soundcloud.com/player/?url=${encodeURIComponent(n.url)}&auto_play=true`;
+      el.appendChild(f);
+      players.set(n.id, { kind: 'sc', f, playing: true });
+    }
+  }else if(n.provider === 'spotify'){
+    const holder = el.querySelector('.mplayer');
+    holder.hidden = false;
+    n.h = 140; renderNode(n); drawWires(); save();
+    const f = document.createElement('iframe');
+    f.style.cssText = 'width:100%;height:80px;border:0;border-radius:12px;display:block';
+    f.allow = 'encrypted-media';
+    f.src = `https://open.spotify.com/embed/${n.kind || 'track'}/${n.media}`;
+    holder.appendChild(f);
+    players.set(n.id, { kind: 'sp', f, playing: true });
+  }
+  setIcon(n.id, true);
 }
 
 /* ---------- pointer interactions ---------- */
