@@ -50,25 +50,24 @@ body::after{
 /* ── header ── */
 header{
   position:fixed;top:0;left:0;right:0;z-index:50;
-  display:flex;align-items:center;gap:12px;padding:7px 14px;
-  background:linear-gradient(180deg,rgba(2,1,10,.92),rgba(2,1,10,.72) 75%,transparent);
-  pointer-events:none;
+  display:flex;align-items:center;gap:10px;padding:4px 12px;
+  background:rgba(2,1,10,.8);
+  -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
+  border-bottom:1px solid rgba(244,241,234,0.08);
 }
-header>*{pointer-events:auto}
 .home{
   display:flex;align-items:center;gap:9px;text-decoration:none;
-  font-family:var(--font-display);font-size:12px;letter-spacing:.05em;color:var(--cream);
-  padding-right:12px;border-right:1px solid var(--line);
+  font-family:var(--font-display);font-size:10.5px;letter-spacing:.05em;color:var(--cream);
+  padding-right:10px;border-right:1px solid var(--line);
   transition:opacity .15s var(--eo);
 }
 .home:hover{opacity:.7}
-.home img{height:14px;width:auto;display:block}
-.brand{font-family:var(--font-display);font-size:13px;letter-spacing:.07em;color:var(--gold)}
-.tag{font-family:var(--font-mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--mut)}
+.home img{height:12px;width:auto;display:block}
+.brand{font-family:var(--font-display);font-size:11px;letter-spacing:.07em;color:var(--gold)}
 .tools{margin-left:auto;display:flex;gap:8px}
 .btn{
-  font-family:var(--font-mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;
-  padding:.55em 1.1em;border-radius:999px;border:1px solid var(--line);color:var(--mut);
+  font-family:var(--font-mono);font-size:9px;letter-spacing:.06em;text-transform:uppercase;
+  padding:.5em .95em;border-radius:999px;border:1px solid var(--line);color:var(--mut);
   background:rgba(2,1,10,.66);
   transition:color .15s ease,border-color .15s ease,transform .15s var(--eo);
 }
@@ -188,7 +187,6 @@ header>*{pointer-events:auto}
 .legal a:hover{color:var(--cream)}
 
 @media(max-width:700px){
-  .tag{display:none}
   .hints{display:none}
   .btn{padding:.55em .85em}
   .legal{right:10px;bottom:6px}
