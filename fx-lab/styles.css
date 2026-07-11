@@ -148,3 +148,8 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
 }
 .home:hover{opacity:.7}
 .home img{height:18px;width:auto;display:block}
+
+/* legal footer */
+.legal{padding:12px;text-align:center;font-family:var(--mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.legal a{color:var(--muted);text-decoration:none}
+.legal a:hover{color:var(--ink)}
