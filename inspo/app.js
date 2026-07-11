@@ -66,6 +66,8 @@ function save(){
 function applyView(){
   const { x, y, k } = state.view;
   world.style.transform = `translate(${x}px, ${y}px) scale(${k})`;
+  viewport.style.backgroundPosition = `${x}px ${y}px`;
+  viewport.style.backgroundSize = `${22*k}px ${22*k}px`;
 }
 const toWorld = (sx, sy) => ({
   x: (sx - state.view.x) / state.view.k,
@@ -426,12 +428,19 @@ viewport.addEventListener('pointercancel', e => {
   viewport.classList.remove('panning');
 });
 
-/* wheel: zoom to cursor */
+/* two-finger scroll pans; pinch or ctrl/cmd+scroll zooms toward the cursor */
 viewport.addEventListener('wheel', e => {
   e.preventDefault();
-  const k2 = Math.min(3, Math.max(0.1, state.view.k * (e.deltaY < 0 ? 1.09 : 0.92)));
-  const w = toWorld(e.clientX, e.clientY);
-  state.view = { k: k2, x: e.clientX - w.x*k2, y: e.clientY - w.y*k2 };
+  const unit = e.deltaMode === 1 ? 16 : 1;   // Firefox line mode
+  if(e.ctrlKey || e.metaKey){
+    const d = Math.max(-40, Math.min(40, e.deltaY * unit));
+    const k2 = Math.min(3, Math.max(0.1, state.view.k * Math.exp(-d * 0.008)));
+    const w = toWorld(e.clientX, e.clientY);
+    state.view = { k: k2, x: e.clientX - w.x*k2, y: e.clientY - w.y*k2 };
+  }else{
+    state.view.x -= e.deltaX * unit;
+    state.view.y -= e.deltaY * unit;
+  }
   applyView(); save();
 }, { passive: false });
 
