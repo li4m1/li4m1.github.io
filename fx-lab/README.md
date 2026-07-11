@@ -6,7 +6,15 @@ Browser image effects — upload a photo, dial in an effect, download full-res. 
 
 ## Effects
 
-- **Thermal** — false-color gradient map (SKULL / IRON / NIGHT / XRAY / ACID palettes) with smear + grain
+- **Thermal** — false-color gradient map (SKULL / IRON / NIGHT / XRAY / ACID) with ←→ smear + grain
+- **Halftone** — rotated print-dot screen (ink-on-paper palettes)
+- **Riso** — two-plate risograph with misprint offset + plate grain
+- **Dither** — Floyd–Steinberg on palette ramps (MAC / GAMEBOY / AMBER / CGA), chunky pixels
+- **Pixel sort** — Asendorf-style luminance run sorting
+- **VHS** — tracking wave, chroma bleed, tape noise, OSD
+- **Dream** — Orton glow: screen-blended blur + lifted blacks
+- **ASCII** — glyph-ramp rendering (MATRIX / TERMINAL / PAPER / AMBER)
+- **Solar** — solarization with boost + hue spin
 - **Duotone** — two-color luminance map
 - **Glitch** — RGB shift, band displacement, scanlines
 - **Poster** — posterize + contrast + grain

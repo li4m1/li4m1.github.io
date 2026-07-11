@@ -118,3 +118,17 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
              linear-gradient(90deg,var(--heat-blue),var(--heat-pink),var(--heat-yellow)) border-box;
 }
 .chip.surprise:hover{color:#fff;filter:brightness(1.25)}
+
+/* ── phone editing: pin the picture, scroll the dials underneath ── */
+@media(max-width:860px){
+  .stage{
+    position:sticky; top:0; z-index:30; background:var(--bg);
+    min-height:0; padding:10px 12px 8px; gap:8px;
+    border-bottom:1px solid var(--line);
+  }
+  canvas#view{max-height:40vh}
+  .meta{display:none}
+  .filmstrip{padding:2px}
+  .add-tile,.thumb{width:44px;height:44px}
+  .drop{aspect-ratio:auto;min-height:46vh}
+}
