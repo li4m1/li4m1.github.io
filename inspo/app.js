@@ -66,8 +66,12 @@ function save(){
 function applyView(){
   const { x, y, k } = state.view;
   world.style.transform = `translate(${x}px, ${y}px) scale(${k})`;
+  // grid level of detail: keep on-screen dot spacing in a calm 16..32px band
+  let s = 24 * k;
+  while(s < 16) s *= 2;
+  while(s >= 32) s /= 2;
+  viewport.style.backgroundSize = `${s}px ${s}px`;
   viewport.style.backgroundPosition = `${x}px ${y}px`;
-  viewport.style.backgroundSize = `${22*k}px ${22*k}px`;
 }
 const toWorld = (sx, sy) => ({
   x: (sx - state.view.x) / state.view.k,
