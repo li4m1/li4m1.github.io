@@ -132,3 +132,19 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
   .add-tile,.thumb{width:44px;height:44px}
   .drop{aspect-ratio:auto;min-height:46vh}
 }
+
+/* ── crown home link — back to the mothership ── */
+@font-face{
+  font-family:'Captions';
+  src:url('/Captions.woff2') format('woff2');
+  font-display:swap;
+}
+.home{
+  display:flex;align-items:center;gap:8px;
+  font-family:'Captions','Arial Black',sans-serif;
+  font-size:15px;letter-spacing:.05em;color:var(--ink);
+  text-decoration:none;padding-right:14px;border-right:1px solid var(--line);
+  transition:opacity .12s;
+}
+.home:hover{opacity:.7}
+.home img{height:18px;width:auto;display:block}
