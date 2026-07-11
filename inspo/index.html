@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>INSPO · node moodboard</title>
+  <meta name="description" content="An infinite node canvas for everything you like. Images, notes, music. Stays in your browser.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧷</text></svg>">
+  <link rel="stylesheet" href="styles.css?v=1">
+  <script src="app.js?v=1" defer></script>
+</head>
+<body>
+
+<header>
+  <a class="home" href="https://janssonliam.de/" aria-label="Back to janssonliam.de">
+    <img src="/crown.png" alt="">JANSSON
+  </a>
+  <div class="brand">INSPO</div>
+  <span class="tag">everything stays in this browser</span>
+  <div class="tools">
+    <button class="btn" id="addImage" type="button">+ Image</button>
+    <button class="btn" id="addNote" type="button">+ Note</button>
+    <button class="btn" id="addMusic" type="button">+ Music</button>
+    <button class="btn" id="zoomFit" type="button" title="Fit everything in view">Fit</button>
+  </div>
+</header>
+
+<div id="viewport">
+  <div id="world">
+    <svg id="wires" aria-hidden="true"></svg>
+  </div>
+  <div class="empty" id="empty">
+    <h2>Your board is empty</h2>
+    <p>Drop images anywhere, paste from clipboard, or use + Note and + Music.
+       Drag the gold dot on a node onto another to connect them.
+       Double-click the canvas for a quick note.</p>
+  </div>
+</div>
+
+<footer class="hints mono" aria-hidden="true">
+  drag canvas: pan · wheel: zoom · double-click: note · paste: image or music link · select + backspace: delete
+</footer>
+
+<input type="file" id="file" accept="image/*" multiple hidden>
+</body>
+</html>

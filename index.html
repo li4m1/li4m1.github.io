@@ -929,7 +929,10 @@
         { num: "L02", title: "41SHOOTS", url: "https://41shoots.janssonliam.de/",
           kind: "Web app", year: "2026", draw: "sunpath",
           desc: "ShotPlan. Plan a shoot end to end: brief, shot list, crew, gear and sun-path light planning. Walk in as a guest and look around." },
-        { num: "L03", title: "Untitled", url: "", kind: "Next build", year: "2026", draw: "noise", desc: "" },
+        { num: "L03", title: "INSPO", url: "https://janssonliam.de/inspo/",
+          kind: "Node moodboard", year: "2026", draw: "nodes",
+          desc: "An infinite node canvas for everything I like. Images, notes and music, connected with wires. Stays in the browser." },
+        { num: "L04", title: "Untitled", url: "", kind: "Next build", year: "2026", draw: "noise", desc: "" },
       ];
 
       const grid = document.getElementById("lab-grid");
@@ -953,7 +956,7 @@
             ${live ? '<span class="lab-live"><i></i>LIVE</span>' : ""}
           </div>
           <div class="lab-view">
-            <canvas${p.draw === "sunpath" ? "" : ' class="px"'} aria-hidden="true"></canvas>
+            <canvas${p.draw === "sunpath" || p.draw === "nodes" ? "" : ' class="px"'} aria-hidden="true"></canvas>
             ${live ? '<span class="lab-open">Open ↗</span>' : '<div class="slot-tag"><b>SOON</b><span>reserved</span></div>'}
           </div>
           <div class="lab-info">
@@ -1028,6 +1031,38 @@
         }
       }
 
+      /* INSPO: node cards bobbing on a dot grid, wired together */
+      function drawNodes(ctx, w, h, t) {
+        const k = w / 192;
+        ctx.fillStyle = "#05030f"; ctx.fillRect(0, 0, w, h);
+        ctx.fillStyle = "rgba(183,169,230,0.14)";
+        for (let y = 8*k; y < h; y += 14*k)
+          for (let x = 8*k; x < w; x += 14*k) ctx.fillRect(x, y, k, k);
+        const nodes = [
+          [16, 26, 52, 40, "#6C1ADB"],
+          [86, 12, 44, 34, "rgba(244,241,234,0.35)"],
+          [126, 62, 50, 40, "#F0B429"],
+          [40, 82, 42, 30, "rgba(244,241,234,0.35)"],
+        ];
+        const bob = i => Math.sin(t * 0.6 + i * 1.7) * 2.5 * k;
+        const cs = nodes.map((n, i) => [(n[0]+n[2]/2)*k, (n[1]+n[3]/2)*k + bob(i)]);
+        ctx.strokeStyle = "rgba(108,26,219,0.85)"; ctx.lineWidth = 1.2*k;
+        [[0,1],[1,2],[0,3],[3,2]].forEach(([a2, b2]) => {
+          const p2 = cs[a2], q = cs[b2], mx = (p2[0]+q[0])/2;
+          ctx.beginPath(); ctx.moveTo(p2[0], p2[1]);
+          ctx.bezierCurveTo(mx, p2[1], mx, q[1], q[0], q[1]); ctx.stroke();
+        });
+        nodes.forEach((n, i) => {
+          const x = n[0]*k, y = n[1]*k + bob(i), ww = n[2]*k, hh = n[3]*k;
+          ctx.fillStyle = "#0e0a1e";
+          ctx.strokeStyle = n[4]; ctx.lineWidth = 1.4*k;
+          ctx.beginPath(); ctx.roundRect(x, y, ww, hh, 4*k); ctx.fill(); ctx.stroke();
+          ctx.fillStyle = "rgba(183,169,230,0.5)";
+          ctx.fillRect(x + 6*k, y + 8*k, ww*0.55, 2*k);
+          ctx.fillRect(x + 6*k, y + 15*k, ww*0.35, 2*k);
+        });
+      }
+
       /* reserved slot: same soft signal-noise as the work grid */
       function drawNoise(ctx, w, h) {
         const img = ctx.createImageData(w, h), d = img.data;
@@ -1042,11 +1077,12 @@
         const ctx = p.canvas.getContext("2d");
         if (p.mode === "thermal") drawThermal(ctx, p.canvas.width, p.canvas.height, p.t);
         else if (p.mode === "sunpath") drawSunpath(ctx, p.canvas.width, p.canvas.height, p.t);
+        else if (p.mode === "nodes") drawNodes(ctx, p.canvas.width, p.canvas.height, p.t);
         else drawNoise(ctx, p.canvas.width, p.canvas.height);
       };
 
       painters.forEach(p => {
-        const hi = p.mode === "sunpath";                 // arc wants crisp lines
+        const hi = p.mode === "sunpath" || p.mode === "nodes"; // lines want crisp
         p.canvas.width = hi ? 384 : 176; p.canvas.height = hi ? 240 : 110;
         paint(p);                                        // static first frame for everyone
       });
