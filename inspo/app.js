@@ -63,6 +63,17 @@ CATS.forEach((cat, ci) => {
 
 
 
+function subAnchor(cat, sub){
+  let h = 2166136261;
+  for (const ch of (cat.id + '/' + sub)) { h ^= ch.charCodeAt(0); h = Math.imul(h, 16777619); }
+  const u = n => (((h >>> n) & 1023) / 1023);
+  return {
+    x: cat.x + (u(2) - 0.5) * 560,
+    y: cat.y + (u(12) - 0.5) * 380,
+    z: -(cat.z0 + 150 + u(21) * 620),
+  };
+}
+
 const SIZE = { video:[280,158], image:[200,250], book:[150,220], quote:[230,150], music:[260,44] };
 
 /* ---------- placeholder art ---------- */
@@ -309,20 +320,30 @@ CATS.forEach(cat => {
   btn.innerHTML = `${cat.label}<span class="n">${ITEMS.filter(i => i.cat === cat.id).length}</span>`;
   btn.onclick = () => flyTo(cat.x, cat.y, cat.z0 + 480);
   group.appendChild(btn);
-  cat.subs.forEach(sub => {
-    const sb = document.createElement('button');
-    sb.className = 'rail-sub'; sb.textContent = sub;
-    sb.onclick = () => {
-      const mine = ITEMS.filter(i => i.cat === cat.id && i.sub === sub);
-      const cx = mine.reduce((t, i) => t + i.x, 0) / mine.length;
-      const cy = mine.reduce((t, i) => t + i.y, 0) / mine.length;
-      const cz = mine.reduce((t, i) => t + i.z, 0) / mine.length;
-      flyTo(cx, cy, -cz + 620);
-    };
-    group.appendChild(sb);
-  });
+  group.dataset.cat = cat.id;
+  subsOf(cat).forEach(sub => addRailSub(cat, sub, group));
   rail.appendChild(group);
 });
+
+function railHasSub(catId, sub){
+  const g = rail.querySelector(`.rail-group[data-cat="${catId}"]`);
+  return g && [...g.querySelectorAll('.rail-sub')].some(b => b.textContent === sub);
+}
+function addRailSub(cat, sub, group){
+  group = group || rail.querySelector(`.rail-group[data-cat="${cat.id}"]`);
+  if (!group || railHasSub(cat.id, sub)) return;
+  const sb = document.createElement('button');
+  sb.className = 'rail-sub'; sb.textContent = sub;
+  sb.onclick = () => {
+    const mine = ITEMS.filter(i => i.cat === cat.id && i.sub === sub);
+    if (!mine.length) return;
+    const cx = mine.reduce((t, i) => t + i.x, 0) / mine.length;
+    const cy = mine.reduce((t, i) => t + i.y, 0) / mine.length;
+    const cz = mine.reduce((t, i) => t + i.z, 0) / mine.length;
+    flyTo(cx, cy, -cz + 620);
+  };
+  group.appendChild(sb);
+}
 
 const railToggle = document.getElementById('railToggle');
 railToggle.onclick = () => {
@@ -378,9 +399,13 @@ const addOv = document.getElementById('add');
 const addCat = document.getElementById('addCat');
 const addSub = document.getElementById('addSub');
 CATS.forEach(c => addCat.insertAdjacentHTML('beforeend', `<option value="${c.id}">${c.label}</option>`));
+function subsOf(c){
+  return [...new Set([...c.subs, ...USER.filter(u => u.cat === c.id).map(u => u.sub)])];
+}
 function fillSubs(){
   const c = CATS.find(x => x.id === addCat.value);
-  addSub.innerHTML = c.subs.map(su => `<option>${su}</option>`).join('');
+  document.getElementById('subList').innerHTML = subsOf(c).map(su => `<option value="${su}">`).join('');
+  addSub.value = c.subs[0];
 }
 addCat.onchange = fillSubs; fillSubs();
 let pendingFile = null;
@@ -419,10 +444,14 @@ async function pinItem(text, file, catId, subName, fly = true){
     meta: text || 'added from a file',
     url: /^https?:/.test(text) ? text : '',
     hue: HUES[cat.id][0],
-    x: cat.x + (rnd() - 0.5) * 620,
-    y: cat.y + (rnd() - 0.5) * 430,
-    z: -(cat.z0 + rnd() * 760),
+    x: 0, y: 0, z: 0,
   };
+  item.sub = (subName || cat.subs[0]).trim() || cat.subs[0];
+  const an = subAnchor(cat, item.sub);
+  item.x = an.x + (rnd() - 0.5) * 170;
+  item.y = an.y + (rnd() - 0.5) * 140;
+  item.z = an.z + (rnd() - 0.5) * 160;
+  if (!subsOf(cat).includes(item.sub) || !railHasSub(cat.id, item.sub)) addRailSub(cat, item.sub);
   const yt = text.match(/(?:youtube\.com\/(?:watch\?.*v=|shorts\/)|youtu\.be\/)([\w-]{6,})/);
   if (yt) item.thumb = `https://img.youtube.com/vi/${yt[1]}/hqdefault.jpg`;
   if (file){

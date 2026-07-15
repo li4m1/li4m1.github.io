@@ -9,8 +9,8 @@
   <link rel="preload" href="/Captions.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="/fonts/Inter-var.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="/fonts/JetBrainsMono-var.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="styles.css?v=14">
-  <script src="app.js?v=14" defer></script>
+  <link rel="stylesheet" href="styles.css?v=15">
+  <script src="app.js?v=15" defer></script>
 </head>
 <body>
 
@@ -42,7 +42,7 @@
       </div>
       <div class="add-row">
         <select id="addCat"></select>
-        <select id="addSub"></select>
+        <input id="addSub" list="subList" placeholder="subcategory…" autocomplete="off" spellcheck="false"><datalist id="subList"></datalist>
       </div>
       <button class="btn gold" id="addGo" type="button">Pin it</button>
     </div>
