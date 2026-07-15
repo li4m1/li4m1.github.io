@@ -13,14 +13,13 @@ const rnd = (seed => () => {
 })(41);
 
 const CATS = [
-  { id:'film',   label:'FILM',   x:-3500, y:0, subs:['music videos','short films','scenes'] },
-  { id:'photo',  label:'PHOTO',  x:-2100, y:0, subs:['street','flash','editorial'] },
-  { id:'music',  label:'MUSIC',  x:-700,  y:0, subs:['tracks','albums'] },
-  { id:'books',  label:'BOOKS',  x:700,   y:0, subs:['design','stories'] },
-  { id:'design', label:'DESIGN', x:2100,  y:0, subs:['posters','type','sites'] },
-  { id:'words',  label:'WORDS',  x:3500,  y:0, subs:['quotes','ideas'] },
+  { id:'film',   label:'FILM',   x:-1500, y:-460, subs:['music videos','short films','scenes'] },
+  { id:'photo',  label:'PHOTO',  x:0,     y:-460, subs:['street','flash','editorial'] },
+  { id:'music',  label:'MUSIC',  x:1500,  y:-460, subs:['tracks','albums'] },
+  { id:'books',  label:'BOOKS',  x:-1500, y:560,  subs:['design','stories'] },
+  { id:'design', label:'DESIGN', x:0,     y:560,  subs:['posters','type','sites'] },
+  { id:'words',  label:'WORDS',  x:1500,  y:560,  subs:['quotes','ideas'] },
 ];
-const CATGAP = 1400;
 const TYPE = { film:'video', photo:'image', music:'music', books:'book', design:'image', words:'quote' };
 const HUES = {
   film:  [['#2B0A72','#e0342b'],['#140933','#6C1ADB'],['#02010A','#F0B429']],
@@ -44,8 +43,8 @@ function subAnchor(cat, sub){
   for (const ch of (cat.id + '/' + sub)) { h ^= ch.charCodeAt(0); h = Math.imul(h, 16777619); }
   const u = n => (((h >>> n) & 1023) / 1023);
   return {
-    x: cat.x + (u(2) - 0.5) * 760,
-    y: (u(12) - 0.5) * 480,
+    x: cat.x + (u(2) - 0.5) * 700,
+    y: cat.y + (u(12) - 0.5) * 420,
     z: -(300 + u(21) * 950),
   };
 }
@@ -107,7 +106,7 @@ CATS.forEach(cat => {
   g.className = 'ghost';
   g.innerHTML = `${cat.label}<i>${cat.subs.join(' · ')}</i>`;
   const gz = -1150;
-  g.style.transform = `translate3d(${cat.x - cat.label.length * 52}px, -330px, ${gz}px)`;
+  g.style.transform = `translate3d(${cat.x - cat.label.length * 52}px, ${cat.y - 300}px, ${gz}px)`;
   camera.appendChild(g);
   els.push({ el: g, z: gz, ghost: true });
 });
@@ -175,7 +174,8 @@ if (userDirty) saveUser();
 
 /* ---------- flight camera ---------- */
 const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
-const MAXZ = 1900;
+const MAXZ = 1900, MINZ = -980, BX = 1900, BY = 1150;
+const OVERVIEW = { x: -170, y: 60, z: -980 };
 const cam = { x: 0, y: 0, z: 0 };
 const target = { x: 0, y: 0, z: 0 };
 window.__cam = cam;  // test hook
@@ -194,8 +194,9 @@ function buckets(){
 }
 
 function hud(){
-  const idx = Math.min(CATS.length - 1, Math.max(0, Math.round((cam.x + 3500) / CATGAP)));
-  const cat = CATS[idx];
+  let cat = CATS[0], bd = Infinity;
+  for (const c of CATS){ const d = Math.hypot(c.x - cam.x, c.y - cam.y); if (d < bd){ bd = d; cat = c; } }
+  const idx = CATS.indexOf(cat);
   const h = document.getElementById('hud');
   if (h.dataset.cat !== cat.id){
     h.dataset.cat = cat.id;
@@ -218,12 +219,26 @@ function tick(){
 tick();
 
 function flyTo(x, y, z){
-  target.x = x; target.y = y;
-  target.z = Math.max(0, Math.min(MAXZ, z));
+  target.x = Math.max(-BX, Math.min(BX, x));
+  target.y = Math.max(-BY, Math.min(BY, y));
+  target.z = Math.max(MINZ, Math.min(MAXZ, z));
 }
+function overview(){ flyTo(OVERVIEW.x, OVERVIEW.y, OVERVIEW.z); }
 
 /* manual picking: Chromium hit-testing is unreliable for 3D descendants,
    but projected rects are always correct. Topmost = most viewer-facing. */
+function nearestCat(e){
+  let best = null, bd = Infinity;
+  for (const c of CATS){
+    const o = els.find(x => x.ghost && x.el.textContent.startsWith(c.label));
+    if (!o) continue;
+    const r = o.el.getBoundingClientRect();
+    const d = Math.hypot(r.x + r.width/2 - e.clientX, r.y + r.height/2 - e.clientY);
+    if (d < bd){ bd = d; best = c; }
+  }
+  return best;
+}
+function dirLabel(){ return null; }
 function pick(cx, cy){
   let best = null, bestD = -Infinity;
   for (const o of els){
@@ -260,14 +275,14 @@ space.addEventListener('pointermove', e => {
     if (drag.pinch && pointers.size === 2){
       const [a, b] = [...pointers.values()];
       const d = Math.hypot(a.x-b.x, a.y-b.y);
-      target.z = Math.max(0, Math.min(MAXZ, drag.z + (d - drag.pinch) * 4));
+      target.z = Math.max(MINZ, Math.min(MAXZ, drag.z + (d - drag.pinch) * 4));
       return;
     }
     if (drag.pinch) return;
     const dx = e.clientX - drag.sx, dy = e.clientY - drag.sy;
     if (Math.abs(dx) + Math.abs(dy) > 6) drag.moved = true;
-    target.x = drag.tx - dx * 1.15;
-    target.y = drag.ty - dy * 1.15;
+    target.x = Math.max(-BX, Math.min(BX, drag.tx - dx * 1.15));
+    target.y = Math.max(-BY, Math.min(BY, drag.ty - dy * 1.15));
     if (drag.moved) space.classList.add('panning');
     return;
   }
@@ -288,7 +303,20 @@ space.addEventListener('pointermove', e => {
   space.classList.remove('panning');
   if (drag && !drag.pinch && !drag.moved){
     const hit = pick(e.clientX, e.clientY);
-    if (hit) openFocus(hit.item.id);
+    if (hit && target.z > -350){ openFocus(hit.item.id); }
+    else {
+      let best = null, bd = Infinity;
+      for (const o of els){
+        const r = o.el.getBoundingClientRect();
+        const cx = r.x + r.width/2, cy = r.y + r.height/2;
+        const d = Math.hypot(cx - e.clientX, cy - e.clientY);
+        if (d < bd){ bd = d; best = o; }
+      }
+      if (best){
+        const c = CATS.find(x => x.id === (best.item ? best.item.cat : CATS.find(cc => dirLabel(cc, best.el))?.id)) || nearestCat(e);
+        if (c) flyTo(c.x, c.y, 520);
+      }
+    }
   }
   drag = null;
 }));
@@ -297,11 +325,11 @@ space.addEventListener('wheel', e => {
   e.preventDefault();
   lastInput = Date.now();
   const unit = e.deltaMode === 1 ? 16 : 1;
-  target.z = Math.max(0, Math.min(MAXZ, target.z - e.deltaY * unit * 4.2));
+  target.z = Math.max(MINZ, Math.min(MAXZ, target.z - e.deltaY * unit * 4.2));
 }, { passive: false });
 
 addEventListener('keydown', e => {
-  if (e.key === 'Escape') closeFocus();
+  if (e.key === 'Escape'){ if (!focus.hidden) closeFocus(); else overview(); }
   lastInput = Date.now();
   const step = 140;
   if (e.key === 'ArrowLeft') target.x -= step;
@@ -309,7 +337,8 @@ addEventListener('keydown', e => {
   if (e.key === 'ArrowUp') target.y -= step;
   if (e.key === 'ArrowDown') target.y += step;
   if (e.key === '+' || e.key === 'w') target.z = Math.min(MAXZ, target.z + 400);
-  if (e.key === '-' || e.key === 's') target.z = Math.max(0, target.z - 400);
+  if (e.key === '-' || e.key === 's') target.z = Math.max(MINZ, target.z - 400);
+  if (e.key === 'o') overview();
 });
 
 /* ---------- rail ---------- */
@@ -411,6 +440,7 @@ function fillSubs(){
 }
 addCat.onchange = fillSubs; fillSubs();
 let pendingFile = null;
+document.getElementById('ovBtn').onclick = overview;
 document.getElementById('addBtn').onclick = () => { addOv.hidden = false; document.getElementById('addInput').focus(); };
 document.getElementById('addClose').onclick = () => { addOv.hidden = true; };
 addOv.addEventListener('click', e => { if (e.target === addOv) addOv.hidden = true; });
@@ -510,5 +540,4 @@ addEventListener('paste', e => {
 });
 
 /* arrive from deep space, then settle on FILM */
-if (RM) flyTo(CATS[0].x, 0, 520);
-else { setTimeout(() => flyTo(CATS[0].x, 0, 520), 350); }
+overview();  // Shneiderman: overview first, zoom on demand
