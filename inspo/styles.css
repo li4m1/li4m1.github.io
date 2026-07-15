@@ -207,3 +207,19 @@ header{
 @media(prefers-reduced-motion:reduce){
   *{transition:none!important}
 }
+
+/* ── add flow ── */
+.btn.gold{color:var(--gold);border-color:rgba(240,180,41,.4)}
+.btn.gold:hover{color:var(--night);background:var(--gold);border-color:var(--gold)}
+#add{position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;
+  background:rgba(2,1,10,.82);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.add-card{max-width:460px}
+#addInput{width:100%;margin:12px 0 4px;padding:11px 13px;border-radius:8px;border:1px solid var(--line);
+  background:var(--night);color:var(--cream);font-family:var(--font-body);font-size:14px;outline:none}
+#addInput:focus{border-color:var(--purple)}
+.add-row{display:flex;gap:10px;align-items:center;margin-top:10px}
+#addFileName{font-size:9px;color:var(--gold)}
+#addCat,#addSub{flex:1;padding:9px 10px;border-radius:8px;border:1px solid var(--line);
+  background:var(--night);color:var(--cream);font-family:var(--font-mono);font-size:11px;text-transform:uppercase}
+#addGo{margin-top:16px;width:100%;text-align:center}
+.focus-actions{display:flex;gap:10px;margin-top:14px}

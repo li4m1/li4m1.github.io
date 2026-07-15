@@ -9,8 +9,8 @@
   <link rel="preload" href="/Captions.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="/fonts/Inter-var.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="/fonts/JetBrainsMono-var.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="styles.css?v=10">
-  <script src="app.js?v=10" defer></script>
+  <link rel="stylesheet" href="styles.css?v=11">
+  <script src="app.js?v=11" defer></script>
 </head>
 <body>
 
@@ -19,6 +19,7 @@
     <img src="/crown.png" alt="">JANSSON
   </a>
   <div class="brand">INSPO</div>
+  <button class="btn gold" id="addBtn" type="button">+ Add</button>
   <button class="btn" id="railToggle" type="button" aria-expanded="true">Map</button>
 </header>
 
@@ -29,6 +30,26 @@
 </div>
 
 <div id="hud" class="mono" aria-live="polite"></div>
+
+<div id="add" hidden>
+  <div class="focus-card add-card">
+    <div class="focus-info" style="flex:1">
+      <span class="focus-path mono">Add to the planet</span>
+      <input id="addInput" type="text" placeholder="Paste a link, or write a thought…" autocomplete="off" spellcheck="false">
+      <div class="add-row">
+        <button class="btn" id="addFile" type="button">Or choose an image</button>
+        <span class="mono" id="addFileName"></span>
+      </div>
+      <div class="add-row">
+        <select id="addCat"></select>
+        <select id="addSub"></select>
+      </div>
+      <button class="btn gold" id="addGo" type="button">Pin it</button>
+    </div>
+    <button class="focus-close" id="addClose" aria-label="Close">✕</button>
+  </div>
+</div>
+<input type="file" id="file" accept="image/*" hidden>
 
 <div id="focus" hidden>
   <div class="focus-card">

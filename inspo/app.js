@@ -105,7 +105,7 @@ CATS.forEach(cat => {
   els.push({ el: g, v: dir(cat.lat, cat.lon), ghost: true });
 });
 
-ITEMS.forEach(item => {
+function spawnCard(item){
   const [w, h] = SIZE[item.type];
   const el = document.createElement('div');
   el.className = 'card';
@@ -127,9 +127,35 @@ ITEMS.forEach(item => {
     el.insertAdjacentHTML('beforeend', `<div class="cap"><b>${item.title}</b><span>${item.cat} / ${item.sub}</span></div>`);
   if (item.type === 'quote')
     el.insertAdjacentHTML('beforeend', `<div class="cap"><span>${item.cat} / ${item.sub}</span></div>`);
+  if (item.thumb){
+    el.querySelectorAll('canvas').forEach(cv => cv.remove());
+    const im = document.createElement('img');
+    im.src = item.thumb; im.alt = '';
+    im.style.cssText = 'width:100%;height:100%;object-fit:cover;display:block';
+    el.prepend(im);
+  }
   camera.appendChild(el);
   els.push({ el, v: dir(item.lat, item.lon), item });
-});
+}
+ITEMS.forEach(spawnCard);
+
+/* ── user items: persisted additions ── */
+const idb = {
+  _d: null,
+  open(){ return this._d ? Promise.resolve(this._d) : new Promise((res, rej) => {
+    const r = indexedDB.open('inspo2', 1);
+    r.onupgradeneeded = () => r.result.createObjectStore('img');
+    r.onsuccess = () => { this._d = r.result; res(this._d); };
+    r.onerror = () => rej(r.error);
+  });},
+  async put(k, v){ const d = await this.open(); return new Promise(r => { const t = d.transaction('img','readwrite'); t.objectStore('img').put(v, k); t.oncomplete = r; }); },
+  async get(k){ const d = await this.open(); return new Promise(r => { const q = d.transaction('img').objectStore('img').get(k); q.onsuccess = () => r(q.result); }); },
+  async del(k){ const d = await this.open(); return new Promise(r => { const t = d.transaction('img','readwrite'); t.objectStore('img').delete(k); t.oncomplete = r; }); },
+};
+let USER = [];
+try{ USER = JSON.parse(localStorage.getItem('inspo-items') || '[]'); }catch{ USER = []; }
+const saveUser = () => localStorage.setItem('inspo-items', JSON.stringify(USER));
+USER.forEach(u => { ITEMS.push(u); spawnCard(u); if (u.img) idb.get(u.img).then(b => { const el = camera.querySelector(`[data-id="${u.id}"] img`); if (el && b) el.src = URL.createObjectURL(b); }); });
 
 /* ---------- orbit camera ---------- */
 const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -321,11 +347,89 @@ function openFocus(id){
   document.getElementById('focusPath').textContent = `${item.cat} / ${item.sub}`;
   document.getElementById('focusTitle').textContent = item.title;
   document.getElementById('focusMeta').textContent = item.meta;
+  const old = focus.querySelector('.focus-actions');
+  if (old) old.remove();
+  if (item.user){
+    const row = document.createElement('div');
+    row.className = 'focus-actions';
+    if (item.url) row.innerHTML = `<a class="btn gold" href="${item.url}" target="_blank" rel="noopener">Open source ↗</a>`;
+    const del = document.createElement('button');
+    del.className = 'btn'; del.textContent = 'Remove';
+    del.onclick = () => {
+      USER = USER.filter(u => u.id !== item.id); saveUser();
+      if (item.img) idb.del(item.img);
+      const i = ITEMS.indexOf(item); if (i > -1) ITEMS.splice(i, 1);
+      const oi = els.findIndex(o => o.item === item);
+      if (oi > -1){ els[oi].el.remove(); els.splice(oi, 1); }
+      closeFocus();
+    };
+    row.appendChild(del);
+    focus.querySelector('.focus-info').appendChild(row);
+  }
   focus.hidden = false;
 }
 function closeFocus(){ focus.hidden = true; }
 document.getElementById('focusClose').onclick = closeFocus;
 focus.addEventListener('click', e => { if (e.target === focus) closeFocus(); });
+
+/* ── add flow ── */
+const addOv = document.getElementById('add');
+const addCat = document.getElementById('addCat');
+const addSub = document.getElementById('addSub');
+CATS.forEach(c => addCat.insertAdjacentHTML('beforeend', `<option value="${c.id}">${c.label}</option>`));
+function fillSubs(){
+  const c = CATS.find(x => x.id === addCat.value);
+  addSub.innerHTML = c.subs.map(su => `<option>${su}</option>`).join('');
+}
+addCat.onchange = fillSubs; fillSubs();
+let pendingFile = null;
+document.getElementById('addBtn').onclick = () => { addOv.hidden = false; document.getElementById('addInput').focus(); };
+document.getElementById('addClose').onclick = () => { addOv.hidden = true; };
+addOv.addEventListener('click', e => { if (e.target === addOv) addOv.hidden = true; });
+document.getElementById('addFile').onclick = () => document.getElementById('file').click();
+document.getElementById('file').onchange = e => {
+  pendingFile = e.target.files[0] || null;
+  document.getElementById('addFileName').textContent = pendingFile ? pendingFile.name : '';
+  e.target.value = '';
+};
+function inferType(text){
+  if (/youtu\.be|youtube\.com|vimeo\.com/.test(text)) return 'video';
+  if (/spotify\.com|soundcloud\.com/.test(text)) return 'music';
+  if (/^https?:\/\//.test(text)) return 'image';
+  return 'quote';
+}
+document.getElementById('addGo').onclick = async () => {
+  const text = document.getElementById('addInput').value.trim();
+  if (!text && !pendingFile) return;
+  const cat = CATS.find(x => x.id === addCat.value);
+  const item = {
+    id: 'u' + Date.now().toString(36),
+    cat: cat.id, sub: addSub.value, user: true,
+    type: pendingFile ? 'image' : inferType(text),
+    title: text && !/^https?:/.test(text) ? text : (text ? text.replace(/^https?:\/\//, '').slice(0, 42) : pendingFile.name),
+    meta: text || 'added from a file',
+    url: /^https?:/.test(text) ? text : '',
+    hue: HUES[cat.id][0],
+    lat: cat.lat + (rnd() - 0.5) * 30,
+    lon: cat.lon + (rnd() - 0.5) * 40,
+  };
+  const yt = text.match(/(?:youtube\.com\/(?:watch\?.*v=|shorts\/)|youtu\.be\/)([\w-]{6,})/);
+  if (yt) item.thumb = `https://img.youtube.com/vi/${yt[1]}/hqdefault.jpg`;
+  if (pendingFile){
+    item.img = item.id;
+    await idb.put(item.id, pendingFile);
+  }
+  USER.push(item); ITEMS.push(item); saveUser();
+  spawnCard(item);
+  if (item.img) idb.get(item.img).then(b => { const el = camera.querySelector(`[data-id="${item.id}"] img`); if (el && b) el.src = URL.createObjectURL(b); });
+  if (item.img && !item.thumb){ const el = camera.querySelector(`[data-id="${item.id}"]`); const im = document.createElement('img'); im.style.cssText='width:100%;height:100%;object-fit:cover;display:block'; el.querySelectorAll('canvas').forEach(c2=>c2.remove()); el.prepend(im); idb.get(item.img).then(b => { if (b) im.src = URL.createObjectURL(b); }); }
+  pendingFile = null;
+  document.getElementById('addFileName').textContent = '';
+  document.getElementById('addInput').value = '';
+  addOv.hidden = true;
+  flyTo(item.lat, item.lon, -1020);
+  document.querySelector(`.rail-cat[data-cat="${cat.id}"] .n`).textContent = ITEMS.filter(i => i.cat === cat.id).length;
+};
 
 /* arrive from deep space, then settle on FILM */
 if (RM) flyTo(CATS[0].lat, CATS[0].lon, -1150);
