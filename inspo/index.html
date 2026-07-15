@@ -3,14 +3,14 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-  <title>INSPO · node moodboard</title>
-  <meta name="description" content="An infinite node canvas for everything you like. Images, notes, music. Stays in your browser.">
+  <title>INSPO · creative second brain</title>
+  <meta name="description" content="Everything that inspired me, in one navigable space. Films, photos, books, music, design, words.">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧷</text></svg>">
   <link rel="preload" href="/Captions.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="/fonts/Inter-var.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="/fonts/JetBrainsMono-var.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="styles.css?v=7">
-  <script src="app.js?v=7" defer></script>
+  <link rel="stylesheet" href="styles.css?v=8">
+  <script src="app.js?v=8" defer></script>
 </head>
 <body>
 
@@ -19,35 +19,37 @@
     <img src="/crown.png" alt="">JANSSON
   </a>
   <div class="brand">INSPO</div>
-  <div class="tools">
-    <button class="btn" id="addImage" type="button">+ Image</button>
-    <button class="btn" id="addNote" type="button">+ Note</button>
-    <button class="btn" id="addMusic" type="button">+ Music</button>
-    <button class="btn" id="zoomFit" type="button" title="Fit everything in view">Fit</button>
-  </div>
+  <button class="btn" id="railToggle" type="button" aria-expanded="true">Map</button>
 </header>
 
-<div id="viewport">
-  <div id="world">
-    <svg id="wires" aria-hidden="true"></svg>
-  </div>
-  <div class="empty" id="empty">
-    <span class="kicker">Pin board · Berlin</span>
-    <h2>Your board is empty</h2>
-    <p>Everything stays in this browser. Drop images anywhere, paste from clipboard, or use + Note and + Music.
-       Drag the gold dot on a node onto another to connect them.
-       Double-click the canvas for a quick note.</p>
+<nav id="rail" aria-label="Categories"></nav>
+
+<div id="space">
+  <div id="camera"></div>
+</div>
+
+<div id="hud" class="mono" aria-live="polite"></div>
+
+<div id="focus" hidden>
+  <div class="focus-card">
+    <div class="focus-art" id="focusArt"></div>
+    <div class="focus-info">
+      <span class="focus-path mono" id="focusPath"></span>
+      <h2 id="focusTitle"></h2>
+      <p id="focusMeta"></p>
+      <p class="focus-note mono">placeholder · will link to the source</p>
+    </div>
+    <button class="focus-close" id="focusClose" aria-label="Close">✕</button>
   </div>
 </div>
 
 <footer class="hints mono" aria-hidden="true">
-  drag or scroll: pan · pinch / ctrl+scroll: zoom · double-click: note · paste: image or music link · select + backspace: delete
+  scroll: fly through · drag: pan · click card: focus · esc: back
 </footer>
 
 <nav class="legal">
   <a href="/impressum.html">Impressum</a> · <a href="/datenschutz.html">Datenschutz</a>
 </nav>
 
-<input type="file" id="file" accept="image/*" multiple hidden>
 </body>
 </html>

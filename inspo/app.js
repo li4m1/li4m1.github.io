@@ -1,527 +1,316 @@
 'use strict';
 
-/* ---------- tiny IndexedDB store for image blobs ---------- */
-const idb = {
-  _db: null,
-  open(){
-    if(this._db) return Promise.resolve(this._db);
-    return new Promise((res, rej) => {
-      const r = indexedDB.open('inspo', 1);
-      r.onupgradeneeded = () => r.result.createObjectStore('img');
-      r.onsuccess = () => { this._db = r.result; res(this._db); };
-      r.onerror = () => rej(r.error);
-    });
-  },
-  async put(k, v){ const db = await this.open(); return new Promise((res, rej) => {
-    const t = db.transaction('img','readwrite'); t.objectStore('img').put(v, k);
-    t.oncomplete = res; t.onerror = () => rej(t.error);
-  });},
-  async get(k){ const db = await this.open(); return new Promise((res, rej) => {
-    const r = db.transaction('img').objectStore('img').get(k);
-    r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error);
-  });},
-  async del(k){ const db = await this.open(); return new Promise((res, rej) => {
-    const t = db.transaction('img','readwrite'); t.objectStore('img').delete(k);
-    t.oncomplete = res; t.onerror = () => rej(t.error);
-  });},
+/* ═══ INSPO · creative second brain ═══
+   One 3D space. Categories live in depth bands; scrolling flies the
+   camera through them. All content below is PLACEHOLDER data: swap the
+   ITEMS entries (title/meta/sub) for real references later. */
+
+const rnd = (seed => () => {
+  seed |= 0; seed = seed + 0x6D2B79F5 | 0;
+  let t = Math.imul(seed ^ seed >>> 15, 1 | seed);
+  t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+  return ((t ^ t >>> 14) >>> 0) / 4294967296;
+})(41);
+
+const BAND = 1200, START = 420;
+const CATS = [
+  { id:'film',   label:'FILM',   x:0,    y:-40,  subs:['music videos','short films','scenes'] },
+  { id:'photo',  label:'PHOTO',  x:660,  y:230,  subs:['street','flash','editorial'] },
+  { id:'music',  label:'MUSIC',  x:-640, y:200,  subs:['tracks','albums'] },
+  { id:'books',  label:'BOOKS',  x:520,  y:-300, subs:['design','stories'] },
+  { id:'design', label:'DESIGN', x:-560, y:-280, subs:['posters','type','sites'] },
+  { id:'words',  label:'WORDS',  x:60,   y:380,  subs:['quotes','ideas'] },
+];
+const TYPE = { film:'video', photo:'image', music:'music', books:'book', design:'image', words:'quote' };
+const HUES = {
+  film:  [['#2B0A72','#e0342b'],['#140933','#6C1ADB'],['#02010A','#F0B429']],
+  photo: [['#F0B429','#2B0A72'],['#e0342b','#140933'],['#B7A9E6','#02010A']],
+  music: [['#6C1ADB','#02010A'],['#2B0A72','#F0B429'],['#140933','#B7A9E6']],
+  books: [['#F4F1EA','#2B0A72'],['#F0B429','#140933'],['#F4F1EA','#e0342b']],
+  design:[['#B7A9E6','#140933'],['#F0B429','#6C1ADB'],['#2B0A72','#F4F1EA']],
+  words: [['#F4F1EA','#F4F1EA']],
 };
+const QUOTES = [
+  'Make it feel found, not made.',
+  'Hard light tells the truth.',
+  'Style is what you refuse.',
+  'Shoot the in-between moments.',
+  'The frame is the sentence.',
+  'Taste is a muscle. Feed it.',
+];
 
-/* ---------- state ---------- */
-const uid = () => crypto.randomUUID().slice(0, 8);
-let state = { nodes: [], links: [], view: { x: 0, y: 0, k: 1 } };
-let selected = null;
-
-const viewport = document.getElementById('viewport');
-const world = document.getElementById('world');
-const wires = document.getElementById('wires');
-const empty = document.getElementById('empty');
-
-function load(){
-  try{
-    const raw = localStorage.getItem('inspo-board');
-    if(raw){ const s = JSON.parse(raw); if(s.nodes) state = s; }
-    // migrate v1 music nodes (big embeds) to slim bars
-    for(const n of state.nodes){
-      if(n.type !== 'music' || n.provider) continue;
-      let m;
-      if((m = (n.embed||'').match(/youtube-nocookie\.com\/embed\/([\w-]+)/))){
-        n.provider = 'youtube'; n.media = m[1]; n.url = `https://youtu.be/${m[1]}`;
-      }else if((m = (n.embed||'').match(/open\.spotify\.com\/embed\/(track|album|playlist|artist)\/(\w+)/))){
-        n.provider = 'spotify'; n.kind = m[1]; n.media = m[2];
-        n.url = `https://open.spotify.com/${m[1]}/${m[2]}`;
-      }else if((m = (n.embed||'').match(/w\.soundcloud\.com\/player\/\?url=([^&]+)/))){
-        n.provider = 'soundcloud'; n.url = decodeURIComponent(m[1]);
-      }else{ continue; }
-      delete n.embed; n.w = 340; n.h = 44; n.title = '';
+const ITEMS = [];
+CATS.forEach((cat, ci) => {
+  cat.z0 = START + ci * BAND;
+  cat.subs.forEach((sub, si) => {
+    for (let k = 0; k < 3; k++) {
+      const n = ITEMS.length + 1;
+      ITEMS.push({
+        id: 'p' + n, cat: cat.id, sub,
+        type: TYPE[cat.id],
+        title: TYPE[cat.id] === 'quote'
+          ? QUOTES[(si * 3 + k) % QUOTES.length]
+          : `Untitled ${String(n).padStart(2, '0')}`,
+        meta: 'placeholder · swap for a real reference',
+        hue: HUES[cat.id][(si + k) % HUES[cat.id].length],
+        x: cat.x + (rnd() - 0.5) * 680,
+        y: cat.y + (rnd() - 0.5) * 470,
+        z: -(cat.z0 + rnd() * 780),
+      });
     }
-  }catch{ /* fresh board */ }
-}
-let saveT = 0;
-function save(){
-  clearTimeout(saveT);
-  saveT = setTimeout(() => localStorage.setItem('inspo-board', JSON.stringify(state)), 350);
-}
-
-/* ---------- view transform ---------- */
-function applyView(){
-  const { x, y, k } = state.view;
-  world.style.transform = `translate(${x}px, ${y}px) scale(${k})`;
-  // grid level of detail: keep on-screen dot spacing in a calm 16..32px band
-  let s = 24 * k;
-  while(s < 16) s *= 2;
-  while(s >= 32) s /= 2;
-  viewport.style.backgroundSize = `${s}px ${s}px`;
-  viewport.style.backgroundPosition = `${x}px ${y}px`;
-}
-const toWorld = (sx, sy) => ({
-  x: (sx - state.view.x) / state.view.k,
-  y: (sy - state.view.y) / state.view.k,
-});
-
-/* ---------- wires ---------- */
-function center(n){ return { x: n.x + n.w/2, y: n.y + n.h/2 }; }
-function drawWires(){
-  let d = '';
-  const paths = [];
-  for(const l of state.links){
-    const a = state.nodes.find(n => n.id === l.a);
-    const b = state.nodes.find(n => n.id === l.b);
-    if(!a || !b) continue;
-    const p = center(a), q = center(b);
-    const mx = (p.x + q.x)/2;
-    paths.push(`<path data-a="${l.a}" data-b="${l.b}" d="M${p.x},${p.y} C${mx},${p.y} ${mx},${q.y} ${q.x},${q.y}"/>`);
-  }
-  wires.innerHTML = paths.join('') + '<path class="temp" id="tempWire" d="" hidden/>';
-}
-wires.addEventListener('click', e => {
-  const p = e.target.closest('path[data-a]');
-  if(!p) return;
-  state.links = state.links.filter(l => !(l.a === p.dataset.a && l.b === p.dataset.b));
-  drawWires(); save();
-});
-
-/* ---------- node rendering ---------- */
-function nodeEl(id){ return world.querySelector(`[data-id="${id}"]`); }
-
-function renderNode(n){
-  let el = nodeEl(n.id);
-  if(!el){
-    el = document.createElement('div');
-    el.className = 'node';
-    el.dataset.id = n.id;
-    el.innerHTML = `<button class="del" aria-label="Delete">✕</button>
-      <span class="port" title="Drag to another node to connect"></span>
-      <span class="grip" aria-hidden="true"></span>`;
-    if(n.type === 'image'){
-      const img = document.createElement('img');
-      img.alt = '';
-      idb.get(n.img).then(blob => { if(blob) img.src = URL.createObjectURL(blob); });
-      el.prepend(img);
-    }else if(n.type === 'note'){
-      el.insertAdjacentHTML('afterbegin',
-        `<div class="bar">note</div><div class="txt" contenteditable="true" spellcheck="false" style="height:calc(100% - 22px)"></div>`);
-      el.querySelector('.txt').textContent = n.text || '';
-      el.querySelector('.txt').addEventListener('input', ev => { n.text = ev.target.textContent; save(); });
-    }else if(n.type === 'music'){
-      el.classList.add('music');
-      el.insertAdjacentHTML('afterbegin',
-        `<div class="mbar">
-           <button class="play" aria-label="Play">\u25B6</button>
-           <span class="mtitle"></span>
-           <span class="mprov"></span>
-         </div><div class="mplayer" hidden></div>`);
-      el.querySelector('.mtitle').textContent = n.title || '\u2026';
-      el.querySelector('.mprov').textContent = n.provider || '';
-      if(!n.title) fetchTitle(n);
-      const btn = el.querySelector('.play');
-      btn.addEventListener('pointerdown', ev => ev.stopPropagation());
-      btn.addEventListener('click', () => togglePlay(n));
-    }
-    world.appendChild(el);
-  }
-  el.style.left = n.x + 'px';
-  el.style.top = n.y + 'px';
-  el.style.width = n.w + 'px';
-  el.style.height = n.h + 'px';
-  el.classList.toggle('sel', selected === n.id);
-}
-
-function renderAll(){
-  world.querySelectorAll('.node').forEach(el => {
-    if(!state.nodes.find(n => n.id === el.dataset.id)) el.remove();
   });
-  state.nodes.forEach(renderNode);
-  drawWires();
-  empty.hidden = state.nodes.length > 0;
-}
-
-function select(id){
-  selected = id;
-  world.querySelectorAll('.node').forEach(el =>
-    el.classList.toggle('sel', el.dataset.id === id));
-}
-
-function removeNode(id){
-  const n = state.nodes.find(x => x.id === id);
-  if(!n) return;
-  if(n.type === 'image' && n.img) idb.del(n.img);
-  state.nodes = state.nodes.filter(x => x.id !== id);
-  state.links = state.links.filter(l => l.a !== id && l.b !== id);
-  if(selected === id) selected = null;
-  renderAll(); save();
-}
-
-/* ---------- adders ---------- */
-function addNode(n){
-  state.nodes.push(n);
-  renderNode(n);
-  empty.hidden = true;
-  select(n.id);
-  save();
-  return n;
-}
-
-function viewCenter(){
-  return toWorld(innerWidth/2, innerHeight/2);
-}
-
-async function addImageBlob(blob, at){
-  const bmp = await createImageBitmap(blob).catch(() => null);
-  if(!bmp) return;
-  // keep boards light: downscale big files
-  let stored = blob;
-  const max = 1600;
-  if(Math.max(bmp.width, bmp.height) > max || blob.size > 1_500_000){
-    const k = Math.min(1, max/Math.max(bmp.width, bmp.height));
-    const c = document.createElement('canvas');
-    c.width = Math.round(bmp.width*k); c.height = Math.round(bmp.height*k);
-    c.getContext('2d').drawImage(bmp, 0, 0, c.width, c.height);
-    stored = await new Promise(r => c.toBlob(r, 'image/jpeg', 0.87)) || blob;
-  }
-  const imgId = uid();
-  await idb.put(imgId, stored);
-  const w = 260, h = Math.round(w * bmp.height / bmp.width);
-  const p = at || viewCenter();
-  addNode({ id: uid(), type: 'image', img: imgId, x: p.x - w/2, y: p.y - h/2, w, h });
-}
-
-function addNoteAt(at, text){
-  const p = at || viewCenter();
-  const n = addNode({ id: uid(), type: 'note', text: text || '', x: p.x - 120, y: p.y - 70, w: 240, h: 140 });
-  const txt = nodeEl(n.id).querySelector('.txt');
-  setTimeout(() => txt.focus(), 30);
-}
-
-/* music: paste a link, get a slim player bar */
-function musicInfo(url){
-  url = (url || '').trim();
-  let m;
-  if((m = url.match(/(?:youtube\.com\/(?:watch\?.*v=|shorts\/)|youtu\.be\/)([\w-]{6,})/)))
-    return { provider: 'youtube', media: m[1], url };
-  if((m = url.match(/open\.spotify\.com\/(track|album|playlist|artist)\/(\w+)/)))
-    return { provider: 'spotify', kind: m[1], media: m[2], url };
-  if(/soundcloud\.com\//.test(url))
-    return { provider: 'soundcloud', url };
-  return null;
-}
-
-const musicEmbed = musicInfo;   // paste/drop handlers use this as a "is it music?" check
-
-function addMusic(url, at){
-  const info = musicInfo(url);
-  const p = at || viewCenter();
-  if(!info){ addNoteAt(p, url); return; }
-  const n = addNode({ id: uid(), type: 'music', ...info, title: '', x: p.x - 170, y: p.y - 22, w: 340, h: 44 });
-  fetchTitle(n);
-}
-
-async function fetchTitle(n){
-  try{
-    const api = n.provider === 'spotify'
-      ? `https://open.spotify.com/oembed?url=${encodeURIComponent(n.url)}`
-      : `https://noembed.com/embed?url=${encodeURIComponent(n.url)}`;
-    const o = await (await fetch(api)).json();
-    if(o && o.title){
-      n.title = o.title;
-      const el = nodeEl(n.id);
-      if(el) el.querySelector('.mtitle').textContent = o.title;
-      save();
-    }
-  }catch{ /* keep the ellipsis */ }
-}
-
-/* playback: YouTube + SoundCloud play through hidden widgets driven by
-   postMessage; Spotify only plays inside its own player, so its bar
-   expands a compact embed instead */
-const players = new Map();
-
-function setIcon(id, playing){
-  const el = nodeEl(id);
-  if(el) el.querySelector('.play').textContent = playing ? '\u275A\u275A' : '\u25B6';
-}
-
-function pausePlayer(id){
-  const p = players.get(id);
-  if(!p || !p.playing) return;
-  if(p.kind === 'yt')
-    p.f.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":[]}', '*');
-  else if(p.kind === 'sc')
-    p.f.contentWindow.postMessage(JSON.stringify({ method: 'pause' }), 'https://w.soundcloud.com');
-  else if(p.kind === 'sp'){
-    p.f.remove(); players.delete(id);
-    const n = state.nodes.find(x => x.id === id);
-    const el = nodeEl(id);
-    if(el) el.querySelector('.mplayer').hidden = true;
-    if(n){ n.h = 44; renderNode(n); drawWires(); save(); }
-  }
-  p.playing = false;
-  setIcon(id, false);
-}
-
-function togglePlay(n){
-  const p = players.get(n.id);
-  if(p && p.playing){ pausePlayer(n.id); return; }
-  for(const id of players.keys()) if(id !== n.id) pausePlayer(id);
-  const el = nodeEl(n.id);
-  if(n.provider === 'youtube'){
-    if(p){
-      p.f.contentWindow.postMessage('{"event":"command","func":"playVideo","args":[]}', '*');
-      p.playing = true;
-    }else{
-      const f = document.createElement('iframe');
-      f.className = 'ghost';
-      f.allow = 'autoplay; encrypted-media';
-      f.src = `https://www.youtube-nocookie.com/embed/${n.media}?autoplay=1&enablejsapi=1&playsinline=1`;
-      el.appendChild(f);
-      players.set(n.id, { kind: 'yt', f, playing: true });
-    }
-  }else if(n.provider === 'soundcloud'){
-    if(p){
-      p.f.contentWindow.postMessage(JSON.stringify({ method: 'play' }), 'https://w.soundcloud.com');
-      p.playing = true;
-    }else{
-      const f = document.createElement('iframe');
-      f.className = 'ghost';
-      f.allow = 'autoplay';
-      f.src = `https://w.soundcloud.com/player/?url=${encodeURIComponent(n.url)}&auto_play=true`;
-      el.appendChild(f);
-      players.set(n.id, { kind: 'sc', f, playing: true });
-    }
-  }else if(n.provider === 'spotify'){
-    const holder = el.querySelector('.mplayer');
-    holder.hidden = false;
-    n.h = 140; renderNode(n); drawWires(); save();
-    const f = document.createElement('iframe');
-    f.style.cssText = 'width:100%;height:80px;border:0;border-radius:12px;display:block';
-    f.allow = 'encrypted-media';
-    f.src = `https://open.spotify.com/embed/${n.kind || 'track'}/${n.media}`;
-    holder.appendChild(f);
-    players.set(n.id, { kind: 'sp', f, playing: true });
-  }
-  setIcon(n.id, true);
-}
-
-/* ---------- pointer interactions ---------- */
-const pointers = new Map();
-let mode = null;   // {type:'pan'|'node'|'resize'|'wire'|'pinch', ...}
-
-function nodeFromEvent(e){
-  const el = e.target.closest('.node');
-  return el ? state.nodes.find(n => n.id === el.dataset.id) : null;
-}
-
-viewport.addEventListener('pointerdown', e => {
-  viewport.setPointerCapture(e.pointerId);
-  pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
-
-  if(pointers.size === 2){
-    const [a, b] = [...pointers.values()];
-    mode = { type: 'pinch', d: Math.hypot(a.x-b.x, a.y-b.y), view: { ...state.view } };
-    return;
-  }
-
-  if(e.target.classList.contains('port')){
-    const n = nodeFromEvent(e);
-    mode = { type: 'wire', from: n.id };
-    document.body.classList.add('busy');
-    return;
-  }
-  if(e.target.classList.contains('grip')){
-    const n = nodeFromEvent(e);
-    mode = { type: 'resize', n, w: n.w, h: n.h, sx: e.clientX, sy: e.clientY };
-    document.body.classList.add('busy');
-    return;
-  }
-  if(e.target.classList.contains('del')){
-    removeNode(nodeFromEvent(e).id);
-    mode = null;
-    return;
-  }
-
-  const n = nodeFromEvent(e);
-  if(n){
-    // notes drag by their bar; text area is for writing
-    if(n.type !== 'image' && !e.target.closest('.bar') && !e.target.closest('.txt')) { /* frame click ok */ }
-    if(e.target.closest('.txt')){ select(n.id); mode = null; return; }
-    select(n.id);
-    world.appendChild(nodeEl(n.id));   // bring to front
-    mode = { type: 'node', n, nx: n.x, ny: n.y, sx: e.clientX, sy: e.clientY };
-    document.body.classList.add('busy');
-  }else{
-    select(null);
-    mode = { type: 'pan', vx: state.view.x, vy: state.view.y, sx: e.clientX, sy: e.clientY };
-    viewport.classList.add('panning');
-  }
 });
 
-viewport.addEventListener('pointermove', e => {
-  if(pointers.has(e.pointerId)) pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
-  if(!mode) return;
+const SIZE = { video:[280,158], image:[200,250], book:[150,220], quote:[230,150], music:[260,44] };
 
-  if(mode.type === 'pinch' && pointers.size === 2){
+/* ---------- placeholder art ---------- */
+function art(item, scale = 1){
+  if (item.type === 'quote' || item.type === 'music') return null;
+  const [w, h] = SIZE[item.type];
+  const c = document.createElement('canvas');
+  c.width = w * scale * 2; c.height = h * scale * 2;
+  const x = c.getContext('2d');
+  const g = x.createLinearGradient(0, 0, c.width * 0.35, c.height);
+  g.addColorStop(0, item.hue[0]); g.addColorStop(1, item.hue[1]);
+  x.fillStyle = g; x.fillRect(0, 0, c.width, c.height);
+  x.fillStyle = 'rgba(2,1,10,0.35)';
+  if (item.type === 'video'){ x.fillRect(0, c.height * 0.72, c.width, c.height); }
+  if (item.type === 'image'){ x.strokeStyle = 'rgba(244,241,234,0.5)'; x.lineWidth = 3; x.strokeRect(c.width*0.12, c.height*0.1, c.width*0.76, c.height*0.62); }
+  if (item.type === 'book'){ x.fillStyle = 'rgba(244,241,234,0.9)'; x.fillRect(c.width*0.16, c.height*0.16, c.width*0.68, c.height*0.2); }
+  x.fillStyle = 'rgba(255,255,255,0.05)';
+  for (let i = 0; i < 220; i++) x.fillRect(Math.random()*c.width, Math.random()*c.height, 2, 2);
+  return c;
+}
+
+/* ---------- build the space ---------- */
+const camera = document.getElementById('camera');
+const space = document.getElementById('space');
+const els = [];
+
+CATS.forEach(cat => {
+  const g = document.createElement('div');
+  g.className = 'ghost';
+  g.innerHTML = `${cat.label}<i>${cat.subs.join(' · ')}</i>`;
+  const gx = cat.x - cat.label.length * 52, gy = cat.y - 95, gz = -(cat.z0 + 950);
+  g.style.transform = `translate3d(${gx}px, ${gy}px, ${gz}px)`;
+  camera.appendChild(g);
+  els.push({ el: g, z: gz, ghost: true });
+});
+
+ITEMS.forEach(item => {
+  const [w, h] = SIZE[item.type];
+  const el = document.createElement('div');
+  el.className = 'card';
+  el.dataset.id = item.id;
+  el.style.width = w + 'px'; el.style.height = h + 'px';
+  el.style.transform = `translate3d(${item.x - w/2}px, ${item.y - h/2}px, ${item.z}px)`;
+  if (item.type === 'video'){ el.classList.add('play'); el.appendChild(art(item)); }
+  else if (item.type === 'image'){ el.appendChild(art(item)); }
+  else if (item.type === 'book'){ el.classList.add('book'); el.appendChild(art(item)); el.insertAdjacentHTML('beforeend','<span class="spine"></span>'); }
+  else if (item.type === 'quote'){
+    el.classList.add('paper');
+    el.innerHTML = `<div class="q">“${item.title}”</div>`;
+  }
+  else if (item.type === 'music'){
+    el.classList.add('pill');
+    el.innerHTML = `<i>▶</i><b>${item.title}</b><span>track</span>`;
+  }
+  if (item.type !== 'music' && item.type !== 'quote')
+    el.insertAdjacentHTML('beforeend', `<div class="cap"><b>${item.title}</b><span>${item.cat} / ${item.sub}</span></div>`);
+  if (item.type === 'quote')
+    el.insertAdjacentHTML('beforeend', `<div class="cap"><span>${item.cat} / ${item.sub}</span></div>`);
+  camera.appendChild(el);
+  els.push({ el, z: item.z, item });
+});
+
+/* ---------- camera ---------- */
+const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const MAXZ = START + CATS.length * BAND + 300;
+const cam = { x: 0, y: 0, z: 0 };
+const target = { x: 0, y: 0, z: 0 };
+window.__cam = cam;  // test hook
+
+function buckets(){
+  for (const o of els){
+    const d = o.z + cam.z;
+    const b = d > -70 ? 'd-behind' : d > -1050 ? 'd-near' : d > -2300 ? 'd-mid' : 'd-far';
+    if (o.b !== b){
+      if (o.b) o.el.classList.remove(o.b);
+      o.el.classList.add(b);
+      o.b = b;
+    }
+  }
+}
+
+function hud(){
+  const idx = Math.min(CATS.length - 1, Math.max(0, Math.round((cam.z - START - 500) / BAND)));
+  const cat = CATS[idx];
+  const h = document.getElementById('hud');
+  if (h.dataset.cat !== cat.id){
+    h.dataset.cat = cat.id;
+    h.innerHTML = `${cat.label}<small>${String(idx+1).padStart(2,'0')} / ${String(CATS.length).padStart(2,'0')}</small>`;
+    document.querySelectorAll('.rail-cat').forEach(b => b.classList.toggle('on', b.dataset.cat === cat.id));
+  }
+}
+
+let raf = 0;
+function tick(){
+  raf = requestAnimationFrame(tick);
+  const f = RM ? 1 : 0.14;
+  cam.x += (target.x - cam.x) * f;
+  cam.y += (target.y - cam.y) * f;
+  cam.z += (target.z - cam.z) * f;
+  camera.style.transform = `translate3d(${-cam.x}px, ${-cam.y}px, ${cam.z}px)`;
+  buckets(); hud();
+}
+tick();
+
+function flyTo(x, y, z){
+  target.x = x; target.y = y;
+  target.z = Math.max(0, Math.min(MAXZ, z));
+}
+
+/* ---------- input ---------- */
+const pointers = new Map();
+let drag = null;
+
+space.addEventListener('pointerdown', e => {
+  space.setPointerCapture(e.pointerId);
+  pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  if (pointers.size === 2){
+    const [a, b] = [...pointers.values()];
+    drag = { pinch: Math.hypot(a.x-b.x, a.y-b.y), z: target.z };
+  } else {
+    drag = { sx: e.clientX, sy: e.clientY, tx: target.x, ty: target.y, moved: false };
+  }
+});
+space.addEventListener('pointermove', e => {
+  if (pointers.has(e.pointerId)) pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  if (!drag) return;
+  if (drag.pinch && pointers.size === 2){
     const [a, b] = [...pointers.values()];
     const d = Math.hypot(a.x-b.x, a.y-b.y);
-    const mid = { x: (a.x+b.x)/2, y: (a.y+b.y)/2 };
-    const k = Math.min(3, Math.max(0.1, mode.view.k * d / mode.d));
-    const w = { x: (mid.x - mode.view.x) / mode.view.k, y: (mid.y - mode.view.y) / mode.view.k };
-    state.view = { k, x: mid.x - w.x*k, y: mid.y - w.y*k };
-    applyView(); save();
+    target.z = Math.max(0, Math.min(MAXZ, drag.z + (d - drag.pinch) * 4));
     return;
   }
-  if(mode.type === 'pan'){
-    state.view.x = mode.vx + e.clientX - mode.sx;
-    state.view.y = mode.vy + e.clientY - mode.sy;
-    applyView(); save();
-  }else if(mode.type === 'node'){
-    mode.n.x = mode.nx + (e.clientX - mode.sx) / state.view.k;
-    mode.n.y = mode.ny + (e.clientY - mode.sy) / state.view.k;
-    renderNode(mode.n); drawWires(); save();
-  }else if(mode.type === 'resize'){
-    mode.n.w = Math.max(90, mode.w + (e.clientX - mode.sx) / state.view.k);
-    mode.n.h = Math.max(60, mode.h + (e.clientY - mode.sy) / state.view.k);
-    renderNode(mode.n); drawWires(); save();
-  }else if(mode.type === 'wire'){
-    const from = state.nodes.find(n => n.id === mode.from);
-    const p = center(from), q = toWorld(e.clientX, e.clientY);
-    const t = document.getElementById('tempWire');
-    const mx = (p.x + q.x)/2;
-    t.setAttribute('d', `M${p.x},${p.y} C${mx},${p.y} ${mx},${q.y} ${q.x},${q.y}`);
-    t.hidden = false;
-  }
+  if (drag.pinch) return;
+  const dx = e.clientX - drag.sx, dy = e.clientY - drag.sy;
+  if (Math.abs(dx) + Math.abs(dy) > 6) drag.moved = true;
+  target.x = drag.tx - dx * 1.15;
+  target.y = drag.ty - dy * 1.15;
+  if (drag.moved) space.classList.add('panning');
 });
-
-viewport.addEventListener('pointerup', e => {
-  pointers.delete(e.pointerId);
-  document.body.classList.remove('busy');
-  viewport.classList.remove('panning');
-  if(mode && mode.type === 'wire'){
-    const el = document.elementFromPoint(e.clientX, e.clientY)?.closest('.node');
-    if(el && el.dataset.id !== mode.from){
-      const a = mode.from, b = el.dataset.id;
-      if(!state.links.some(l => (l.a === a && l.b === b) || (l.a === b && l.b === a)))
-        state.links.push({ a, b });
+/* Chromium hit-testing is unreliable for 3D-transformed descendants, so
+   picking is manual: projected rects are always correct even when clicks
+   fall through. Topmost = closest to the eye. */
+function pick(cx, cy){
+  let best = null, bestD = -Infinity;
+  for (const o of els){
+    if (o.ghost || (o.b !== 'd-near' && o.b !== 'd-mid')) continue;
+    const r = o.el.getBoundingClientRect();
+    if (cx >= r.left && cx <= r.right && cy >= r.top && cy <= r.bottom){
+      const d = o.z + cam.z;
+      if (d > bestD){ bestD = d; best = o; }
     }
-    drawWires(); save();
   }
-  mode = null;
-});
-viewport.addEventListener('pointercancel', e => {
+  return best;
+}
+
+['pointerup','pointercancel'].forEach(ev => space.addEventListener(ev, e => {
   pointers.delete(e.pointerId);
-  mode = null;
-  document.body.classList.remove('busy');
-  viewport.classList.remove('panning');
+  space.classList.remove('panning');
+  if (drag && !drag.pinch && !drag.moved){
+    const hit = pick(e.clientX, e.clientY);
+    if (hit) openFocus(hit.item.id);
+  }
+  drag = null;
+}));
+
+let hovered = null;
+space.addEventListener('pointermove', e => {
+  if (drag) return;
+  const hit = pick(e.clientX, e.clientY);
+  const el = hit ? hit.el : null;
+  if (el !== hovered){
+    if (hovered) hovered.classList.remove('hover');
+    if (el) el.classList.add('hover');
+    hovered = el;
+    space.style.cursor = el ? 'pointer' : 'grab';
+  }
 });
 
-/* two-finger scroll pans; pinch or ctrl/cmd+scroll zooms toward the cursor */
-viewport.addEventListener('wheel', e => {
+space.addEventListener('wheel', e => {
   e.preventDefault();
-  const unit = e.deltaMode === 1 ? 16 : 1;   // Firefox line mode
-  if(e.ctrlKey || e.metaKey){
-    const d = Math.max(-40, Math.min(40, e.deltaY * unit));
-    const k2 = Math.min(3, Math.max(0.1, state.view.k * Math.exp(-d * 0.008)));
-    const w = toWorld(e.clientX, e.clientY);
-    state.view = { k: k2, x: e.clientX - w.x*k2, y: e.clientY - w.y*k2 };
-  }else{
-    state.view.x -= e.deltaX * unit;
-    state.view.y -= e.deltaY * unit;
-  }
-  applyView(); save();
+  const unit = e.deltaMode === 1 ? 16 : 1;
+  target.z = Math.max(0, Math.min(MAXZ, target.z - e.deltaY * unit * 1.6));
 }, { passive: false });
 
-/* double-click empty canvas: quick note */
-viewport.addEventListener('dblclick', e => {
-  if(e.target.closest('.node')) return;
-  addNoteAt(toWorld(e.clientX, e.clientY));
-});
-
-/* keyboard */
 addEventListener('keydown', e => {
-  if((e.key === 'Backspace' || e.key === 'Delete') && selected){
-    if(document.activeElement?.isContentEditable) return;
-    e.preventDefault();
-    removeNode(selected);
-  }
+  if (e.key === 'Escape') closeFocus();
+  const step = 120;
+  if (e.key === 'ArrowLeft') target.x -= step;
+  if (e.key === 'ArrowRight') target.x += step;
+  if (e.key === 'ArrowUp') target.y -= step;
+  if (e.key === 'ArrowDown') target.y += step;
+  if (e.key === '+' || e.key === 'w') target.z = Math.min(MAXZ, target.z + 300);
+  if (e.key === '-' || e.key === 's') target.z = Math.max(0, target.z - 300);
 });
 
-/* ---------- files in: drop, paste, picker ---------- */
-['dragover','dragenter'].forEach(ev => addEventListener(ev, e => {
-  e.preventDefault(); viewport.classList.add('dropping');
-}));
-['dragleave','drop'].forEach(ev => addEventListener(ev, e => {
-  e.preventDefault(); viewport.classList.remove('dropping');
-}));
-addEventListener('drop', e => {
-  const at = toWorld(e.clientX, e.clientY);
-  [...(e.dataTransfer?.files || [])].filter(f => f.type.startsWith('image/'))
-    .forEach((f, i) => addImageBlob(f, { x: at.x + i*36, y: at.y + i*36 }));
-  const url = e.dataTransfer?.getData('text/uri-list') || '';
-  if(url && musicEmbed(url)) addMusic(url, at);
-});
-addEventListener('paste', e => {
-  if(document.activeElement?.isContentEditable) return;
-  const items = [...(e.clipboardData?.items || [])];
-  const imgs = items.filter(i => i.type.startsWith('image/'));
-  if(imgs.length){ imgs.forEach(i => addImageBlob(i.getAsFile())); return; }
-  const text = e.clipboardData?.getData('text') || '';
-  if(!text.trim()) return;
-  if(musicEmbed(text)) addMusic(text);
-  else if(/^https?:\/\//.test(text.trim())) addNoteAt(null, text.trim());
-});
-
-document.getElementById('file').onchange = e => {
-  [...e.target.files].forEach((f, i) => {
-    const c = viewCenter();
-    addImageBlob(f, { x: c.x + i*36, y: c.y + i*36 });
+/* ---------- rail ---------- */
+const rail = document.getElementById('rail');
+CATS.forEach(cat => {
+  const group = document.createElement('div');
+  group.className = 'rail-group';
+  const btn = document.createElement('button');
+  btn.className = 'rail-cat'; btn.dataset.cat = cat.id;
+  btn.innerHTML = `${cat.label}<span class="n">${ITEMS.filter(i => i.cat === cat.id).length}</span>`;
+  btn.onclick = () => flyTo(cat.x, cat.y, cat.z0 + 480);
+  group.appendChild(btn);
+  cat.subs.forEach(sub => {
+    const sb = document.createElement('button');
+    sb.className = 'rail-sub'; sb.textContent = sub;
+    sb.onclick = () => {
+      const mine = ITEMS.filter(i => i.cat === cat.id && i.sub === sub);
+      const cx = mine.reduce((s, i) => s + i.x, 0) / mine.length;
+      const cy = mine.reduce((s, i) => s + i.y, 0) / mine.length;
+      const cz = mine.reduce((s, i) => s + i.z, 0) / mine.length;
+      flyTo(cx, cy, -cz + 620);
+    };
+    group.appendChild(sb);
   });
-  e.target.value = '';
-};
-document.getElementById('addImage').onclick = () => document.getElementById('file').click();
-document.getElementById('addNote').onclick = () => addNoteAt();
-document.getElementById('addMusic').onclick = () => {
-  const url = prompt('Paste a YouTube, Spotify or SoundCloud link:');
-  if(url) addMusic(url);
-};
-document.getElementById('zoomFit').onclick = () => {
-  if(!state.nodes.length) return;
-  const xs = state.nodes.map(n => n.x), ys = state.nodes.map(n => n.y);
-  const xe = state.nodes.map(n => n.x + n.w), ye = state.nodes.map(n => n.y + n.h);
-  const bx = Math.min(...xs), by = Math.min(...ys);
-  const bw = Math.max(...xe) - bx, bh = Math.max(...ye) - by;
-  const k = Math.min(3, Math.max(0.1, Math.min((innerWidth - 120)/bw, (innerHeight - 160)/bh)));
-  state.view = {
-    k,
-    x: (innerWidth - bw*k)/2 - bx*k,
-    y: (innerHeight - bh*k)/2 - by*k + 20,
-  };
-  applyView(); save();
-};
+  rail.appendChild(group);
+});
 
-/* while dragging, iframes must not eat pointer events */
-const busyStyle = document.createElement('style');
-busyStyle.textContent = 'body.busy iframe{pointer-events:none}';
-document.head.appendChild(busyStyle);
+const railToggle = document.getElementById('railToggle');
+railToggle.onclick = () => {
+  const hidden = rail.classList.toggle('hidden');
+  railToggle.setAttribute('aria-expanded', String(!hidden));
+};
+if (matchMedia('(max-width: 760px)').matches){
+  rail.classList.add('hidden');
+  railToggle.setAttribute('aria-expanded', 'false');
+}
 
-/* ---------- boot ---------- */
-load();
-applyView();
-renderAll();
+/* ---------- focus overlay ---------- */
+const focus = document.getElementById('focus');
+function openFocus(id){
+  const item = ITEMS.find(i => i.id === id);
+  if (!item) return;
+  const holder = document.getElementById('focusArt');
+  holder.innerHTML = '';
+  const big = art(item, 1.6);
+  if (big) holder.appendChild(big);
+  else if (item.type === 'quote') holder.innerHTML = `<div style="background:var(--cream);color:var(--ink);border-radius:10px;padding:22px;font-size:16px;line-height:1.5">“${item.title}”</div>`;
+  else holder.innerHTML = `<div style="display:flex;align-items:center;gap:12px;background:var(--night);border:1px solid var(--line);border-radius:999px;padding:10px 18px"><span style="width:30px;height:30px;border-radius:50%;background:var(--gold);color:var(--night);display:flex;align-items:center;justify-content:center;font-size:10px">▶</span>${item.title}</div>`;
+  document.getElementById('focusPath').textContent = `${item.cat} / ${item.sub}`;
+  document.getElementById('focusTitle').textContent = item.title;
+  document.getElementById('focusMeta').textContent = item.meta;
+  focus.hidden = false;
+}
+function closeFocus(){ focus.hidden = true; }
+document.getElementById('focusClose').onclick = closeFocus;
+focus.addEventListener('click', e => { if (e.target === focus) closeFocus(); });
+
+/* start at the front door: drift into FILM */
+flyTo(CATS[0].x, CATS[0].y, RM ? CATS[0].z0 + 480 : 260);
+if (!RM) setTimeout(() => flyTo(CATS[0].x, CATS[0].y, CATS[0].z0 + 480), 400);
