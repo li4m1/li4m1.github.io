@@ -103,7 +103,8 @@ header{
 
 /* ghost category titles floating in space */
 .ghost{
-  position:absolute;transform-style:preserve-3d;
+  position:absolute;top:0;left:0;transform-style:preserve-3d;
+  backface-visibility:hidden;-webkit-backface-visibility:hidden;
   font-family:var(--font-display);font-size:190px;line-height:1;white-space:nowrap;
   color:transparent;-webkit-text-stroke:1.5px var(--purple-soft);
   pointer-events:none;user-select:none;
@@ -114,8 +115,8 @@ header{
 
 /* ── cards ── */
 .card{
-  position:absolute;border-radius:10px;overflow:hidden;
-  pointer-events:auto;
+  position:absolute;top:0;left:0;border-radius:10px;overflow:hidden;
+  pointer-events:auto;backface-visibility:hidden;-webkit-backface-visibility:hidden;
   background:var(--ink);border:1px solid var(--line);box-shadow:var(--shadow);
   cursor:pointer;
   transition:opacity .45s ease,border-color .2s ease;

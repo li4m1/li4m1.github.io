@@ -1,9 +1,9 @@
 'use strict';
 
 /* ═══ INSPO · creative second brain ═══
-   One 3D space. Categories live in depth bands; scrolling flies the
-   camera through them. All content below is PLACEHOLDER data: swap the
-   ITEMS entries (title/meta/sub) for real references later. */
+   One planet of references. Categories are regions on a sphere; dragging
+   orbits the ball, scrolling zooms toward the surface. Everything below
+   is PLACEHOLDER data: swap ITEMS entries for real references later. */
 
 const rnd = (seed => () => {
   seed |= 0; seed = seed + 0x6D2B79F5 | 0;
@@ -12,14 +12,14 @@ const rnd = (seed => () => {
   return ((t ^ t >>> 14) >>> 0) / 4294967296;
 })(41);
 
-const BAND = 1200, START = 420;
+const R = 1500;   // planet radius
 const CATS = [
-  { id:'film',   label:'FILM',   x:0,    y:-40,  subs:['music videos','short films','scenes'] },
-  { id:'photo',  label:'PHOTO',  x:660,  y:230,  subs:['street','flash','editorial'] },
-  { id:'music',  label:'MUSIC',  x:-640, y:200,  subs:['tracks','albums'] },
-  { id:'books',  label:'BOOKS',  x:520,  y:-300, subs:['design','stories'] },
-  { id:'design', label:'DESIGN', x:-560, y:-280, subs:['posters','type','sites'] },
-  { id:'words',  label:'WORDS',  x:60,   y:380,  subs:['quotes','ideas'] },
+  { id:'film',   label:'FILM',   lat:8,   lon:0,    subs:['music videos','short films','scenes'] },
+  { id:'photo',  label:'PHOTO',  lat:-14, lon:62,   subs:['street','flash','editorial'] },
+  { id:'music',  label:'MUSIC',  lat:16,  lon:-64,  subs:['tracks','albums'] },
+  { id:'books',  label:'BOOKS',  lat:-10, lon:126,  subs:['design','stories'] },
+  { id:'design', label:'DESIGN', lat:14,  lon:-128, subs:['posters','type','sites'] },
+  { id:'words',  label:'WORDS',  lat:-4,  lon:180,  subs:['quotes','ideas'] },
 ];
 const TYPE = { film:'video', photo:'image', music:'music', books:'book', design:'image', words:'quote' };
 const HUES = {
@@ -40,8 +40,7 @@ const QUOTES = [
 ];
 
 const ITEMS = [];
-CATS.forEach((cat, ci) => {
-  cat.z0 = START + ci * BAND;
+CATS.forEach(cat => {
   cat.subs.forEach((sub, si) => {
     for (let k = 0; k < 3; k++) {
       const n = ITEMS.length + 1;
@@ -53,13 +52,23 @@ CATS.forEach((cat, ci) => {
           : `Untitled ${String(n).padStart(2, '0')}`,
         meta: 'placeholder · swap for a real reference',
         hue: HUES[cat.id][(si + k) % HUES[cat.id].length],
-        x: cat.x + (rnd() - 0.5) * 680,
-        y: cat.y + (rnd() - 0.5) * 470,
-        z: -(cat.z0 + rnd() * 780),
+        lat: cat.lat + (rnd() - 0.5) * 34,
+        lon: cat.lon + (rnd() - 0.5) * 44,
       });
     }
   });
 });
+
+const dir = (lat, lon) => {
+  const la = lat * Math.PI/180, lo = lon * Math.PI/180;
+  return { x: Math.cos(la)*Math.sin(lo), y: Math.sin(la), z: Math.cos(la)*Math.cos(lo) };
+};
+/* camera-space depth (1 = dead centre facing the viewer) under scene rotation */
+function facing(v, rxDeg, ryDeg){
+  const ry = ryDeg * Math.PI/180, rx = rxDeg * Math.PI/180;
+  const z1 = -v.x*Math.sin(ry) + v.z*Math.cos(ry);
+  return v.y*Math.sin(rx) + z1*Math.cos(rx);
+}
 
 const SIZE = { video:[280,158], image:[200,250], book:[150,220], quote:[230,150], music:[260,44] };
 
@@ -82,7 +91,7 @@ function art(item, scale = 1){
   return c;
 }
 
-/* ---------- build the space ---------- */
+/* ---------- build the planet ---------- */
 const camera = document.getElementById('camera');
 const space = document.getElementById('space');
 const els = [];
@@ -91,10 +100,9 @@ CATS.forEach(cat => {
   const g = document.createElement('div');
   g.className = 'ghost';
   g.innerHTML = `${cat.label}<i>${cat.subs.join(' · ')}</i>`;
-  const gx = cat.x - cat.label.length * 52, gy = cat.y - 95, gz = -(cat.z0 + 950);
-  g.style.transform = `translate3d(${gx}px, ${gy}px, ${gz}px)`;
+  g.style.transform = `rotateY(${cat.lon}deg) rotateX(${-cat.lat}deg) translateZ(${R + 30}px) translate3d(${-cat.label.length * 52}px, -95px, 0)`;
   camera.appendChild(g);
-  els.push({ el: g, z: gz, ghost: true });
+  els.push({ el: g, v: dir(cat.lat, cat.lon), ghost: true });
 });
 
 ITEMS.forEach(item => {
@@ -103,7 +111,7 @@ ITEMS.forEach(item => {
   el.className = 'card';
   el.dataset.id = item.id;
   el.style.width = w + 'px'; el.style.height = h + 'px';
-  el.style.transform = `translate3d(${item.x - w/2}px, ${item.y - h/2}px, ${item.z}px)`;
+  el.style.transform = `rotateY(${item.lon}deg) rotateX(${-item.lat}deg) translateZ(${R}px) translate(-50%, -50%)`;
   if (item.type === 'video'){ el.classList.add('play'); el.appendChild(art(item)); }
   else if (item.type === 'image'){ el.appendChild(art(item)); }
   else if (item.type === 'book'){ el.classList.add('book'); el.appendChild(art(item)); el.insertAdjacentHTML('beforeend','<span class="spine"></span>'); }
@@ -120,20 +128,20 @@ ITEMS.forEach(item => {
   if (item.type === 'quote')
     el.insertAdjacentHTML('beforeend', `<div class="cap"><span>${item.cat} / ${item.sub}</span></div>`);
   camera.appendChild(el);
-  els.push({ el, z: item.z, item });
+  els.push({ el, v: dir(item.lat, item.lon), item });
 });
 
-/* ---------- camera ---------- */
+/* ---------- orbit camera ---------- */
 const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
-const MAXZ = START + CATS.length * BAND + 300;
-const cam = { x: 0, y: 0, z: 0 };
-const target = { x: 0, y: 0, z: 0 };
+const cam = { rx: 0, ry: 0, zoom: -2050 };
+const target = { rx: 0, ry: 0, zoom: -2050 };
 window.__cam = cam;  // test hook
+let lastInput = Date.now();
 
 function buckets(){
   for (const o of els){
-    const d = o.z + cam.z;
-    const b = d > -70 ? 'd-behind' : d > -1050 ? 'd-near' : d > -2300 ? 'd-mid' : 'd-far';
+    const f = facing(o.v, cam.rx, cam.ry);
+    const b = f > 0.5 ? 'd-near' : f > 0.1 ? 'd-mid' : f > -0.05 ? 'd-far' : 'd-behind';
     if (o.b !== b){
       if (o.b) o.el.classList.remove(o.b);
       o.el.classList.add(b);
@@ -143,78 +151,99 @@ function buckets(){
 }
 
 function hud(){
-  const idx = Math.min(CATS.length - 1, Math.max(0, Math.round((cam.z - START - 500) / BAND)));
-  const cat = CATS[idx];
+  let best = CATS[0], bf = -2;
+  for (const c of CATS){
+    const f = facing(dir(c.lat, c.lon), cam.rx, cam.ry);
+    if (f > bf){ bf = f; best = c; }
+  }
   const h = document.getElementById('hud');
-  if (h.dataset.cat !== cat.id){
-    h.dataset.cat = cat.id;
-    h.innerHTML = `${cat.label}<small>${String(idx+1).padStart(2,'0')} / ${String(CATS.length).padStart(2,'0')}</small>`;
-    document.querySelectorAll('.rail-cat').forEach(b => b.classList.toggle('on', b.dataset.cat === cat.id));
+  if (h.dataset.cat !== best.id){
+    h.dataset.cat = best.id;
+    const idx = CATS.indexOf(best);
+    h.innerHTML = `${best.label}<small>${String(idx+1).padStart(2,'0')} / ${String(CATS.length).padStart(2,'0')}</small>`;
+    document.querySelectorAll('.rail-cat').forEach(x => x.classList.toggle('on', x.dataset.cat === best.id));
   }
 }
 
-let raf = 0;
 function tick(){
-  raf = requestAnimationFrame(tick);
-  const f = RM ? 1 : 0.14;
-  cam.x += (target.x - cam.x) * f;
-  cam.y += (target.y - cam.y) * f;
-  cam.z += (target.z - cam.z) * f;
-  camera.style.transform = `translate3d(${-cam.x}px, ${-cam.y}px, ${cam.z}px)`;
+  requestAnimationFrame(tick);
+  if (!RM && Date.now() - lastInput > 6000) target.ry += 0.015;  // idle planet spin
+  const f = RM ? 1 : 0.18;
+  cam.rx += (target.rx - cam.rx) * f;
+  cam.ry += (target.ry - cam.ry) * f;
+  cam.zoom += (target.zoom - cam.zoom) * f;
+  camera.style.transform = `translateZ(${cam.zoom}px) rotateX(${cam.rx}deg) rotateY(${cam.ry}deg)`;
   buckets(); hud();
 }
 tick();
 
-function flyTo(x, y, z){
-  target.x = x; target.y = y;
-  target.z = Math.max(0, Math.min(MAXZ, z));
+/* rotate the given surface point to face the viewer, via the short way round */
+function flyTo(lat, lon, zoom){
+  let ry = -lon;
+  ry += Math.round((target.ry - ry) / 360) * 360;
+  target.ry = ry;
+  target.rx = lat;
+  target.zoom = Math.max(-2100, Math.min(-880, zoom));
 }
 
-/* ---------- input ---------- */
-const pointers = new Map();
-let drag = null;
-
-space.addEventListener('pointerdown', e => {
-  space.setPointerCapture(e.pointerId);
-  pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
-  if (pointers.size === 2){
-    const [a, b] = [...pointers.values()];
-    drag = { pinch: Math.hypot(a.x-b.x, a.y-b.y), z: target.z };
-  } else {
-    drag = { sx: e.clientX, sy: e.clientY, tx: target.x, ty: target.y, moved: false };
-  }
-});
-space.addEventListener('pointermove', e => {
-  if (pointers.has(e.pointerId)) pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
-  if (!drag) return;
-  if (drag.pinch && pointers.size === 2){
-    const [a, b] = [...pointers.values()];
-    const d = Math.hypot(a.x-b.x, a.y-b.y);
-    target.z = Math.max(0, Math.min(MAXZ, drag.z + (d - drag.pinch) * 4));
-    return;
-  }
-  if (drag.pinch) return;
-  const dx = e.clientX - drag.sx, dy = e.clientY - drag.sy;
-  if (Math.abs(dx) + Math.abs(dy) > 6) drag.moved = true;
-  target.x = drag.tx - dx * 1.15;
-  target.y = drag.ty - dy * 1.15;
-  if (drag.moved) space.classList.add('panning');
-});
-/* Chromium hit-testing is unreliable for 3D-transformed descendants, so
-   picking is manual: projected rects are always correct even when clicks
-   fall through. Topmost = closest to the eye. */
+/* manual picking: Chromium hit-testing is unreliable for 3D descendants,
+   but projected rects are always correct. Topmost = most viewer-facing. */
 function pick(cx, cy){
   let best = null, bestD = -Infinity;
   for (const o of els){
     if (o.ghost || (o.b !== 'd-near' && o.b !== 'd-mid')) continue;
     const r = o.el.getBoundingClientRect();
     if (cx >= r.left && cx <= r.right && cy >= r.top && cy <= r.bottom){
-      const d = o.z + cam.z;
+      const d = facing(o.v, cam.rx, cam.ry);
       if (d > bestD){ bestD = d; best = o; }
     }
   }
   return best;
 }
+
+/* ---------- input ---------- */
+const pointers = new Map();
+let drag = null, hovered = null;
+
+space.addEventListener('pointerdown', e => {
+  space.setPointerCapture(e.pointerId);
+  lastInput = Date.now();
+  pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  if (pointers.size === 2){
+    const [a, b] = [...pointers.values()];
+    drag = { pinch: Math.hypot(a.x-b.x, a.y-b.y), zoom: target.zoom };
+  } else {
+    drag = { sx: e.clientX, sy: e.clientY, trx: target.rx, try: target.ry, moved: false };
+  }
+});
+
+space.addEventListener('pointermove', e => {
+  if (pointers.has(e.pointerId)) pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  if (drag){
+    lastInput = Date.now();
+    if (drag.pinch && pointers.size === 2){
+      const [a, b] = [...pointers.values()];
+      const d = Math.hypot(a.x-b.x, a.y-b.y);
+      target.zoom = Math.max(-2100, Math.min(-880, drag.zoom + (d - drag.pinch) * 4.5));
+      return;
+    }
+    if (drag.pinch) return;
+    const dx = e.clientX - drag.sx, dy = e.clientY - drag.sy;
+    if (Math.abs(dx) + Math.abs(dy) > 6) drag.moved = true;
+    target.ry = drag.try + dx * 0.34;
+    target.rx = Math.max(-72, Math.min(72, drag.trx - dy * 0.30));
+    if (drag.moved) space.classList.add('panning');
+    return;
+  }
+  const hit = pick(e.clientX, e.clientY);
+  const el = hit ? hit.el : null;
+  if (el !== hovered){
+    if (hovered) hovered.classList.remove('hover');
+    if (el) el.classList.add('hover');
+    hovered = el;
+    space.style.cursor = el ? 'pointer' : 'grab';
+  }
+});
 
 ['pointerup','pointercancel'].forEach(ev => space.addEventListener(ev, e => {
   pointers.delete(e.pointerId);
@@ -226,34 +255,22 @@ function pick(cx, cy){
   drag = null;
 }));
 
-let hovered = null;
-space.addEventListener('pointermove', e => {
-  if (drag) return;
-  const hit = pick(e.clientX, e.clientY);
-  const el = hit ? hit.el : null;
-  if (el !== hovered){
-    if (hovered) hovered.classList.remove('hover');
-    if (el) el.classList.add('hover');
-    hovered = el;
-    space.style.cursor = el ? 'pointer' : 'grab';
-  }
-});
-
 space.addEventListener('wheel', e => {
   e.preventDefault();
+  lastInput = Date.now();
   const unit = e.deltaMode === 1 ? 16 : 1;
-  target.z = Math.max(0, Math.min(MAXZ, target.z - e.deltaY * unit * 4.2));
+  target.zoom = Math.max(-2100, Math.min(-880, target.zoom - e.deltaY * unit * 3.4));
 }, { passive: false });
 
 addEventListener('keydown', e => {
   if (e.key === 'Escape') closeFocus();
-  const step = 120;
-  if (e.key === 'ArrowLeft') target.x -= step;
-  if (e.key === 'ArrowRight') target.x += step;
-  if (e.key === 'ArrowUp') target.y -= step;
-  if (e.key === 'ArrowDown') target.y += step;
-  if (e.key === '+' || e.key === 'w') target.z = Math.min(MAXZ, target.z + 300);
-  if (e.key === '-' || e.key === 's') target.z = Math.max(0, target.z - 300);
+  lastInput = Date.now();
+  if (e.key === 'ArrowLeft') target.ry -= 14;
+  if (e.key === 'ArrowRight') target.ry += 14;
+  if (e.key === 'ArrowUp') target.rx = Math.min(72, target.rx + 10);
+  if (e.key === 'ArrowDown') target.rx = Math.max(-72, target.rx - 10);
+  if (e.key === '+' || e.key === 'w') target.zoom = Math.min(-880, target.zoom + 220);
+  if (e.key === '-' || e.key === 's') target.zoom = Math.max(-2100, target.zoom - 220);
 });
 
 /* ---------- rail ---------- */
@@ -264,17 +281,16 @@ CATS.forEach(cat => {
   const btn = document.createElement('button');
   btn.className = 'rail-cat'; btn.dataset.cat = cat.id;
   btn.innerHTML = `${cat.label}<span class="n">${ITEMS.filter(i => i.cat === cat.id).length}</span>`;
-  btn.onclick = () => flyTo(cat.x, cat.y, cat.z0 + 480);
+  btn.onclick = () => flyTo(cat.lat, cat.lon, -1150);
   group.appendChild(btn);
   cat.subs.forEach(sub => {
     const sb = document.createElement('button');
     sb.className = 'rail-sub'; sb.textContent = sub;
     sb.onclick = () => {
       const mine = ITEMS.filter(i => i.cat === cat.id && i.sub === sub);
-      const cx = mine.reduce((s, i) => s + i.x, 0) / mine.length;
-      const cy = mine.reduce((s, i) => s + i.y, 0) / mine.length;
-      const cz = mine.reduce((s, i) => s + i.z, 0) / mine.length;
-      flyTo(cx, cy, -cz + 620);
+      const la = mine.reduce((t, i) => t + i.lat, 0) / mine.length;
+      const lo = mine.reduce((t, i) => t + i.lon, 0) / mine.length;
+      flyTo(la, lo, -1020);
     };
     group.appendChild(sb);
   });
@@ -311,6 +327,6 @@ function closeFocus(){ focus.hidden = true; }
 document.getElementById('focusClose').onclick = closeFocus;
 focus.addEventListener('click', e => { if (e.target === focus) closeFocus(); });
 
-/* start at the front door: drift into FILM */
-flyTo(CATS[0].x, CATS[0].y, RM ? CATS[0].z0 + 480 : 260);
-if (!RM) setTimeout(() => flyTo(CATS[0].x, CATS[0].y, CATS[0].z0 + 480), 400);
+/* arrive from deep space, then settle on FILM */
+if (RM) flyTo(CATS[0].lat, CATS[0].lon, -1150);
+else { cam.ry = -70; setTimeout(() => flyTo(CATS[0].lat, CATS[0].lon, -1150), 350); }
