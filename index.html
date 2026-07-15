@@ -330,12 +330,13 @@
 
     /* ============ 02 SHOWREEL (the TV stays — it's signature) ============ */
     #showreel { overflow: hidden; }
-    .reel-stage { position: relative; max-width: 900px; margin: 0 auto; }
-    .tv { position: relative; width: 100%; max-width: 720px; margin: 0 auto; transform: scaleX(0.82); }
+    .reel-stage { position: relative; max-width: 980px; margin: 0 auto; }
+    .tv { position: relative; width: 100%; max-width: 850px; margin: 0 auto; }
     .tv-img { width: 100%; position: relative; z-index: 2; pointer-events: none; }
     .tv-crown { position: absolute; z-index: 3; width: 42%; top: -22%; right: -12%; pointer-events: none; }
     .tv-screen {
-      position: absolute; z-index: 1; top: 17%; left: 10%; width: 64%; height: 62%;
+      /* aligned to the png's transparent opening (alpha bbox: 12.9/16.7/57.5/60.2) + slight bleed */
+      position: absolute; z-index: 1; top: 16.2%; left: 12.5%; width: 58.4%; height: 61.2%;
       overflow: hidden; border-radius: 50% / 6%; background: #000; cursor: pointer;
     }
     .tv-screen video { width: 100%; height: 100%; object-fit: cover; }
@@ -357,49 +358,7 @@
     .orbit-badge text { font-family: var(--font-mono); font-size: 11.5px; letter-spacing: 2.5px; fill: var(--gold); }
     @keyframes orbitSpin { to { transform: rotate(360deg); } }
 
-    /* ============ 03 FEATURED — the rolodex ============ */
-    #featured { background: var(--night); }
-    .feat-track { height: 400vh; }
-    .feat-sticky {
-      position: sticky; top: 0; height: 100svh; overflow: hidden;
-      display: grid; grid-template-columns: 1.4fr 1fr; align-items: center;
-      gap: clamp(1.5rem, 4vw, 4rem);
-      max-width: var(--max-w); margin: 0 auto; padding: 0 var(--gutter);
-    }
-    .feat-stage {
-      position: relative; aspect-ratio: 16/9; border-radius: var(--radius-lg);
-      overflow: hidden; box-shadow: var(--shadow); background: var(--ink);
-    }
-    .feat-stage video {
-      position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
-      opacity: 0; transform: scale(1.06);
-      transition: opacity 0.45s var(--eo), transform 0.8s var(--eo);
-    }
-    .feat-stage video.on { opacity: 1; transform: scale(1); }
-    .feat-rail { position: relative; }
-    .feat-count { font-family: var(--font-mono); font-size: var(--fs-label); letter-spacing: 0.15em; color: var(--text-mut); margin-bottom: 0.75rem; }
-    .feat-num {
-      font-family: var(--font-display); font-size: clamp(4rem, 9vw, 8rem); line-height: 1;
-      color: transparent; -webkit-text-stroke: 1.5px var(--gold);
-    }
-    .feat-titles { position: relative; height: 4.4em; margin-top: 0.5rem; overflow: hidden; }
-    .feat-title {
-      position: absolute; inset: 0; opacity: 0; transform: translateY(24px);
-      transition: opacity 0.4s var(--eo), transform 0.4s var(--eo);
-      pointer-events: none;
-    }
-    .feat-title.on { opacity: 1; transform: none; pointer-events: auto; }
-    .feat-title h3 { font-family: var(--font-display); font-size: var(--fs-h2); line-height: 1.02; }
-    .feat-title .meta { font-family: var(--font-mono); font-size: var(--fs-label); letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-mut); margin-top: 0.6rem; }
-    .feat-progress { display: flex; gap: 8px; margin-top: 2rem; }
-    .feat-progress i {
-      width: 34px; height: 3px; border-radius: 2px; background: var(--line);
-      transition: background-color var(--dur) ease;
-    }
-    .feat-progress i.on { background: var(--gold); }
-    .feat-open { margin-top: 2rem; }
-
-    /* ============ 04 WORK GRID ============ */
+    /* ============ 03 WORK GRID (04 AI WORK shares these styles) ============ */
     .work-display-title {
       font-family: var(--font-display); font-size: var(--fs-display); line-height: 0.95;
       margin-bottom: 2.5rem;
@@ -672,12 +631,9 @@
       .work-grid { grid-template-columns: repeat(2, 1fr); }
       .lab-grid { grid-template-columns: 1fr; }
       .services-grid { grid-template-columns: repeat(2, 1fr); row-gap: 2rem; }
-      .feat-sticky { grid-template-columns: 1fr; align-content: center; gap: 1.5rem; }
-      .feat-num { font-size: 3.5rem; }
-      .feat-titles { height: 3.6em; }
       .contact-grid, .about-grid { grid-template-columns: 1fr; }
       .orbit-badge { width: 90px; top: -46px; right: -6px; }
-      .tv { max-width: 480px; }
+      .tv { max-width: 560px; }
     }
     @media (max-width: 620px) {
       .work-grid { grid-template-columns: 1fr; }
@@ -697,7 +653,7 @@
         animation-iteration-count: 1 !important;
         transition-duration: 0.001s !important;
       }
-      .reveal, .hero-name .ch, .feat-title, .feat-stage video { opacity: 1 !important; transform: none !important; }
+      .reveal, .hero-name .ch { opacity: 1 !important; transform: none !important; }
       .strip-track, .marquee-track, .orbit-badge { animation: none !important; }
       .scroll-hint, .chip .dot-live, .lab-live i { animation: none !important; }
       #loader { display: none !important; }
@@ -706,7 +662,6 @@
   <noscript><style>
     #loader { display: none; }
     .reveal, .hero-name .ch { opacity: 1; transform: none; }
-    .feat-stage video:first-of-type, .feat-title:first-of-type { opacity: 1; transform: none; }
   </style></noscript>
 </head>
 <body>
@@ -727,8 +682,8 @@
   <nav class="dock" aria-label="Sections">
     <a href="#hero"     data-sec="hero"><span>01</span><span class="tip">Home</span></a>
     <a href="#showreel" data-sec="showreel"><span>02</span><span class="tip">Showreel</span></a>
-    <a href="#featured" data-sec="featured"><span>03</span><span class="tip">Featured</span></a>
-    <a href="#work"     data-sec="work"><span>04</span><span class="tip">Work</span></a>
+    <a href="#work"     data-sec="work"><span>03</span><span class="tip">Work</span></a>
+    <a href="#ai"       data-sec="ai"><span>04</span><span class="tip">AI Work</span></a>
     <a href="#lab"      data-sec="lab"><span>05</span><span class="tip">Lab</span></a>
     <a href="#services" data-sec="services"><span>06</span><span class="tip">Services</span></a>
     <a href="#about"    data-sec="about"><span>07</span><span class="tip">About</span></a>
@@ -798,37 +753,11 @@
     </div>
   </section>
 
-  <!-- ── 03 Featured — scroll rolodex ── -->
-  <section id="featured" aria-label="Featured films">
-    <div class="feat-track" id="feat-track">
-      <div class="feat-sticky">
-        <div class="feat-stage" id="feat-stage" data-cursor="play">
-          <video class="on" src="clips/previews/Berlin41.mp4"           poster="clips/posters/Berlin41.jpg"           loop muted playsinline preload="metadata" data-full="clips/Berlin41.mp4"           data-title="Berlin 41"></video>
-          <video          src="clips/previews/4eva 3.mp4"              poster="clips/posters/4eva 3.jpg"             loop muted playsinline preload="none"     data-full="clips/4eva 3.mp4"             data-title="4eva"></video>
-          <video          src="clips/previews/muay thai fight.mp4"     poster="clips/posters/muay thai fight.jpg"    loop muted playsinline preload="none"     data-full="clips/muay thai fight.mp4"    data-title="Muay Thai"></video>
-          <video          src="clips/previews/shadowboxing final.mp4"  poster="clips/posters/shadowboxing final.jpg" loop muted playsinline preload="none"     data-full="clips/shadowboxing final.mp4" data-title="Shadowboxing"></video>
-        </div>
-        <div class="feat-rail">
-          <div class="feat-count mono">FEATURED · <span id="feat-idx">01</span> / 04</div>
-          <div class="feat-num" id="feat-num" aria-hidden="true">01</div>
-          <div class="feat-titles">
-            <div class="feat-title on"><h3>Berlin 41</h3><div class="meta">Brand Film · 2024</div></div>
-            <div class="feat-title"><h3>4eva</h3><div class="meta">Music Video · 2024</div></div>
-            <div class="feat-title"><h3>Muay Thai</h3><div class="meta">Street Culture · 2024</div></div>
-            <div class="feat-title"><h3>Shadowboxing</h3><div class="meta">Street Culture · 2024</div></div>
-          </div>
-          <div class="feat-progress" aria-hidden="true"><i class="on"></i><i></i><i></i><i></i></div>
-          <button class="btn btn-ghost feat-open" id="feat-open">Watch full film →</button>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ── 04 Work grid ── -->
+  <!-- ── 03 Work grid ── -->
   <section id="work" class="bg-night">
     <div class="inner">
-      <div class="eyebrow"><span class="num">04</span><span>Selected Work</span><span class="rule"></span></div>
-      <h2 class="work-display-title reveal">All <em>work</em>.</h2>
+      <div class="eyebrow"><span class="num">03</span><span>Selected Work</span><span class="rule"></span></div>
+      <h2 class="work-display-title reveal">Video <em>work</em>.</h2>
 
       <div class="work-controls reveal" style="--d:1">
         <div class="filter-row" role="tablist" aria-label="Filter projects">
@@ -895,6 +824,32 @@
           <div class="work-thumb"><canvas class="slot-canvas" aria-hidden="true"></canvas>
             <div class="slot-tag"><b>SOON</b><span>reserved</span></div></div>
           <div class="work-info"><h3 class="work-title">Untitled</h3><div class="work-meta">//012 · New Work · 2026</div></div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 04 AI work ── -->
+  <section id="ai" class="bg-ink">
+    <div class="inner">
+      <div class="eyebrow"><span class="num">04</span><span>AI Work</span><span class="rule"></span></div>
+      <h2 class="work-display-title reveal">AI <em>work</em>.</h2>
+
+      <div class="work-grid" id="ai-grid">
+        <article class="work-card slot-empty reveal" style="--d:0" aria-label="Reserved slot for upcoming AI work">
+          <div class="work-thumb"><canvas class="slot-canvas" aria-hidden="true"></canvas>
+            <div class="slot-tag"><b>SOON</b><span>reserved</span></div></div>
+          <div class="work-info"><h3 class="work-title">Untitled</h3><div class="work-meta">//013 · AI Work · 2026</div></div>
+        </article>
+        <article class="work-card slot-empty reveal" style="--d:1" aria-label="Reserved slot for upcoming AI work">
+          <div class="work-thumb"><canvas class="slot-canvas" aria-hidden="true"></canvas>
+            <div class="slot-tag"><b>SOON</b><span>reserved</span></div></div>
+          <div class="work-info"><h3 class="work-title">Untitled</h3><div class="work-meta">//014 · AI Work · 2026</div></div>
+        </article>
+        <article class="work-card slot-empty reveal" style="--d:2" aria-label="Reserved slot for upcoming AI work">
+          <div class="work-thumb"><canvas class="slot-canvas" aria-hidden="true"></canvas>
+            <div class="slot-tag"><b>SOON</b><span>reserved</span></div></div>
+          <div class="work-info"><h3 class="work-title">Untitled</h3><div class="work-meta">//015 · AI Work · 2026</div></div>
         </article>
       </div>
     </div>
@@ -1368,6 +1323,13 @@
         if (e[0].isIntersecting) { video.preload = "auto"; video.load(); io.disconnect(); }
       }, { rootMargin: "600px" }).observe(video);
 
+      // once running, pause reel + audio whenever the TV leaves the viewport
+      new IntersectionObserver(e => {
+        if (!playing) return;
+        if (e[0].isIntersecting) video.play().catch(() => {});
+        else video.pause();
+      }, { threshold: 0.15 }).observe(screen);
+
       function activate() {
         if (playing) { video.muted = !video.muted; return; }
         video.muted = false;
@@ -1379,59 +1341,14 @@
       screen.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); activate(); } });
     })();
 
-    /* ============ FEATURED ROLODEX — scroll maps to active film ============ */
-    (() => {
-      const track = $("#feat-track"), vids = $$("#feat-stage video"),
-            titles = $$(".feat-title"), bars = $$(".feat-progress i"),
-            num = $("#feat-num"), idxEl = $("#feat-idx");
-      const N = vids.length;
-      let active = 0, ticking = false;
-
-      function setActive(i) {
-        if (i === active) return;
-        active = i;
-        vids.forEach((v, k) => {
-          v.classList.toggle("on", k === i);
-          if (k === i) { v.preload = "auto"; v.play().catch(() => {}); } else v.pause();
-        });
-        titles.forEach((t, k) => t.classList.toggle("on", k === i));
-        bars.forEach((b, k) => b.classList.toggle("on", k <= i));
-        num.textContent = idxEl.textContent = String(i + 1).padStart(2, "0");
-      }
-      function onScroll() {
-        if (ticking) return;
-        ticking = true;
-        requestAnimationFrame(() => {
-          ticking = false;
-          const r = track.getBoundingClientRect();
-          const total = r.height - innerHeight;
-          const p = Math.min(0.999, Math.max(0, -r.top / total));
-          setActive(Math.floor(p * N));
-        });
-      }
-      addEventListener("scroll", onScroll, { passive: true });
-
-      // only play stage videos while section is on screen
-      new IntersectionObserver(e => {
-        if (e[0].isIntersecting) vids[active].play().catch(() => {});
-        else vids.forEach(v => v.pause());
-      }, { threshold: 0.05 }).observe(track);
-
-      $("#feat-open").addEventListener("click", () => {
-        const v = vids[active];
-        openModal(PREVIEW_ONLY ? v.getAttribute("src") : v.dataset.full, v.dataset.title);
-      });
-      $("#feat-stage").addEventListener("click", () => $("#feat-open").click());
-    })();
-
     /* ============ WORK GRID — filters, hover-play, modal ============ */
     (() => {
-      const pills = $$(".filter-pill"), cards = $$(".work-card");
+      const pills = $$(".filter-pill"), gridCards = $$("#work-grid .work-card"), cards = $$(".work-card");
       pills.forEach(p => p.addEventListener("click", () => {
         pills.forEach(x => { x.classList.remove("active"); x.setAttribute("aria-selected", "false"); });
         p.classList.add("active"); p.setAttribute("aria-selected", "true");
         const f = p.dataset.filter;
-        cards.forEach(c => c.classList.toggle("hidden", f !== "all" && c.dataset.cat !== f && c.dataset.cat !== "all"));
+        gridCards.forEach(c => c.classList.toggle("hidden", f !== "all" && c.dataset.cat !== f && c.dataset.cat !== "all"));
       }));
 
       cards.forEach(card => {
