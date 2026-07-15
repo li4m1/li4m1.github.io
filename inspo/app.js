@@ -12,15 +12,15 @@ const rnd = (seed => () => {
   return ((t ^ t >>> 14) >>> 0) / 4294967296;
 })(41);
 
-const BAND = 1200, START = 420;
 const CATS = [
-  { id:'film',   label:'FILM',   x:0,    y:-40,  subs:['music videos','short films','scenes'] },
-  { id:'photo',  label:'PHOTO',  x:660,  y:230,  subs:['street','flash','editorial'] },
-  { id:'music',  label:'MUSIC',  x:-640, y:200,  subs:['tracks','albums'] },
-  { id:'books',  label:'BOOKS',  x:520,  y:-300, subs:['design','stories'] },
-  { id:'design', label:'DESIGN', x:-560, y:-280, subs:['posters','type','sites'] },
-  { id:'words',  label:'WORDS',  x:60,   y:380,  subs:['quotes','ideas'] },
+  { id:'film',   label:'FILM',   x:-3500, y:0, subs:['music videos','short films','scenes'] },
+  { id:'photo',  label:'PHOTO',  x:-2100, y:0, subs:['street','flash','editorial'] },
+  { id:'music',  label:'MUSIC',  x:-700,  y:0, subs:['tracks','albums'] },
+  { id:'books',  label:'BOOKS',  x:700,   y:0, subs:['design','stories'] },
+  { id:'design', label:'DESIGN', x:2100,  y:0, subs:['posters','type','sites'] },
+  { id:'words',  label:'WORDS',  x:3500,  y:0, subs:['quotes','ideas'] },
 ];
+const CATGAP = 1400;
 const TYPE = { film:'video', photo:'image', music:'music', books:'book', design:'image', words:'quote' };
 const HUES = {
   film:  [['#2B0A72','#e0342b'],['#140933','#6C1ADB'],['#02010A','#F0B429']],
@@ -39,9 +39,19 @@ const QUOTES = [
   'Taste is a muscle. Feed it.',
 ];
 
+function subAnchor(cat, sub){
+  let h = 2166136261;
+  for (const ch of (cat.id + '/' + sub)) { h ^= ch.charCodeAt(0); h = Math.imul(h, 16777619); }
+  const u = n => (((h >>> n) & 1023) / 1023);
+  return {
+    x: cat.x + (u(2) - 0.5) * 760,
+    y: (u(12) - 0.5) * 480,
+    z: -(300 + u(21) * 950),
+  };
+}
+
 const ITEMS = [];
 CATS.forEach((cat, ci) => {
-  cat.z0 = START + ci * BAND;
   cat.subs.forEach((sub, si) => {
     for (let k = 0; k < 3; k++) {
       const n = ITEMS.length + 1;
@@ -53,26 +63,18 @@ CATS.forEach((cat, ci) => {
           : `Untitled ${String(n).padStart(2, '0')}`,
         meta: 'placeholder · swap for a real reference',
         hue: HUES[cat.id][(si + k) % HUES[cat.id].length],
-        x: cat.x + (rnd() - 0.5) * 680,
-        y: cat.y + (rnd() - 0.5) * 470,
-        z: -(cat.z0 + rnd() * 780),
       });
+      const it = ITEMS[ITEMS.length - 1];
+      const an = subAnchor(cat, sub);
+      it.x = an.x + (rnd() - 0.5) * 190;
+      it.y = an.y + (rnd() - 0.5) * 150;
+      it.z = an.z + (rnd() - 0.5) * 170;
     }
   });
 });
 
 
 
-function subAnchor(cat, sub){
-  let h = 2166136261;
-  for (const ch of (cat.id + '/' + sub)) { h ^= ch.charCodeAt(0); h = Math.imul(h, 16777619); }
-  const u = n => (((h >>> n) & 1023) / 1023);
-  return {
-    x: cat.x + (u(2) - 0.5) * 560,
-    y: cat.y + (u(12) - 0.5) * 380,
-    z: -(cat.z0 + 150 + u(21) * 620),
-  };
-}
 
 const SIZE = { video:[280,158], image:[200,250], book:[150,220], quote:[230,150], music:[260,44] };
 
@@ -104,8 +106,8 @@ CATS.forEach(cat => {
   const g = document.createElement('div');
   g.className = 'ghost';
   g.innerHTML = `${cat.label}<i>${cat.subs.join(' · ')}</i>`;
-  const gz = -(cat.z0 + 950);
-  g.style.transform = `translate3d(${cat.x - cat.label.length * 52}px, ${cat.y - 95}px, ${gz}px)`;
+  const gz = -1150;
+  g.style.transform = `translate3d(${cat.x - cat.label.length * 52}px, -330px, ${gz}px)`;
   camera.appendChild(g);
   els.push({ el: g, z: gz, ghost: true });
 });
@@ -173,7 +175,7 @@ if (userDirty) saveUser();
 
 /* ---------- flight camera ---------- */
 const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
-const MAXZ = START + CATS.length * BAND + 300;
+const MAXZ = 1900;
 const cam = { x: 0, y: 0, z: 0 };
 const target = { x: 0, y: 0, z: 0 };
 window.__cam = cam;  // test hook
@@ -192,7 +194,7 @@ function buckets(){
 }
 
 function hud(){
-  const idx = Math.min(CATS.length - 1, Math.max(0, Math.round((cam.z - START - 500) / BAND)));
+  const idx = Math.min(CATS.length - 1, Math.max(0, Math.round((cam.x + 3500) / CATGAP)));
   const cat = CATS[idx];
   const h = document.getElementById('hud');
   if (h.dataset.cat !== cat.id){
@@ -318,7 +320,7 @@ CATS.forEach(cat => {
   const btn = document.createElement('button');
   btn.className = 'rail-cat'; btn.dataset.cat = cat.id;
   btn.innerHTML = `${cat.label}<span class="n">${ITEMS.filter(i => i.cat === cat.id).length}</span>`;
-  btn.onclick = () => flyTo(cat.x, cat.y, cat.z0 + 480);
+  btn.onclick = () => flyTo(cat.x, 0, 520);
   group.appendChild(btn);
   group.dataset.cat = cat.id;
   subsOf(cat).forEach(sub => addRailSub(cat, sub, group));
@@ -508,5 +510,5 @@ addEventListener('paste', e => {
 });
 
 /* arrive from deep space, then settle on FILM */
-if (RM) flyTo(CATS[0].x, CATS[0].y, CATS[0].z0 + 480);
-else { setTimeout(() => flyTo(CATS[0].x, CATS[0].y, CATS[0].z0 + 480), 350); }
+if (RM) flyTo(CATS[0].x, 0, 520);
+else { setTimeout(() => flyTo(CATS[0].x, 0, 520), 350); }
