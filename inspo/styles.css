@@ -13,7 +13,7 @@
   --font-body:'Inter',system-ui,-apple-system,sans-serif;
   --font-mono:'JetBrains Mono',ui-monospace,'SF Mono',monospace;
   --eo:cubic-bezier(0.23,1,0.32,1);
-  --shadow:0 12px 40px rgba(0,0,0,0.4);
+  --shadow:0 6px 18px rgba(0,0,0,0.35);
 }
 @font-face{font-family:'Captions';src:url('/Captions.woff2') format('woff2');font-display:swap}
 @font-face{font-family:'Inter';src:url('/fonts/Inter-var.woff2') format('woff2');font-weight:400 700;font-display:swap}
@@ -29,7 +29,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 /* grain + vignette atmosphere */
 body::after{
   content:"";position:fixed;inset:0;pointer-events:none;z-index:300;
-  opacity:.05;mix-blend-mode:overlay;
+  opacity:.035;
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 body::before{
@@ -41,8 +41,7 @@ body::before{
 header{
   position:fixed;top:0;left:0;right:0;z-index:50;
   display:flex;align-items:center;gap:10px;padding:4px 12px;
-  background:rgba(2,1,10,.8);
-  -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
+  background:rgba(2,1,10,.92);
   border-bottom:1px solid rgba(244,241,234,0.08);
 }
 .home{
@@ -67,8 +66,7 @@ header{
 #rail{
   position:fixed;top:33px;left:0;bottom:0;z-index:40;width:200px;
   padding:18px 16px;overflow-y:auto;
-  background:rgba(2,1,10,.72);
-  -webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);
+  background:rgba(4,2,16,.94);
   border-right:1px solid rgba(244,241,234,0.08);
   transition:transform .3s var(--eo);
 }
@@ -152,10 +150,10 @@ header{
 /* depth atmosphere buckets */
 .card.d-near{opacity:1}
 .card.d-mid{opacity:.55}
-.card.d-far{opacity:.16;pointer-events:none}
-.card.d-behind{opacity:0;pointer-events:none}
+.card.d-far{opacity:.16;pointer-events:none;box-shadow:none}
+.card.d-behind{opacity:0;pointer-events:none;visibility:hidden}
 .ghost.d-far{opacity:.25}
-.ghost.d-behind{opacity:0}
+.ghost.d-behind{opacity:0;visibility:hidden}
 
 /* ── HUD ── */
 #hud{
