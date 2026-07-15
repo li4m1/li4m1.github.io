@@ -242,7 +242,7 @@ space.addEventListener('pointermove', e => {
 space.addEventListener('wheel', e => {
   e.preventDefault();
   const unit = e.deltaMode === 1 ? 16 : 1;
-  target.z = Math.max(0, Math.min(MAXZ, target.z - e.deltaY * unit * 1.6));
+  target.z = Math.max(0, Math.min(MAXZ, target.z - e.deltaY * unit * 4.2));
 }, { passive: false });
 
 addEventListener('keydown', e => {
