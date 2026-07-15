@@ -9,8 +9,8 @@
   <link rel="preload" href="/Captions.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="/fonts/Inter-var.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="/fonts/JetBrainsMono-var.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="styles.css?v=11">
-  <script src="app.js?v=11" defer></script>
+  <link rel="stylesheet" href="styles.css?v=12">
+  <script src="app.js?v=12" defer></script>
 </head>
 <body>
 
@@ -49,7 +49,7 @@
     <button class="focus-close" id="addClose" aria-label="Close">✕</button>
   </div>
 </div>
-<input type="file" id="file" accept="image/*" hidden>
+<input type="file" id="file" accept="image/*" multiple hidden>
 
 <div id="focus" hidden>
   <div class="focus-card">
@@ -65,7 +65,7 @@
 </div>
 
 <footer class="hints mono" aria-hidden="true">
-  drag: orbit the ball · scroll: zoom · click card: focus · esc: back
+  drag: orbit · scroll: zoom · drop images or paste links anywhere: quick-pin · esc: back
 </footer>
 
 <nav class="legal">

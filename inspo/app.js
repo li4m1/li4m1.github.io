@@ -388,25 +388,33 @@ document.getElementById('addClose').onclick = () => { addOv.hidden = true; };
 addOv.addEventListener('click', e => { if (e.target === addOv) addOv.hidden = true; });
 document.getElementById('addFile').onclick = () => document.getElementById('file').click();
 document.getElementById('file').onchange = e => {
-  pendingFile = e.target.files[0] || null;
-  document.getElementById('addFileName').textContent = pendingFile ? pendingFile.name : '';
+  const files = [...e.target.files];
+  pendingFile = files[0] || null;
+  document.getElementById('addFileName').textContent = pendingFile ? (files.length > 1 ? `${pendingFile.name} +${files.length - 1} more` : pendingFile.name) : '';
+  files.slice(1).forEach(f => { const [c, su] = inferCat('image', ''); pinItem('', f, c, su, false); });
+  if (pendingFile) autoCat();
   e.target.value = '';
 };
+function inferCat(type, text){
+  if (type === 'video') return ['film', 'music videos'];
+  if (type === 'music') return ['music', 'tracks'];
+  if (type === 'quote') return ['words', 'quotes'];
+  if (/instagram\.com|behance|dribbble|\.design/.test(text || '')) return ['design', 'sites'];
+  return ['photo', 'street'];
+}
 function inferType(text){
   if (/youtu\.be|youtube\.com|vimeo\.com/.test(text)) return 'video';
   if (/spotify\.com|soundcloud\.com/.test(text)) return 'music';
   if (/^https?:\/\//.test(text)) return 'image';
   return 'quote';
 }
-document.getElementById('addGo').onclick = async () => {
-  const text = document.getElementById('addInput').value.trim();
-  if (!text && !pendingFile) return;
-  const cat = CATS.find(x => x.id === addCat.value);
+async function pinItem(text, file, catId, subName, fly = true){
+  const cat = CATS.find(x => x.id === catId);
   const item = {
-    id: 'u' + Date.now().toString(36),
-    cat: cat.id, sub: addSub.value, user: true,
-    type: pendingFile ? 'image' : inferType(text),
-    title: text && !/^https?:/.test(text) ? text : (text ? text.replace(/^https?:\/\//, '').slice(0, 42) : pendingFile.name),
+    id: 'u' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5),
+    cat: cat.id, sub: subName, user: true,
+    type: file ? 'image' : inferType(text),
+    title: text && !/^https?:/.test(text) ? text : (text ? text.replace(/^https?:\/\//, '').slice(0, 42) : file.name),
     meta: text || 'added from a file',
     url: /^https?:/.test(text) ? text : '',
     hue: HUES[cat.id][0],
@@ -415,21 +423,58 @@ document.getElementById('addGo').onclick = async () => {
   };
   const yt = text.match(/(?:youtube\.com\/(?:watch\?.*v=|shorts\/)|youtu\.be\/)([\w-]{6,})/);
   if (yt) item.thumb = `https://img.youtube.com/vi/${yt[1]}/hqdefault.jpg`;
-  if (pendingFile){
+  if (file){
     item.img = item.id;
-    await idb.put(item.id, pendingFile);
+    await idb.put(item.id, file);
   }
   USER.push(item); ITEMS.push(item); saveUser();
   spawnCard(item);
   if (item.img) idb.get(item.img).then(b => { const el = camera.querySelector(`[data-id="${item.id}"] img`); if (el && b) el.src = URL.createObjectURL(b); });
   if (item.img && !item.thumb){ const el = camera.querySelector(`[data-id="${item.id}"]`); const im = document.createElement('img'); im.style.cssText='width:100%;height:100%;object-fit:cover;display:block'; el.querySelectorAll('canvas').forEach(c2=>c2.remove()); el.prepend(im); idb.get(item.img).then(b => { if (b) im.src = URL.createObjectURL(b); }); }
+  if (fly) flyTo(item.lat, item.lon, -1020);
+  document.querySelector(`.rail-cat[data-cat="${cat.id}"] .n`).textContent = ITEMS.filter(i => i.cat === cat.id).length;
+}
+
+/* dialog: auto-pick the right category from what you typed or chose */
+function autoCat(){
+  const text = document.getElementById('addInput').value.trim();
+  const [c, su] = inferCat(pendingFile ? 'image' : inferType(text), text);
+  addCat.value = c; fillSubs();
+  addSub.value = su;
+}
+document.getElementById('addInput').addEventListener('input', autoCat);
+document.getElementById('addGo').onclick = async () => {
+  const text = document.getElementById('addInput').value.trim();
+  if (!text && !pendingFile) return;
+  await pinItem(text, pendingFile, addCat.value, addSub.value);
   pendingFile = null;
   document.getElementById('addFileName').textContent = '';
   document.getElementById('addInput').value = '';
   addOv.hidden = true;
-  flyTo(item.lat, item.lon, -1020);
-  document.querySelector(`.rail-cat[data-cat="${cat.id}"] .n`).textContent = ITEMS.filter(i => i.cat === cat.id).length;
 };
+
+/* quick-pin: drop images (many at once) or paste links anywhere */
+['dragover','dragenter'].forEach(ev => addEventListener(ev, e => e.preventDefault()));
+addEventListener('drop', async e => {
+  e.preventDefault();
+  const files = [...(e.dataTransfer?.files || [])].filter(f => f.type.startsWith('image/'));
+  for (const f of files){
+    const [c, su] = inferCat('image', '');
+    await pinItem('', f, c, su, files.indexOf(f) === files.length - 1);
+  }
+  const url = e.dataTransfer?.getData('text/uri-list');
+  if (url){ const [c, su] = inferCat(inferType(url), url); pinItem(url, null, c, su); }
+});
+addEventListener('paste', e => {
+  if (!addOv.hidden || /INPUT|TEXTAREA/.test(document.activeElement?.tagName || '')) return;
+  const text = (e.clipboardData?.getData('text') || '').trim();
+  const imgs = [...(e.clipboardData?.items || [])].filter(i => i.type.startsWith('image/'));
+  imgs.forEach((i, ix) => { const [c, su] = inferCat('image', ''); pinItem('', i.getAsFile(), c, su, ix === imgs.length - 1); });
+  if (text) text.split(/\n+/).map(l => l.trim()).filter(Boolean).forEach((line, ix, arr) => {
+    const [c, su] = inferCat(inferType(line), line);
+    pinItem(line, null, c, su, ix === arr.length - 1);
+  });
+});
 
 /* arrive from deep space, then settle on FILM */
 if (RM) flyTo(CATS[0].lat, CATS[0].lon, -1150);
