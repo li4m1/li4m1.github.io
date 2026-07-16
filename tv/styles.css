@@ -164,6 +164,10 @@ button{font-family:inherit;cursor:pointer}
   border-radius:inherit;opacity:1;transition:opacity .25s;
   background-image:radial-gradient(ellipse 40% 28% at 26% 14%, rgba(255,255,255,.05), transparent 70%);
 }
+.jtv-badge{
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  width:36%;opacity:.2;filter:saturate(.8);
+}
 body.on .screen-off{opacity:0;pointer-events:none}
 
 /* ── OSD ── */

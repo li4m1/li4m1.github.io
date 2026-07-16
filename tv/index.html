@@ -8,7 +8,7 @@
   <meta property="og:title" content="JANSSON TV">
   <meta property="og:description" content="A television station, not a video page. Boom bap on CH 03, pirate feed on CH 07. Broadcasting now.">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📺</text></svg>">
-  <link rel="stylesheet" href="styles.css?v=1">
+  <link rel="stylesheet" href="styles.css?v=2">
   <script src="channels.js?v=1" defer></script>
   <script src="app.js?v=1" defer></script>
 </head>
@@ -59,7 +59,27 @@
 
         <div class="fx fx-glass" aria-hidden="true"></div>
         <div class="boot" id="boot" aria-hidden="true"></div>
-        <div class="screen-off" id="screenOff" aria-hidden="true"></div>
+        <div class="screen-off" id="screenOff" aria-hidden="true">
+          <svg class="jtv-badge" viewBox="0 0 364 322">
+            <defs>
+              <filter id="spray" x="-15%" y="-15%" width="130%" height="130%">
+                <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="2" seed="11" result="n"/>
+                <feDisplacementMap in="SourceGraphic" in2="n" scale="7"/>
+              </filter>
+              <filter id="soft"><feGaussianBlur stdDeviation="1.1"/></filter>
+            </defs>
+            <path d="M15,15 L305,15 L305,180 Q305,285 160,285 Q15,285 15,180 L15,140 L95,140 L95,180 Q95,205 160,205 Q225,205 225,180 L225,95 L15,95 Z" transform="translate(14,14)" fill="#2B0A72"/>
+            <path d="M15,15 L305,15 L305,180 Q305,285 160,285 Q15,285 15,180 L15,140 L95,140 L95,180 Q95,205 160,205 Q225,205 225,180 L225,95 L15,95 Z" fill="#6C1ADB" stroke="#140933" stroke-width="4"/>
+            <g fill="#F0B429" filter="url(#soft)" opacity=".5">
+              <circle cx="196" cy="212" r="3"/><circle cx="341" cy="236" r="2.5"/>
+              <circle cx="230" cy="304" r="3.5"/><circle cx="322" cy="300" r="2"/>
+              <circle cx="205" cy="292" r="2"/><circle cx="348" cy="270" r="3"/>
+            </g>
+            <g filter="url(#spray)">
+              <text x="330" y="292" text-anchor="end" font-family="Captions" font-size="164" fill="#F0B429" transform="rotate(-5 255 255)">TV</text>
+            </g>
+          </svg>
+        </div>
       </div>
     </div>
 
