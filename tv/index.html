@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>JANSSON TV</title>
+  <meta name="description" content="JANSSON TELEVISION — a CRT set broadcasting the archive live. No pause, no scrubber. You tune, you surf.">
+  <meta property="og:title" content="JANSSON TV">
+  <meta property="og:description" content="A television station, not a video page. Boom bap on CH 03, pirate feed on CH 07. Broadcasting now.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📺</text></svg>">
+  <link rel="stylesheet" href="styles.css?v=1">
+  <script src="channels.js?v=1" defer></script>
+  <script src="app.js?v=1" defer></script>
+</head>
+<body>
+
+<a class="home" href="https://janssonliam.de/" aria-label="Back to janssonliam.de">
+  <img src="/crown.png" alt="">JANSSON
+</a>
+
+<div class="room">
+  <div class="ghost" aria-hidden="true">JANSSON</div>
+  <div class="glow" id="glow" aria-hidden="true"></div>
+
+  <div class="tv" id="tv">
+    <div class="tube">
+      <div class="screen" id="screen">
+        <video id="video" playsinline preload="auto"></video>
+        <canvas id="noise" width="160" height="120" aria-hidden="true"></canvas>
+
+        <!-- test card / ident cards (populated by app.js) -->
+        <div class="card" id="card" hidden></div>
+
+        <!-- CRT stack -->
+        <div class="fx fx-mask" aria-hidden="true"></div>
+        <div class="fx fx-scan" aria-hidden="true"></div>
+        <div class="fx fx-roll" aria-hidden="true"></div>
+        <div class="fx fx-flicker" aria-hidden="true"></div>
+        <div class="fx fx-vignette" aria-hidden="true"></div>
+
+        <!-- OSD (drawn by the TV, under the glass) -->
+        <div class="osd" aria-live="polite">
+          <div class="osd-ch" id="osdCh" hidden>
+            <span class="osd-num" id="osdNum"></span>
+            <span class="osd-name" id="osdName"></span>
+          </div>
+          <div class="osd-vol" id="osdVol" hidden>
+            <span>VOL</span><span class="bars" id="volBars"></span>
+          </div>
+          <div class="osd-mute" id="osdMute" hidden>MUTE</div>
+          <div class="lower3" id="lower3" hidden>
+            <div class="l3-artist" id="l3Artist"></div>
+            <div class="l3-title" id="l3Title"></div>
+            <div class="l3-meta" id="l3Meta"></div>
+            <div class="l3-station"></div>
+          </div>
+          <div class="osd-hint" id="osdHint" hidden></div>
+        </div>
+
+        <div class="fx fx-glass" aria-hidden="true"></div>
+        <div class="boot" id="boot" aria-hidden="true"></div>
+        <div class="screen-off" id="screenOff" aria-hidden="true"></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="grille" aria-hidden="true"></div>
+      <div class="plate">
+        <span class="plate-brand">JANSSON <img src="/crown.png" alt="♛"> COLORTRON-2600</span>
+        <span class="plate-sub">JTV · BERLIN · SOLID STATE</span>
+      </div>
+      <div class="controls">
+        <div class="ctl-group">
+          <button class="ctl" id="btnChUp"  aria-label="Channel up">CH ▲</button>
+          <button class="ctl" id="btnChDn"  aria-label="Channel down">CH ▼</button>
+        </div>
+        <div class="ctl-group">
+          <button class="ctl" id="btnVolUp" aria-label="Volume up">VOL ▲</button>
+          <button class="ctl" id="btnVolDn" aria-label="Volume down">VOL ▼</button>
+        </div>
+        <div class="ctl-group">
+          <button class="ctl" id="btnMute"  aria-label="Mute">MUTE</button>
+          <button class="ctl" id="btnGuide" aria-label="TV guide">GUIDE</button>
+        </div>
+        <button class="power" id="btnPower" aria-label="Power">
+          <span class="led" id="led"></span>⏻
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <p class="hint" id="startHint">PRESS <b>⏻ POWER</b> — BROADCASTING NOW</p>
+</div>
+
+<!-- remote — desktop only, draggable -->
+<div class="remote" id="remote" aria-label="Remote control">
+  <div class="r-top">
+    <span class="r-brand">JTV-1</span>
+    <button class="r-power" id="rPower" aria-label="Power">⏻</button>
+  </div>
+  <div class="r-digits" id="rDigits"></div>
+  <div class="r-rockers">
+    <div class="rocker">
+      <button id="rChUp" aria-label="Channel up">▲</button>
+      <span>CH</span>
+      <button id="rChDn" aria-label="Channel down">▼</button>
+    </div>
+    <div class="rocker">
+      <button id="rVolUp" aria-label="Volume up">▲</button>
+      <span>VOL</span>
+      <button id="rVolDn" aria-label="Volume down">▼</button>
+    </div>
+  </div>
+  <div class="r-row">
+    <button id="rMute">MUTE</button>
+    <button id="rGuide">GUIDE</button>
+  </div>
+</div>
+
+<!-- TV guide overlay -->
+<div class="guide" id="guide" hidden role="dialog" aria-label="TV guide">
+  <div class="g-head">
+    <span class="g-title">TV GUIDE</span>
+    <span class="g-clock" id="gClock"></span>
+    <button class="g-close" id="gClose" aria-label="Close guide">✕</button>
+  </div>
+  <div class="g-grid" id="gGrid"></div>
+  <div class="g-foot">
+    <span>JANSSON TELEVISION — BROADCASTING FROM BERLIN</span>
+    <span class="g-legal">
+      <a href="/impressum.html">IMPRESSUM</a> · <a href="/datenschutz.html">DATENSCHUTZ</a>
+    </span>
+  </div>
+</div>
+
+</body>
+</html>
