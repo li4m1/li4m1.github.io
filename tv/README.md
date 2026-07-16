@@ -13,13 +13,18 @@ No pause, no scrubber. You tune, you surf.
 
 ## Controls
 
+The set is a photograph (`tv-set.jpg`); the broadcast plays inside its glass.
+
 | Input | Action |
 |---|---|
-| **P** / power button | power on/off (power-on unlocks sound) |
+| **P** / ⏻ | power on/off (power-on unlocks sound) |
 | **↑ / ↓** or swipe | surf programmed channels |
 | **0–9** | type a channel number directly |
-| **← / →** | volume · **M** mute |
+| **Space** / PAUSE | pause (timeshift — rejoins the live clock at the next video) |
+| **S** / **→** / SKIP | skip to the channel's next video |
 | **G** | TV guide (live now/next from the schedule) |
+
+No volume UI by design; **M** mutes as a hidden shortcut.
 
 ## Programming the station
 

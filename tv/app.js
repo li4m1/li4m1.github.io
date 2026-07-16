@@ -9,10 +9,10 @@
 const $ = id => document.getElementById(id);
 const scr = $('screen'), video = $('video'), noise = $('noise'), card = $('card');
 const osdCh = $('osdCh'), osdNum = $('osdNum'), osdName = $('osdName');
-const osdVol = $('osdVol'), volBars = $('volBars'), osdMute = $('osdMute'), osdHint = $('osdHint');
+const osdPause = $('osdPause'), osdMute = $('osdMute'), osdHint = $('osdHint');
 const lower3 = $('lower3'), l3Artist = $('l3Artist'), l3Title = $('l3Title'), l3Meta = $('l3Meta');
 const guide = $('guide'), gGrid = $('gGrid'), gClock = $('gClock');
-const rem = $('remote');
+const btnPause = $('btnPause');
 
 const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const pad = n => String(n).padStart(2, '0');
@@ -23,13 +23,16 @@ const NUMS = CHANNELS.map(c => c.num).sort((a, b) => a - b);
 let powered = false;
 let current = null;          // tuned channel object (or null on a dead channel)
 let deadNum = null;
-let vol = Math.max(0, Math.min(10, parseInt(localStorage.getItem('jtv-vol') ?? '7', 10) || 0));
-let muted = localStorage.getItem('jtv-muted') === '1';
+let vol = 8;                 // fixed level — no volume UI by design
+let muted = false;           // M key still works as a hidden shortcut
 let tuneToken = 0;           // invalidates in-flight tunes on every new action
 let typeBuf = '', typeTimer = null;
 let l3Timer = null, l3EndShown = true;
-let chOsdTimer = null, volOsdTimer = null, hintTimer = null;
+let chOsdTimer = null, hintTimer = null;
 let tcTimer = null, guideTimer = null;
+let nowPlaying = null;       // the item actually on the glass (may be timeshifted)
+let userPaused = false;
+let timeshifted = false;     // true after SKIP until the channel rejoins the live clock
 
 /* ── schedule math ── */
 function schedule(ch, atMs = Date.now()) {
@@ -122,17 +125,6 @@ function showChOsd(numText, name, hold = 2600) {
   clearTimeout(chOsdTimer);
   chOsdTimer = setTimeout(() => { osdCh.hidden = true; }, hold);
 }
-function showVolOsd() {
-  volBars.innerHTML = '';
-  for (let i = 1; i <= 10; i++) {
-    const b = document.createElement('i');
-    if (i <= vol) b.className = 'onn';
-    volBars.appendChild(b);
-  }
-  osdVol.hidden = false;
-  clearTimeout(volOsdTimer);
-  volOsdTimer = setTimeout(() => { osdVol.hidden = true; }, 1600);
-}
 function showHint(t, hold = 4000) {
   osdHint.textContent = t;
   osdHint.hidden = false;
@@ -196,6 +188,7 @@ async function tune(chNum) {
   const token = ++tuneToken;
   const ch = CHANNELS.find(c => c.num === chNum);
   hideL3(); clearCard();
+  setPaused(false);
   video.pause();
   noiseOn(); burst(0.32);
   showChOsd(pad(chNum), ch ? ch.name : '');
@@ -232,18 +225,29 @@ async function tune(chNum) {
 
 function playFromClock(ch, token) {
   const s = schedule(ch);
+  timeshifted = false;
+  playItem(ch, s.item, s.offset, token);
+}
+
+function playItem(ch, item, offset, token) {
+  nowPlaying = item;
   l3EndShown = true; // armed after the seek lands
-  video.src = encodeURI(s.item.file);
+  setPaused(false);
+  video.src = encodeURI(item.file);
   video.addEventListener('loadedmetadata', () => {
     if (token !== tuneToken) return;
-    try { video.currentTime = Math.min(s.offset, Math.max(0, s.item.dur - 1)); } catch (e) {}
+    // 4:3 rips fill the tube like a real broadcast (CRT overscan);
+    // widescreen rips keep their letterbox
+    const ar = video.videoWidth / video.videoHeight;
+    video.style.objectFit = ar > 1.5 ? 'contain' : 'cover';
+    try { video.currentTime = Math.min(offset, Math.max(0, item.dur - 1)); } catch (e) {}
   }, { once: true });
   video.addEventListener('playing', () => {
     if (token !== tuneToken) return;
     noiseOff();
-    showL3(ch, s.item);
+    showL3(ch, item);
     l3EndShown = false;
-    setTitle(`CH ${pad(ch.num)} · ${s.item.artist} — ${s.item.title}`);
+    setTitle(`CH ${pad(ch.num)} · ${item.artist} — ${item.title}`);
   }, { once: true });
   video.play().catch(() => {
     // autoplay with sound refused — play muted, tell the viewer
@@ -251,6 +255,36 @@ function playFromClock(ch, token) {
     video.play().catch(() => {});
     showHint('PRESS M TO UNMUTE');
   });
+}
+
+/* ── pause / skip — the timeshift controls ── */
+function setPaused(p) {
+  userPaused = p;
+  osdPause.hidden = !p;
+  if (btnPause) btnPause.textContent = p ? '▶ PLAY' : '⏸ PAUSE';
+}
+function togglePause() {
+  if (!powered || !current || !current.playlist || !video.src) return;
+  click();
+  if (video.paused) {
+    setPaused(false);
+    video.play().catch(() => {});
+    showHint('▶', 1200);
+  } else {
+    setPaused(true);
+    video.pause();
+  }
+}
+async function skip() {
+  if (!powered || !current || !current.playlist) return;
+  const token = ++tuneToken;
+  const idx = Math.max(0, current.playlist.indexOf(nowPlaying));
+  const next = current.playlist[(idx + 1) % current.playlist.length];
+  timeshifted = true; // off the live clock until this video ends
+  noiseOn(); burst(0.18);
+  await sleep(RM ? 40 : 220);
+  if (token !== tuneToken) return;
+  playItem(current, next, 0, token);
 }
 
 video.addEventListener('ended', async () => {
@@ -264,17 +298,18 @@ video.addEventListener('ended', async () => {
 
 // MTV grammar: credits come back just before the video ends
 video.addEventListener('timeupdate', () => {
-  if (l3EndShown || !current || !current.playlist || !video.duration) return;
+  if (l3EndShown || !current || !current.playlist || !video.duration || !nowPlaying) return;
   if (video.duration - video.currentTime < 13) {
     l3EndShown = true;
-    const s = schedule(current);
-    showL3(current, s.item);
+    showL3(current, nowPlaying);
   }
 });
 
 // broadcast integrity: coming back to the tab, re-sync to the clock
+// (unless the viewer paused or skipped — timeshift is respected)
 document.addEventListener('visibilitychange', () => {
   if (document.hidden || !powered || !current || !current.playlist) return;
+  if (userPaused || timeshifted) return;
   const s = schedule(current);
   const sameFile = decodeURI(video.src || '').endsWith(s.item.file);
   if (!sameFile || Math.abs(video.currentTime - s.offset) > 4) {
@@ -307,24 +342,15 @@ function commitType() {
   else if (current) showChOsd(pad(current.num), current.name);
 }
 
-/* ── volume ── */
+/* ── audio level (fixed — no volume UI) ── */
 function applyAudioLevels() {
   video.volume = vol / 10;
   video.muted = muted;
   if (hissGain) hissGain.gain.value = muted ? 0 : vol / 10 * 0.05;
   osdMute.hidden = !muted;
 }
-function setVol(v) {
-  vol = Math.max(0, Math.min(10, v));
-  localStorage.setItem('jtv-vol', String(vol));
-  if (muted && v > 0) setMuted(false);
-  applyAudioLevels();
-  showVolOsd();
-  click();
-}
 function setMuted(m) {
   muted = m;
-  localStorage.setItem('jtv-muted', m ? '1' : '0');
   applyAudioLevels();
 }
 
@@ -350,8 +376,9 @@ function powerOff() {
   document.body.classList.remove('on');
   hiss(false); noiseOff(); hideL3(); clearCard();
   toggleGuide(false);
+  setPaused(false);
   video.pause(); video.removeAttribute('src'); video.load();
-  osdCh.hidden = true; osdVol.hidden = true; osdHint.hidden = true; osdMute.hidden = true;
+  osdCh.hidden = true; osdHint.hidden = true; osdMute.hidden = true;
   if (!RM) {
     scr.classList.add('shutting');
     setTimeout(() => scr.classList.remove('shutting'), 340);
@@ -421,61 +448,25 @@ document.addEventListener('keydown', e => {
   if (e.metaKey || e.ctrlKey || e.altKey) return;
   const k = e.key;
   if (k === 'p' || k === 'P') { togglePower(); return; }
-  if (!powered) { if (k === 'Enter' || k === ' ') togglePower(); return; }
+  if (!powered) { if (k === 'Enter' || k === ' ') { e.preventDefault(); togglePower(); } return; }
   if (k === 'Escape') { toggleGuide(false); return; }
   if (k === 'ArrowUp') { e.preventDefault(); step(1); }
   else if (k === 'ArrowDown') { e.preventDefault(); step(-1); }
-  else if (k === 'ArrowRight') { e.preventDefault(); setVol(vol + 1); }
-  else if (k === 'ArrowLeft') { e.preventDefault(); setVol(vol - 1); }
+  else if (k === ' ') { e.preventDefault(); togglePause(); }
+  else if (k === 's' || k === 'S' || k === 'ArrowRight') { e.preventDefault(); skip(); }
   else if (k === 'm' || k === 'M') { setMuted(!muted); click(); }
   else if (k === 'g' || k === 'G') toggleGuide();
   else if (/^[0-9]$/.test(k)) typeDigit(k);
 });
 
 $('btnPower').addEventListener('click', togglePower);
-$('rPower').addEventListener('click', togglePower);
 $('btnChUp').addEventListener('click', () => step(1));
 $('btnChDn').addEventListener('click', () => step(-1));
-$('rChUp').addEventListener('click', () => step(1));
-$('rChDn').addEventListener('click', () => step(-1));
-$('btnVolUp').addEventListener('click', () => setVol(vol + 1));
-$('btnVolDn').addEventListener('click', () => setVol(vol - 1));
-$('rVolUp').addEventListener('click', () => setVol(vol + 1));
-$('rVolDn').addEventListener('click', () => setVol(vol - 1));
-$('btnMute').addEventListener('click', () => { setMuted(!muted); click(); });
-$('rMute').addEventListener('click', () => { setMuted(!muted); click(); });
+btnPause.addEventListener('click', togglePause);
+$('btnSkip').addEventListener('click', skip);
 $('btnGuide').addEventListener('click', () => toggleGuide());
-$('rGuide').addEventListener('click', () => toggleGuide());
 $('gClose').addEventListener('click', () => toggleGuide(false));
 guide.addEventListener('click', e => { if (e.target === guide) toggleGuide(false); });
-
-// remote digits
-const rDigits = $('rDigits');
-for (const d of ['1','2','3','4','5','6','7','8','9','','0','']) {
-  if (d === '') { rDigits.appendChild(document.createElement('span')); continue; }
-  const b = document.createElement('button');
-  b.textContent = d;
-  b.setAttribute('aria-label', 'Digit ' + d);
-  b.addEventListener('click', () => typeDigit(d));
-  rDigits.appendChild(b);
-}
-
-// remote drag (desktop)
-rem.addEventListener('pointerdown', e => {
-  if (e.target.closest('button')) return;
-  const rect = rem.getBoundingClientRect();
-  const ox = e.clientX - rect.left, oy = e.clientY - rect.top;
-  rem.classList.add('dragging');
-  rem.setPointerCapture(e.pointerId);
-  const move = ev => {
-    rem.style.left = Math.max(0, Math.min(innerWidth - rect.width, ev.clientX - ox)) + 'px';
-    rem.style.top = Math.max(0, Math.min(innerHeight - rect.height, ev.clientY - oy)) + 'px';
-    rem.style.right = 'auto'; rem.style.bottom = 'auto';
-  };
-  const up = () => { rem.classList.remove('dragging'); rem.removeEventListener('pointermove', move); };
-  rem.addEventListener('pointermove', move);
-  rem.addEventListener('pointerup', up, { once: true });
-});
 
 // touch: swipe the tube to surf, tap for channel OSD
 let tY = null, tX = null;

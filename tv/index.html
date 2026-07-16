@@ -8,9 +8,9 @@
   <meta property="og:title" content="JANSSON TV">
   <meta property="og:description" content="A television station, not a video page. Boom bap on CH 03, pirate feed on CH 07. Broadcasting now.">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📺</text></svg>">
-  <link rel="stylesheet" href="styles.css?v=2">
+  <link rel="stylesheet" href="styles.css?v=4">
   <script src="channels.js?v=1" defer></script>
-  <script src="app.js?v=1" defer></script>
+  <script src="app.js?v=3" defer></script>
 </head>
 <body>
 
@@ -22,9 +22,9 @@
   <div class="ghost" aria-hidden="true">JANSSON</div>
   <div class="glow" id="glow" aria-hidden="true"></div>
 
-  <div class="tv" id="tv">
-    <div class="tube">
-      <div class="screen" id="screen">
+  <div class="set" id="tv">
+    <img class="set-photo" src="tv-set.jpg?v=1" alt="" draggable="false">
+    <div class="screen" id="screen">
         <video id="video" playsinline preload="auto"></video>
         <canvas id="noise" width="160" height="120" aria-hidden="true"></canvas>
 
@@ -44,9 +44,7 @@
             <span class="osd-num" id="osdNum"></span>
             <span class="osd-name" id="osdName"></span>
           </div>
-          <div class="osd-vol" id="osdVol" hidden>
-            <span>VOL</span><span class="bars" id="volBars"></span>
-          </div>
+          <div class="osd-pause" id="osdPause" hidden>❚❚ PAUSE</div>
           <div class="osd-mute" id="osdMute" hidden>MUTE</div>
           <div class="lower3" id="lower3" hidden>
             <div class="l3-artist" id="l3Artist"></div>
@@ -81,59 +79,22 @@
           </svg>
         </div>
       </div>
-    </div>
-
-    <div class="panel">
-      <div class="grille" aria-hidden="true"></div>
-      <div class="plate">
-        <span class="plate-brand">JANSSON <img src="/crown.png" alt="♛"> COLORTRON-2600</span>
-        <span class="plate-sub">JTV · BERLIN · SOLID STATE</span>
-      </div>
-      <div class="controls">
-        <div class="ctl-group">
-          <button class="ctl" id="btnChUp"  aria-label="Channel up">CH ▲</button>
-          <button class="ctl" id="btnChDn"  aria-label="Channel down">CH ▼</button>
-        </div>
-        <div class="ctl-group">
-          <button class="ctl" id="btnVolUp" aria-label="Volume up">VOL ▲</button>
-          <button class="ctl" id="btnVolDn" aria-label="Volume down">VOL ▼</button>
-        </div>
-        <div class="ctl-group">
-          <button class="ctl" id="btnMute"  aria-label="Mute">MUTE</button>
-          <button class="ctl" id="btnGuide" aria-label="TV guide">GUIDE</button>
-        </div>
-        <button class="power" id="btnPower" aria-label="Power">
-          <span class="led" id="led"></span>⏻
-        </button>
-      </div>
-    </div>
   </div>
 
   <p class="hint" id="startHint">PRESS <b>⏻ POWER</b> — BROADCASTING NOW</p>
-</div>
 
-<!-- remote — desktop only, draggable -->
-<div class="remote" id="remote" aria-label="Remote control">
-  <div class="r-top">
-    <span class="r-brand">JTV-1</span>
-    <button class="r-power" id="rPower" aria-label="Power">⏻</button>
-  </div>
-  <div class="r-digits" id="rDigits"></div>
-  <div class="r-rockers">
-    <div class="rocker">
-      <button id="rChUp" aria-label="Channel up">▲</button>
-      <span>CH</span>
-      <button id="rChDn" aria-label="Channel down">▼</button>
-    </div>
-    <div class="rocker">
-      <button id="rVolUp" aria-label="Volume up">▲</button>
-      <span>VOL</span>
-      <button id="rVolDn" aria-label="Volume down">▼</button>
-    </div>
-  </div>
-  <div class="r-row">
-    <button id="rMute">MUTE</button>
-    <button id="rGuide">GUIDE</button>
+  <div class="dock">
+    <button class="dbtn power" id="btnPower" aria-label="Power">
+      <span class="led" id="led"></span>⏻
+    </button>
+    <span class="dsep" aria-hidden="true"></span>
+    <button class="dbtn" id="btnChUp"  aria-label="Channel up">CH ▲</button>
+    <button class="dbtn" id="btnChDn"  aria-label="Channel down">CH ▼</button>
+    <span class="dsep" aria-hidden="true"></span>
+    <button class="dbtn" id="btnPause" aria-label="Pause">⏸ PAUSE</button>
+    <button class="dbtn" id="btnSkip"  aria-label="Skip to next video">SKIP ⏭</button>
+    <span class="dsep" aria-hidden="true"></span>
+    <button class="dbtn" id="btnGuide" aria-label="TV guide">GUIDE</button>
   </div>
 </div>
 
