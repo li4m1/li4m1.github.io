@@ -1,1 +1,7 @@
 .DS_Store
+
+# Raw AI shoot exports — the compressed copies the site actually serves
+# live in portfolio/media/posts/. Keeping the originals out of git, since
+# history is permanent and these are ~52MB of unused PNGs.
+corteiz ai shoot/
+arcteryx shoot ai/

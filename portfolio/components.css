@@ -1,0 +1,434 @@
+/* ═══ PORTFOLIO COMPONENTS ══════════════════════════════════════════
+   Grids, cards, the video player and the carousel lightbox.
+   Shared by /portfolio and the homepage, so it carries NO page chrome
+   and NO :root — it expects the crown tokens to already be defined.
+═══════════════════════════════════════════════════════════════════ */
+
+/* ── controls ──────────────────────────────────────────────────── */
+.wrap { padding-bottom: clamp(4rem, 9vw, 8rem); }
+.controls {
+  display: flex; justify-content: space-between; align-items: center;
+  gap: 1rem; flex-wrap: wrap; margin-bottom: 2.5rem;
+}
+.filter-row { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+.filter-pill {
+  font-family: var(--font-mono); font-size: var(--fs-label); letter-spacing: 0.06em;
+  text-transform: uppercase; padding: 0.6em 1.3em; border-radius: var(--pill);
+  border: 1px solid var(--line); color: var(--text-mut);
+  transition: color var(--dur-fast) ease, border-color var(--dur-fast) ease,
+              background var(--dur-fast) ease, transform var(--dur-fast) ease;
+}
+.filter-pill:hover { color: var(--cream); border-color: var(--purple); }
+.filter-pill.active { background: var(--purple); border-color: var(--purple); color: #fff; }
+.filter-pill:active { transform: scale(0.96); }
+
+.sound-pref {
+  display: inline-flex; align-items: center; gap: 0.6rem;
+  color: var(--text-mut); border: 1px solid var(--line);
+  border-radius: var(--pill); padding: 0.6em 1.2em;
+  transition: color var(--dur-fast) ease, border-color var(--dur-fast) ease;
+}
+.sound-pref:hover { color: var(--cream); border-color: var(--purple); }
+.sound-pref .dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--text-mut); transition: background var(--dur-fast) ease;
+}
+.sound-pref[aria-pressed="true"] { color: var(--cream); border-color: var(--gold); }
+.sound-pref[aria-pressed="true"] .dot { background: var(--gold); }
+
+/* ── grid ──────────────────────────────────────────────────────── */
+/* Mixed source ratios in one grid tear the rows apart, so every card in a
+   section shares one shape and crops to fill. The player restores the real
+   ratio on open. */
+.reel-grid {
+  --card-ar: 4 / 5;
+  display: grid; gap: clamp(0.75rem, 1.8vw, 1.5rem);
+  grid-template-columns: repeat(auto-fill, minmax(clamp(150px, 20vw, 260px), 1fr));
+}
+
+.reel {
+  position: relative; display: block; width: 100%;
+  aspect-ratio: var(--card-ar, 4 / 5);
+  border-radius: var(--radius); overflow: hidden;
+  background: var(--ink); cursor: pointer; text-align: left;
+  transform: translateY(14px); opacity: 0;
+  transition: transform var(--dur) var(--eo), opacity var(--dur) ease,
+              box-shadow var(--dur) ease;
+}
+.reel.in { transform: translateY(0); opacity: 1; }
+.reel:hover { box-shadow: 0 18px 46px rgba(108,26,219,0.35); }
+.reel.hidden { display: none; }
+
+.reel-media { position: absolute; inset: 0; }
+.reel-media img,
+.reel-media video {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%; object-fit: cover;
+}
+.reel-media video { opacity: 0; transition: opacity var(--dur) ease; }
+.reel.playing .reel-media video { opacity: 1; }
+
+/* legibility scrim under the caption */
+.reel::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(to top,
+              rgba(2,1,10,0.88) 0%, rgba(2,1,10,0.35) 32%, rgba(2,1,10,0) 58%);
+}
+
+.reel-body {
+  position: absolute; left: 0; right: 0; bottom: 0; z-index: 2;
+  padding: clamp(0.7rem, 1.6vw, 1.1rem);
+  display: flex; flex-direction: column; gap: 0.3rem;
+}
+.reel-title {
+  font-size: clamp(0.95rem, 1.4vw, 1.15rem); font-weight: 600;
+  line-height: 1.25; letter-spacing: -0.01em;
+}
+.reel-sub {
+  font-family: var(--font-mono); font-size: 0.65rem;
+  letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-mut);
+}
+
+.reel-badge {
+  position: absolute; top: 0.7rem; right: 0.7rem; z-index: 2;
+  font-family: var(--font-mono); font-size: 0.62rem; letter-spacing: 0.06em;
+  padding: 0.35em 0.7em; border-radius: var(--pill);
+  background: rgba(2,1,10,0.6); backdrop-filter: blur(6px);
+  border: 1px solid var(--line); color: var(--cream);
+}
+
+.reel-play {
+  position: absolute; top: 50%; left: 50%; z-index: 2;
+  transform: translate(-50%,-50%) scale(0.85);
+  width: 52px; height: 52px; border-radius: 50%;
+  display: grid; place-items: center;
+  background: rgba(2,1,10,0.5); border: 1px solid var(--line);
+  backdrop-filter: blur(6px); color: var(--cream); font-size: 0.9rem;
+  opacity: 0; pointer-events: none;
+  transition: opacity var(--dur) ease, transform var(--dur) var(--eo);
+}
+.reel:hover .reel-play, .reel:focus-visible .reel-play {
+  opacity: 1; transform: translate(-50%,-50%) scale(1);
+}
+.reel.playing .reel-play { opacity: 0; }
+
+.empty { color: var(--text-mut); padding: 3rem 0; text-align: center; }
+
+/* ── viewer ────────────────────────────────────────────────────── */
+.viewer {
+  position: fixed; inset: 0; z-index: 90;
+  background: rgba(2,1,10,0.94);
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  display: grid; place-items: center;
+  /* Definite single track. Without it the row is auto-sized, so the
+     stage's height:100% resolves against an indefinite height, the stage
+     grows to its content, and tall slides push the dots and caption off
+     the bottom of the screen. */
+  grid-template-rows: minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr);
+  opacity: 0; transition: opacity var(--dur) ease;
+}
+.viewer.open { opacity: 1; }
+.viewer[hidden] { display: none; }
+
+.v-close {
+  position: absolute; top: max(1rem, env(safe-area-inset-top)); right: 1rem; z-index: 4;
+  width: 44px; height: 44px; border-radius: 50%;
+  display: grid; place-items: center; font-size: 1rem;
+  background: rgba(244,241,234,0.08); border: 1px solid var(--line);
+  color: var(--cream); transition: background var(--dur-fast) ease;
+}
+.v-close:hover { background: rgba(244,241,234,0.18); }
+
+.v-nav {
+  position: absolute; right: 1rem; z-index: 4;
+  width: 44px; height: 44px; border-radius: 50%;
+  display: grid; place-items: center; font-size: 1.1rem;
+  background: rgba(244,241,234,0.08); border: 1px solid var(--line);
+  color: var(--cream); transition: background var(--dur-fast) ease, opacity var(--dur-fast) ease;
+}
+.v-nav:hover { background: rgba(244,241,234,0.18); }
+.v-nav:disabled { opacity: 0.25; cursor: default; }
+.v-prev { top: calc(50% - 56px); }
+.v-next { top: calc(50% + 12px); }
+
+/* Grid, not flex: the 1fr row hands the frame a definite height, so
+   aspect-ratio derives its width from that. A flex column lets the
+   frame's aspect-derived height win and pushes the controls offscreen. */
+.v-stage {
+  position: relative;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto auto;
+  justify-items: center; align-content: center;
+  gap: 0.85rem;
+  height: 100%; width: 100%;
+  padding: clamp(1rem, 3vh, 2.5rem) 1rem;
+  padding-top: max(clamp(1rem, 3vh, 2.5rem), env(safe-area-inset-top));
+  padding-bottom: max(clamp(1rem, 3vh, 2.5rem), env(safe-area-inset-bottom));
+}
+
+/* progress ticks, one per clip in the active filter */
+.v-ticks { display: flex; gap: 4px; width: min(420px, 90vw); height: 3px; }
+.v-tick { flex: 1; background: rgba(244,241,234,0.2); border-radius: 2px; overflow: hidden; }
+.v-tick i { display: block; height: 100%; width: 0; background: var(--gold); }
+.v-tick.done i { width: 100%; }
+
+.v-frame {
+  position: relative;
+  height: 100%; width: auto; max-width: 100%;
+  aspect-ratio: var(--ar, 9 / 16);
+  border-radius: var(--radius-lg); overflow: hidden;
+  background: #000; box-shadow: var(--shadow);
+}
+.v-frame video { width: 100%; height: 100%; object-fit: contain; background: #000; }
+.v-tap { position: absolute; inset: 0; }
+
+.v-pausedot {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+  font-size: 1.5rem; letter-spacing: 0.1em; color: var(--cream);
+  text-shadow: 0 2px 14px rgba(0,0,0,0.8);
+  opacity: 0; pointer-events: none; transition: opacity var(--dur-fast) ease;
+}
+.v-frame.paused .v-pausedot { opacity: 0.9; }
+
+.v-meta { text-align: center; }
+.v-title { font-family: var(--font-display); font-size: clamp(1.4rem, 3.5vw, 2.2rem); font-weight: 400; line-height: 1.1; }
+.v-sub { color: var(--text-mut); margin-top: 0.35rem; }
+
+.v-tools { display: flex; align-items: center; gap: 1rem; }
+.v-btn {
+  border: 1px solid var(--line); border-radius: var(--pill);
+  padding: 0.55em 1.2em; color: var(--text-mut);
+  transition: color var(--dur-fast) ease, border-color var(--dur-fast) ease;
+}
+.v-btn:hover { color: var(--cream); border-color: var(--purple); }
+.v-btn[aria-pressed="true"] { color: var(--cream); border-color: var(--gold); }
+.v-pos { color: var(--text-mut); }
+
+/* ── responsive ────────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  .back-txt { display: none; }
+  .reel-grid { grid-template-columns: repeat(2, 1fr); }
+  .v-nav { display: none; }          /* swipe instead */
+  .v-tools { gap: 0.75rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important; animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .reel { transform: none; opacity: 1; }
+}
+
+/* ── static posts grid ─────────────────────────────────────────── */
+.post-grid {
+  display: grid; gap: clamp(0.75rem, 1.8vw, 1.5rem);
+  grid-template-columns: repeat(auto-fill, minmax(clamp(150px, 22vw, 280px), 1fr));
+}
+
+/* Post covers are designed slides that usually carry their own title, so
+   the caption sits BELOW the image instead of on top of it — an overlay
+   collides with the artwork's own typography. */
+.post {
+  position: relative; display: flex; flex-direction: column; width: 100%;
+  background: transparent; cursor: pointer; text-align: left;
+  transform: translateY(14px); opacity: 0;
+  transition: transform var(--dur) var(--eo), opacity var(--dur) ease,
+              box-shadow var(--dur) ease;
+}
+.post.in { transform: translateY(0); opacity: 1; }
+.post:hover { box-shadow: 0 18px 46px rgba(108,26,219,0.35); }
+.post.hidden { display: none; }
+
+.post-thumb {
+  position: relative; width: 100%;
+  aspect-ratio: var(--card-ar, 1 / 1);
+  border-radius: var(--radius); overflow: hidden;
+  background: var(--night);
+}
+.post img {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  object-fit: cover;
+  transition: transform var(--dur-slow, 0.6s) var(--eo);
+}
+.post:hover img { transform: scale(1.04); }
+
+.post-body {
+  padding: 0.75rem 0.15rem 0;
+  display: flex; flex-direction: column; gap: 0.2rem;
+}
+.post-title { font-size: clamp(0.95rem, 1.4vw, 1.15rem); font-weight: 600; line-height: 1.25; }
+.post-sub {
+  font-family: var(--font-mono); font-size: 0.65rem;
+  letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-mut);
+}
+
+/* carousel indicator */
+.post-stack {
+  position: absolute; top: 0.6rem; right: 0.6rem; z-index: 2;
+  display: inline-flex; align-items: center; gap: 0.35rem;
+  font-family: var(--font-mono); font-size: 0.62rem; letter-spacing: 0.06em;
+  padding: 0.35em 0.7em; border-radius: var(--pill);
+  background: rgba(2,1,10,0.6); backdrop-filter: blur(6px);
+  border: 1px solid var(--line); color: var(--cream);
+}
+
+/* reserved slots, same language as the main site's work grid */
+.post.slot-empty, .reel.slot-empty {
+  cursor: default; background: var(--ink);
+  border: 1px dashed rgba(244,241,234,0.16);
+}
+.wrap-alt .post.slot-empty { background: var(--night); }
+.post.slot-empty:hover { box-shadow: none; }
+.slot-tag {
+  position: absolute; inset: 0; z-index: 2;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 0.35rem; font-family: var(--font-mono); letter-spacing: 0.12em;
+}
+.slot-tag b { color: var(--text-mut); font-size: var(--fs-label); font-weight: 500; }
+.slot-tag span { color: rgba(183,169,230,0.45); font-size: 0.62rem; text-transform: uppercase; }
+
+/* ── image lightbox ────────────────────────────────────────────── */
+.lb-stage {
+  display: grid; grid-template-rows: minmax(0, 1fr) auto auto;
+  justify-items: center; align-content: center; gap: 0.85rem;
+  height: 100%; width: 100%;
+  padding: clamp(1rem, 3vh, 2.5rem) 1rem;
+  padding-top: max(clamp(1rem, 3vh, 2.5rem), env(safe-area-inset-top));
+  padding-bottom: max(clamp(1rem, 3vh, 2.5rem), env(safe-area-inset-bottom));
+}
+/* Same shape trick as the video player: the frame carries the ratio and
+   the media fills it. Percentage max-height on a centered grid item does
+   not clamp reliably, so nothing here depends on it. */
+.lb-frame {
+  position: relative;
+  height: 100%; width: auto; max-width: 100%;
+  aspect-ratio: var(--ar, 1 / 1);
+  margin-inline: auto;
+  border-radius: var(--radius); overflow: hidden;
+  box-shadow: var(--shadow); background: #000;
+}
+
+.lb-arrow {
+  position: absolute; top: 50%; transform: translateY(-50%); z-index: 4;
+  width: 46px; height: 46px; border-radius: 50%;
+  display: grid; place-items: center; font-size: 1.1rem;
+  background: rgba(244,241,234,0.08); border: 1px solid var(--line);
+  color: var(--cream); transition: background var(--dur-fast) ease, opacity var(--dur-fast) ease;
+}
+.lb-arrow:hover { background: rgba(244,241,234,0.18); }
+.lb-arrow:disabled { opacity: 0.25; cursor: default; }
+.lb-prev { left: 1rem; }
+.lb-next { right: 1rem; }
+
+.lb-dots { display: flex; gap: 6px; }
+.lb-dots i {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: rgba(244,241,234,0.25); transition: background var(--dur-fast) ease;
+}
+.lb-dots i.on { background: var(--gold); }
+
+@media (max-width: 640px) {
+  .post-grid { grid-template-columns: repeat(2, 1fr); }
+  .lb-arrow { width: 40px; height: 40px; }
+  .lb-prev { left: 0.4rem; }
+  .lb-next { right: 0.4rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .post { transform: none; opacity: 1; }
+  .post:hover img { transform: none; }
+}
+
+/* ── AI video section ──────────────────────────────────────────── */
+/* Wider tiles, because this section is mostly 16:9 rather than 9:16 */
+.reel-grid-wide {
+  --card-ar: 16 / 9;
+  grid-template-columns: repeat(auto-fill, minmax(clamp(220px, 30vw, 380px), 1fr));
+}
+.sec-lead { max-width: 52ch; color: var(--text-mut); margin: -1rem 0 2rem; }
+
+/* a reserved slot has no media, so it needs the card's own background */
+.reel.slot-empty { background: var(--ink); }
+.wrap-alt .reel.slot-empty { background: var(--night); }
+.reel.slot-empty::after { content: none; }
+
+/* ── carousel slides ───────────────────────────────────────────── */
+/* A post's slides can mix stills and video, so the frame holds both
+   and swaps which one is showing. */
+.lb-frame img,
+.lb-frame video {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%; object-fit: contain;
+  max-width: none; max-height: none;
+  background: #000;
+}
+.lb-frame [hidden] { display: none; }
+
+.lb-sound {
+  position: absolute; right: 0.75rem; bottom: 0.75rem; z-index: 3;
+  border: 1px solid var(--line); border-radius: var(--pill);
+  padding: 0.45em 1em; color: var(--cream);
+  background: rgba(2,1,10,0.6); backdrop-filter: blur(6px);
+  transition: border-color var(--dur-fast) ease;
+}
+.lb-sound:hover { border-color: var(--purple); }
+.lb-sound[aria-pressed="true"] { border-color: var(--gold); }
+
+/* a video slide gets a play marker on its dot */
+.lb-dots i.vid { border-radius: 1px; width: 8px; }
+
+/* square carousels are the norm, so posts share a 1:1 card */
+.post-grid { --card-ar: 1 / 1; }
+
+.post-stack .pv { color: var(--gold); }
+
+/* The AI shoots mix orientations — Corteiz is portrait, Arc'teryx is
+   landscape — so this grid keeps the neutral square card and crops both
+   evenly. The lightbox restores each shoot's real shape. */
+#aiPostGrid { --card-ar: 1 / 1; }
+
+/* ── collapsed grid ────────────────────────────────────────────────
+   The short-form grid is long, so it opens showing two rows plus a
+   sliver of the third — enough to read as "there is more" — behind a
+   fade, with a button to expand. Height is set by JS because the column
+   count is responsive and filtering changes the row count. */
+.grid-collapse { position: relative; overflow: hidden; transition: max-height var(--dur-slow, 0.6s) var(--eo); }
+.grid-collapse.expanded { max-height: none !important; }
+
+.grid-collapse::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 42%;
+  pointer-events: none; opacity: 1;
+  transition: opacity var(--dur) ease;
+  background: linear-gradient(to bottom, rgba(2,1,10,0) 0%, rgba(2,1,10,0.72) 55%, var(--night) 100%);
+}
+.grid-collapse.expanded::after { opacity: 0; }
+/* on the ink-backed section the fade has to resolve to ink, not night */
+.wrap-alt .grid-collapse::after,
+.bg-ink .grid-collapse::after {
+  background: linear-gradient(to bottom, rgba(20,9,51,0) 0%, rgba(20,9,51,0.72) 55%, var(--ink) 100%);
+}
+
+.grid-more {
+  display: flex; align-items: center; justify-content: center; gap: 0.6rem;
+  margin: 1.5rem auto 0; padding: 0.75em 1.6em;
+  border: 1px solid var(--line); border-radius: var(--pill);
+  font-family: var(--font-mono); font-size: var(--fs-label);
+  letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-mut);
+  transition: color var(--dur-fast) ease, border-color var(--dur-fast) ease,
+              background var(--dur-fast) ease;
+}
+.grid-more:hover { color: var(--cream); border-color: var(--purple); background: rgba(108,26,219,0.12); }
+.grid-more .chev { transition: transform var(--dur) var(--eo); line-height: 1; }
+.grid-more[aria-expanded="true"] .chev { transform: rotate(180deg); }
+
+@media (prefers-reduced-motion: reduce) {
+  .grid-collapse { transition: none; }
+  .grid-more .chev { transition: none; }
+}
+
+/* `hidden` alone loses to an explicit display, so a hidden control row
+   would still render. This makes the attribute actually work. */
+.controls[hidden], .post-grid[hidden], .reel-grid[hidden] { display: none !important; }

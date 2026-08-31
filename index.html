@@ -296,15 +296,7 @@
       filter: drop-shadow(0 2px 12px rgba(2,1,10,0.55));
     }
     .hero-name:hover .crown-o { transform: translateY(0.16em) rotate(-12deg); }
-    /* three lines stacked cleanly below the wordmark — no overlap, all sizes */
-    .hero-role {
-      margin-top: clamp(1.75rem, 3vw, 2.75rem); font-size: var(--fs-body-lg); line-height: 1.5;
-      color: var(--cream); max-width: 40ch;
-      text-shadow: 0 2px 22px rgba(2,1,10,0.9), 0 0 6px rgba(2,1,10,0.7);
-    }
-    .hero-role span { display: block; }
-    .hero-role strong { color: var(--gold); font-weight: 600; }
-    .hero-ctas { display: flex; gap: 1.25rem; align-items: center; margin-top: 2.25rem; flex-wrap: wrap; }
+    .hero-ctas { display: flex; gap: 1.25rem; align-items: center; margin-top: clamp(1.75rem, 3vw, 2.75rem); flex-wrap: wrap; }
 
     .btn {
       display: inline-flex; align-items: center; gap: 0.6em;
@@ -379,6 +371,11 @@
     .work-grid {
       display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(1rem, 2.5vw, 2rem);
     }
+    .work-more {
+      display: flex; align-items: baseline; gap: 1rem; flex-wrap: wrap;
+      margin-top: 2.5rem;
+    }
+    .work-more-note { color: var(--text-mut); }
     .work-card { border-radius: var(--radius); overflow: hidden; background: var(--ink); cursor: pointer;
       transition: transform var(--dur) var(--eo), box-shadow var(--dur) ease; }
     .work-card.hidden { display: none; }
@@ -470,52 +467,8 @@
     .lab-card.slot-empty { border-style: dashed; border-color: rgba(240,180,41,0.35); }
 
     /* ============ 06 SERVICES — paper section ============ */
-    .services-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: clamp(1rem, 2vw, 1.75rem); }
-    .service-card {
-      position: relative; background: #FFFDF7; border-radius: var(--radius-sm);
-      padding: 2rem 1.5rem 1.75rem; box-shadow: var(--paper-shadow);
-      transform: rotate(var(--tilt, 0deg));
-      transition: transform var(--dur) var(--eo), box-shadow var(--dur) ease;
-    }
-    .service-card:nth-child(1) { --tilt: -1.4deg; }
-    .service-card:nth-child(2) { --tilt: 0.9deg; }
-    .service-card:nth-child(3) { --tilt: -0.7deg; }
-    .service-card:nth-child(4) { --tilt: 1.2deg; }
-    .service-card::before { /* tape */
-      content: ""; position: absolute; top: -12px; left: 50%; transform: translateX(-50%) rotate(-2deg);
-      width: 84px; height: 26px; background: rgba(240,180,41,0.55); border-radius: 2px;
-    }
-    @media (hover: hover) and (pointer: fine) {
-      .service-card:hover { transform: rotate(0deg) translateY(-8px); box-shadow: 0 18px 44px rgba(20,9,51,0.20); }
-    }
-    .service-num {
-      display: inline-block; font-family: var(--font-mono); font-size: var(--fs-label);
-      background: var(--purple); color: #fff; border-radius: var(--pill); padding: 0.3em 0.9em;
-      margin-bottom: 1rem;
-    }
-    .service-title { font-family: var(--font-display); font-size: var(--fs-h3); line-height: 1.1; margin-bottom: 0.75rem; }
-    .service-desc { font-size: var(--fs-small); color: var(--ink-mut); }
-    .service-includes { list-style: none; margin-top: 1.25rem; display: flex; flex-direction: column; gap: 0.35rem; }
-    .service-includes li { font-family: var(--font-mono); font-size: var(--fs-label); letter-spacing: 0.04em; color: var(--ink-text); }
-    .service-includes li::before { content: "♛ "; color: var(--gold); }
 
     /* ============ 07 ABOUT — paper section ============ */
-    #about { overflow: hidden; }
-    .about-grid { display: grid; grid-template-columns: 0.9fr 1.1fr; gap: clamp(2rem, 5vw, 5rem); align-items: center; }
-    .about-portrait { position: relative; }
-    .about-photo {
-      width: 100%; aspect-ratio: 4 / 5; object-fit: cover; object-position: 50% 82%;
-      background: #FFFDF7; border-radius: var(--radius-sm); box-shadow: var(--paper-shadow);
-      transform: rotate(-2deg);
-    }
-    .about-portrait::before, .about-portrait::after { /* tape corners */
-      content: ""; position: absolute; width: 92px; height: 28px;
-      background: rgba(240,180,41,0.5); border-radius: 2px; z-index: 2;
-    }
-    .about-portrait::before { top: -10px; left: -18px; transform: rotate(-40deg); }
-    .about-portrait::after  { bottom: -8px; right: -20px; transform: rotate(-40deg); }
-    .about-title { font-family: var(--font-display); font-size: var(--fs-h2); margin-bottom: 1.5rem; }
-    .about-bio { max-width: 56ch; margin-bottom: 1.1rem; color: #3B3325; }
     .toolkit-label { display: block; font-family: var(--font-mono); font-size: var(--fs-label); letter-spacing: 0.15em; text-transform: uppercase; color: var(--ink-mut); margin: 1.75rem 0 0.9rem; }
     .tools-grid { display: flex; flex-wrap: wrap; gap: 0.5rem; }
     .tool-pill {
@@ -525,23 +478,6 @@
     }
     .tool-pill:hover { background: var(--ink); color: var(--cream); border-color: var(--ink); }
 
-    .sticker {
-      position: absolute; z-index: 3; user-select: none; touch-action: none;
-      filter: drop-shadow(0 6px 14px rgba(20,9,51,0.25));
-      display: none; /* enabled on pointer:fine by JS */
-    }
-    .sticker.draggable { cursor: grab; }
-    .sticker.dragging { cursor: grabbing; }
-    .sticker-crown { width: 74px; top: 8%; right: 6%; transform: rotate(14deg); }
-    .sticker-bln {
-      top: 34%; right: 6%; transform: rotate(-8deg);
-      font-family: var(--font-display); font-size: 1.4rem; background: var(--purple); color: #fff;
-      padding: 0.35em 0.9em; border-radius: 6px;
-    }
-    .sticker-star {
-      top: 30%; left: 42%; transform: rotate(9deg);
-      font-size: 2.6rem; color: var(--gold); line-height: 1;
-    }
 
     /* marquee divider */
     .marquee { overflow: hidden; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 1.1rem 0; background: var(--night); }
@@ -630,14 +566,12 @@
     @media (max-width: 1000px) {
       .work-grid { grid-template-columns: repeat(2, 1fr); }
       .lab-grid { grid-template-columns: 1fr; }
-      .services-grid { grid-template-columns: repeat(2, 1fr); row-gap: 2rem; }
-      .contact-grid, .about-grid { grid-template-columns: 1fr; }
+      .contact-grid { grid-template-columns: 1fr; }
       .orbit-badge { width: 90px; top: -46px; right: -6px; }
       .tv { max-width: 560px; }
     }
     @media (max-width: 620px) {
       .work-grid { grid-template-columns: 1fr; }
-      .services-grid { grid-template-columns: 1fr; }
       .dock a { width: 34px; height: 34px; }
       .scroll-hint { display: none; }
       /* Captions' J-tail ink overshoots its box left — pad so it can't clip at the edge */
@@ -663,6 +597,8 @@
     #loader { display: none; }
     .reveal, .hero-name .ch { opacity: 1; transform: none; }
   </style></noscript>
+  <!-- portfolio section components (grids, player, lightbox) -->
+  <link rel="stylesheet" href="portfolio/components.css">
 </head>
 <body>
 
@@ -682,12 +618,11 @@
   <nav class="dock" aria-label="Sections">
     <a href="#hero"     data-sec="hero"><span>01</span><span class="tip">Home</span></a>
     <a href="#showreel" data-sec="showreel"><span>02</span><span class="tip">Showreel</span></a>
-    <a href="#work"     data-sec="work"><span>03</span><span class="tip">Work</span></a>
-    <a href="#ai"       data-sec="ai"><span>04</span><span class="tip">AI Work</span></a>
-    <a href="#lab"      data-sec="lab"><span>05</span><span class="tip">Lab</span></a>
-    <a href="#services" data-sec="services"><span>06</span><span class="tip">Services</span></a>
-    <a href="#about"    data-sec="about"><span>07</span><span class="tip">About</span></a>
-    <a href="#contact"  data-sec="contact"><span>08</span><span class="tip">Contact</span></a>
+    <a href="#work"     data-sec="work"><span>03</span><span class="tip">Short Form</span></a>
+    <a href="#ai"       data-sec="ai"><span>04</span><span class="tip">AI Video</span></a>
+    <a href="#static"   data-sec="static"><span>05</span><span class="tip">Static</span></a>
+    <a href="#lab"      data-sec="lab"><span>06</span><span class="tip">Lab</span></a>
+    <a href="#contact"  data-sec="contact"><span>07</span><span class="tip">Contact</span></a>
   </nav>
 
   <!-- ── 01 Hero ── -->
@@ -712,11 +647,6 @@
       <h1 class="hero-name" aria-label="Jansson">
         <span class="ch" style="--i:0">J</span><span class="ch" style="--i:1">A</span><span class="ch" style="--i:2">N</span><span class="ch" style="--i:3">S</span><span class="ch" style="--i:4">S</span><span class="ch crown-wrap" style="--i:5"><img class="crown-o" src="crown.png" alt="O"></span><span class="ch" style="--i:6">N</span>
       </h1>
-      <p class="hero-role reveal" style="--d:6">
-        <span>producing <strong>high-quality</strong> visuals</span>
-        <span>expanding my creativity every day</span>
-        <span>a creative based in <strong>Berlin</strong></span>
-      </p>
       <div class="hero-ctas reveal" style="--d:8">
         <a href="#showreel" class="btn btn-gold">▶ Showreel</a>
         <a href="#work" class="btn-text">Selected work →</a>
@@ -754,111 +684,68 @@
   </section>
 
   <!-- ── 03 Work grid ── -->
+  <!-- ── 03 Short form ── -->
   <section id="work" class="bg-night">
     <div class="inner">
-      <div class="eyebrow"><span class="num">03</span><span>Selected Work</span><span class="rule"></span></div>
+      <div class="eyebrow"><span class="num">03</span><span>Short Form</span><span class="rule"></span></div>
       <h2 class="work-display-title reveal">Video <em>work</em>.</h2>
 
-      <div class="work-controls reveal" style="--d:1">
-        <div class="filter-row" role="tablist" aria-label="Filter projects">
-          <button class="filter-pill active" data-filter="all"    role="tab" aria-selected="true">All</button>
-          <button class="filter-pill"        data-filter="music"  role="tab" aria-selected="false">Music Videos</button>
-          <button class="filter-pill"        data-filter="brand"  role="tab" aria-selected="false">Brand Films</button>
-          <button class="filter-pill"        data-filter="street" role="tab" aria-selected="false">Street Culture</button>
-        </div>
+      <div class="controls reveal" style="--d:1">
+        <div class="filter-row" id="filters" role="tablist" aria-label="Filter clips"></div>
+        <button class="sound-pref mono" id="soundPref" aria-pressed="false">
+          <span class="dot" aria-hidden="true"></span><span id="soundPrefTxt">Sound off</span>
+        </button>
       </div>
 
-      <div class="work-grid" id="work-grid">
-        <article class="work-card reveal" style="--d:0" data-cat="street" tabindex="0" data-cursor="play" data-full="clips/shadowboxing final.mp4" data-title="Shadowboxing">
-          <div class="work-thumb"><video src="clips/previews/shadowboxing final.mp4" poster="clips/posters/shadowboxing final.jpg" muted loop playsinline preload="none"></video><button class="play-circle" aria-label="Play" tabindex="-1">▶</button></div>
-          <div class="work-info"><h3 class="work-title">Shadowboxing</h3><div class="work-meta">//001 · Street Culture · 2024</div></div>
-        </article>
-        <article class="work-card reveal" style="--d:1" data-cat="street" tabindex="0" data-cursor="play" data-full="clips/alex action final.mp4" data-title="Alex Action">
-          <div class="work-thumb"><video src="clips/previews/alex action final.mp4" poster="clips/posters/alex action final.jpg" muted loop playsinline preload="none"></video><button class="play-circle" aria-label="Play" tabindex="-1">▶</button></div>
-          <div class="work-info"><h3 class="work-title">Alex Action</h3><div class="work-meta">//002 · Street Culture · 2024</div></div>
-        </article>
-        <article class="work-card reveal" style="--d:2" data-cat="brand" tabindex="0" data-cursor="play" data-full="clips/Berlin41.mp4" data-title="Berlin 41">
-          <div class="work-thumb"><video src="clips/previews/Berlin41.mp4" poster="clips/posters/Berlin41.jpg" muted loop playsinline preload="none"></video><button class="play-circle" aria-label="Play" tabindex="-1">▶</button></div>
-          <div class="work-info"><h3 class="work-title">Berlin 41</h3><div class="work-meta">//003 · Brand Film · 2024</div></div>
-        </article>
-        <article class="work-card reveal" style="--d:0" data-cat="music" tabindex="0" data-cursor="play" data-full="clips/4eva 3.mp4" data-title="4eva">
-          <div class="work-thumb"><video src="clips/previews/4eva 3.mp4" poster="clips/posters/4eva 3.jpg" muted loop playsinline preload="none"></video><button class="play-circle" aria-label="Play" tabindex="-1">▶</button></div>
-          <div class="work-info"><h3 class="work-title">4eva</h3><div class="work-meta">//004 · Music Video · 2024</div></div>
-        </article>
-        <article class="work-card reveal" style="--d:1" data-cat="brand" tabindex="0" data-cursor="play" data-full="clips/aw26.mp4" data-title="AW26">
-          <div class="work-thumb"><video src="clips/previews/aw26.mp4" poster="clips/posters/aw26.jpg" muted loop playsinline preload="none"></video><button class="play-circle" aria-label="Play" tabindex="-1">▶</button></div>
-          <div class="work-info"><h3 class="work-title">AW26</h3><div class="work-meta">//005 · Brand Film · 2024</div></div>
-        </article>
-        <article class="work-card reveal" style="--d:2" data-cat="music" tabindex="0" data-cursor="play" data-full="clips/nev final.mp4" data-title="Nev">
-          <div class="work-thumb"><video src="clips/previews/nev final.mp4" poster="clips/posters/nev final.jpg" muted loop playsinline preload="none"></video><button class="play-circle" aria-label="Play" tabindex="-1">▶</button></div>
-          <div class="work-info"><h3 class="work-title">Nev</h3><div class="work-meta">//006 · Music Video · 2024</div></div>
-        </article>
-        <article class="work-card reveal" style="--d:0" data-cat="street" tabindex="0" data-cursor="play" data-full="clips/muay thai fight.mp4" data-title="Muay Thai">
-          <div class="work-thumb"><video src="clips/previews/muay thai fight.mp4" poster="clips/posters/muay thai fight.jpg" muted loop playsinline preload="none"></video><button class="play-circle" aria-label="Play" tabindex="-1">▶</button></div>
-          <div class="work-info"><h3 class="work-title">Muay Thai</h3><div class="work-meta">//007 · Street Culture · 2024</div></div>
-        </article>
-        <article class="work-card reveal" style="--d:1" data-cat="street" tabindex="0" data-cursor="play" data-full="clips/bts final.mp4" data-title="Behind The Scenes">
-          <div class="work-thumb"><video src="clips/previews/bts final.mp4" poster="clips/posters/bts final.jpg" muted loop playsinline preload="none"></video><button class="play-circle" aria-label="Play" tabindex="-1">▶</button></div>
-          <div class="work-info"><h3 class="work-title">Behind The Scenes</h3><div class="work-meta">//008 · Street Culture · 2024</div></div>
-        </article>
-        <article class="work-card reveal" style="--d:2" data-cat="street" tabindex="0" data-cursor="play" data-full="clips/pool vid.mp4" data-title="Pool">
-          <div class="work-thumb"><video src="clips/previews/pool vid.mp4" poster="clips/posters/pool vid.jpg" muted loop playsinline preload="none"></video><button class="play-circle" aria-label="Play" tabindex="-1">▶</button></div>
-          <div class="work-info"><h3 class="work-title">Pool</h3><div class="work-meta">//009 · Street Culture · 2024</div></div>
-        </article>
-
-        <!-- ═══ BLANK SLOTS — next drops. To fill one:
-             1. run the ffmpeg preview/poster pipeline (see README)
-             2. replace .slot-canvas with <video src="clips/previews/NAME.mp4" poster="clips/posters/NAME.jpg" muted loop playsinline preload="none">
-             3. set data-cat / data-full / data-title, update title + meta, remove class "slot-empty" ═══ -->
-        <article class="work-card slot-empty reveal" style="--d:0" data-cat="all" aria-label="Reserved slot for upcoming work">
-          <div class="work-thumb"><canvas class="slot-canvas" aria-hidden="true"></canvas>
-            <div class="slot-tag"><b>SOON</b><span>reserved</span></div></div>
-          <div class="work-info"><h3 class="work-title">Untitled</h3><div class="work-meta">//010 · New Work · 2026</div></div>
-        </article>
-        <article class="work-card slot-empty reveal" style="--d:1" data-cat="all" aria-label="Reserved slot for upcoming work">
-          <div class="work-thumb"><canvas class="slot-canvas" aria-hidden="true"></canvas>
-            <div class="slot-tag"><b>SOON</b><span>reserved</span></div></div>
-          <div class="work-info"><h3 class="work-title">Untitled</h3><div class="work-meta">//011 · New Work · 2026</div></div>
-        </article>
-        <article class="work-card slot-empty reveal" style="--d:2" data-cat="all" aria-label="Reserved slot for upcoming work">
-          <div class="work-thumb"><canvas class="slot-canvas" aria-hidden="true"></canvas>
-            <div class="slot-tag"><b>SOON</b><span>reserved</span></div></div>
-          <div class="work-info"><h3 class="work-title">Untitled</h3><div class="work-meta">//012 · New Work · 2026</div></div>
-        </article>
-      </div>
+      <div class="reel-grid" id="reelGrid"></div>
+      <p class="empty mono" id="empty" hidden>Nothing in that category yet.</p>
     </div>
   </section>
 
-  <!-- ── 04 AI work ── -->
+  <!-- ── 04 AI video ── -->
   <section id="ai" class="bg-ink">
     <div class="inner">
-      <div class="eyebrow"><span class="num">04</span><span>AI Work</span><span class="rule"></span></div>
+      <div class="eyebrow"><span class="num">04</span><span>AI Video</span><span class="rule"></span></div>
       <h2 class="work-display-title reveal">AI <em>work</em>.</h2>
+      <p class="sec-lead reveal" style="--d:1">
+        Work made with or assisted by generative tools. Any aspect ratio —
+        these aren't cut to the feed the way the short form is.
+      </p>
 
-      <div class="work-grid" id="ai-grid">
-        <article class="work-card slot-empty reveal" style="--d:0" aria-label="Reserved slot for upcoming AI work">
-          <div class="work-thumb"><canvas class="slot-canvas" aria-hidden="true"></canvas>
-            <div class="slot-tag"><b>SOON</b><span>reserved</span></div></div>
-          <div class="work-info"><h3 class="work-title">Untitled</h3><div class="work-meta">//013 · AI Work · 2026</div></div>
-        </article>
-        <article class="work-card slot-empty reveal" style="--d:1" aria-label="Reserved slot for upcoming AI work">
-          <div class="work-thumb"><canvas class="slot-canvas" aria-hidden="true"></canvas>
-            <div class="slot-tag"><b>SOON</b><span>reserved</span></div></div>
-          <div class="work-info"><h3 class="work-title">Untitled</h3><div class="work-meta">//014 · AI Work · 2026</div></div>
-        </article>
-        <article class="work-card slot-empty reveal" style="--d:2" aria-label="Reserved slot for upcoming AI work">
-          <div class="work-thumb"><canvas class="slot-canvas" aria-hidden="true"></canvas>
-            <div class="slot-tag"><b>SOON</b><span>reserved</span></div></div>
-          <div class="work-info"><h3 class="work-title">Untitled</h3><div class="work-meta">//015 · AI Work · 2026</div></div>
-        </article>
+      <div class="controls reveal" style="--d:1">
+        <div class="filter-row" id="aiFilters" role="tablist" aria-label="Filter AI clips"></div>
       </div>
+
+      <div class="reel-grid reel-grid-wide" id="aiGrid"></div>
+      <p class="empty mono" id="aiEmpty" hidden>Nothing in that category yet.</p>
+
+      <div class="controls reveal" id="aiPostControls">
+        <div class="filter-row" id="aiPostFilters" role="tablist" aria-label="Filter AI stills"></div>
+      </div>
+      <div class="post-grid" id="aiPostGrid"></div>
+      <p class="empty mono" id="aiPostEmpty" hidden>Nothing in that category yet.</p>
+    </div>
+  </section>
+
+  <!-- ── 05 Static posts ── -->
+  <section id="static" class="bg-night">
+    <div class="inner">
+      <div class="eyebrow"><span class="num">05</span><span>Static Posts</span><span class="rule"></span></div>
+      <h2 class="work-display-title reveal">Stills <em>&amp; carousels</em>.</h2>
+
+      <div class="controls reveal" style="--d:1">
+        <div class="filter-row" id="postFilters" role="tablist" aria-label="Filter posts"></div>
+      </div>
+
+      <div class="post-grid" id="postGrid"></div>
+      <p class="empty mono" id="postEmpty" hidden>Nothing in that category yet.</p>
     </div>
   </section>
 
   <!-- ── 05 Lab — live builds ── -->
   <section id="lab" class="bg-ink">
     <div class="inner">
-      <div class="eyebrow"><span class="num">05</span><span>The Lab</span><span class="rule"></span></div>
+      <div class="eyebrow"><span class="num">06</span><span>The Lab</span><span class="rule"></span></div>
       <h2 class="work-display-title reveal">I also <em>build</em>.</h2>
       <p class="lab-lead reveal" style="--d:1">
         Not everything I make is a film. These are live sites and tools I built
@@ -1065,75 +952,6 @@
     })();
   </script>
 
-  <!-- ── 06 Services (paper) ── -->
-  <svg class="rip" viewBox="0 0 1440 42" preserveAspectRatio="none" aria-hidden="true"><path d="M0,42 L0,20 L48,26 L96,14 L160,24 L220,10 L290,22 L350,12 L420,26 L490,14 L560,24 L640,8 L710,22 L790,12 L860,24 L930,10 L1000,20 L1080,10 L1150,24 L1230,12 L1300,22 L1370,14 L1440,24 L1440,42 Z"/></svg>
-  <section id="services" class="bg-cream">
-    <div class="inner">
-      <div class="eyebrow"><span class="num" style="color:var(--purple)">06</span><span>Services</span><span class="rule"></span></div>
-      <div class="services-grid">
-        <article class="service-card reveal" style="--d:0">
-          <div class="service-num">.01</div>
-          <h3 class="service-title">Music Videos</h3>
-          <p class="service-desc">Concept-to-grade production with directors and artists. Street energy, choreography or cinematic.</p>
-          <ul class="service-includes"><li>Direction</li><li>Cinematography</li><li>Edit &amp; grade</li></ul>
-        </article>
-        <article class="service-card reveal" style="--d:1">
-          <div class="service-num">.02</div>
-          <h3 class="service-title">Brand Films &amp; Commercials</h3>
-          <p class="service-desc">Ads, promos and social content that move product while keeping a distinct visual identity.</p>
-          <ul class="service-includes"><li>Pitch &amp; treatment</li><li>Production</li><li>Post &amp; delivery</li></ul>
-        </article>
-        <article class="service-card reveal" style="--d:2">
-          <div class="service-num">.03</div>
-          <h3 class="service-title">Event &amp; Street Coverage</h3>
-          <p class="service-desc">Live shows, pop-ups and cultural events captured with fast turnaround.</p>
-          <ul class="service-includes"><li>Solo &amp; multi-cam</li><li>Same-day cutdowns</li><li>Social deliverables</li></ul>
-        </article>
-        <article class="service-card reveal" style="--d:3">
-          <div class="service-num">.04</div>
-          <h3 class="service-title">Editing &amp; Post</h3>
-          <p class="service-desc">Send raw footage, get back a film. Color grading, sound design, motion graphics.</p>
-          <ul class="service-includes"><li>Edit</li><li>Color &amp; sound</li><li>Motion graphics</li></ul>
-        </article>
-      </div>
-    </div>
-  </section>
-
-  <!-- ── 07 About (paper) ── -->
-  <section id="about" class="bg-cream">
-    <div class="inner" style="padding-top:0">
-      <div class="eyebrow"><span class="num" style="color:var(--purple)">07</span><span>About</span><span class="rule"></span></div>
-      <div class="about-grid">
-        <div class="about-portrait reveal">
-          <img class="about-photo" src="Asset 3.png" alt="Portrait of Liam Jansson">
-        </div>
-        <div class="about-content reveal" style="--d:1">
-          <h2 class="about-title">Instinct on set,<br>patience in the suite.</h2>
-          <p class="about-bio">
-            Liam Jansson is a videographer, editor and creative based in Berlin.
-            His work blends raw, street-level authenticity with a graffiti-influenced
-            visual language, from quick-turnaround event coverage to full-scale brand films.
-          </p>
-          <p class="about-bio">
-            A director's eye on set, a colorist's patience in the suite. Available worldwide.
-          </p>
-          <span class="toolkit-label">Toolkit</span>
-          <div class="tools-grid">
-            <span class="tool-pill">After Effects</span><span class="tool-pill">DaVinci Resolve</span>
-            <span class="tool-pill">Premiere Pro</span><span class="tool-pill">CapCut</span>
-            <span class="tool-pill">Photoshop</span><span class="tool-pill">Illustrator</span>
-            <span class="tool-pill">Figma</span><span class="tool-pill">Claude</span>
-          </div>
-        </div>
-      </div>
-    </div>
-    <!-- draggable stickers (desktop toy — grab them) -->
-    <img class="sticker sticker-crown" src="crown.png" alt="" data-cursor="drag" aria-hidden="true">
-    <span class="sticker sticker-bln" data-cursor="drag" aria-hidden="true">BLN</span>
-    <span class="sticker sticker-star" data-cursor="drag" aria-hidden="true">★</span>
-  </section>
-  <svg class="rip rip-out" viewBox="0 0 1440 42" preserveAspectRatio="none" aria-hidden="true"><path d="M0,42 L0,20 L48,26 L96,14 L160,24 L220,10 L290,22 L350,12 L420,26 L490,14 L560,24 L640,8 L710,22 L790,12 L860,24 L930,10 L1000,20 L1080,10 L1150,24 L1230,12 L1300,22 L1370,14 L1440,24 L1440,42 Z"/></svg>
-
   <!-- ── Marquee ── -->
   <div class="marquee" aria-hidden="true">
     <div class="marquee-track">
@@ -1145,7 +963,7 @@
   <section id="contact" class="bg-ink">
     <span class="bg-word" aria-hidden="true">CONTACT</span>
     <div class="inner">
-      <div class="eyebrow"><span class="num">08</span><span>Contact</span><span class="rule"></span></div>
+      <div class="eyebrow"><span class="num">07</span><span>Contact</span><span class="rule"></span></div>
       <h2 class="contact-headline reveal">
         <span class="w">Let's</span> <span class="w">make</span> <span class="w">something.</span>
       </h2>
@@ -1177,8 +995,8 @@
     <div class="footer-inner">
       <a href="#hero" class="footer-logo" aria-label="Back to top"><img src="crown.png" alt=""></a>
       <div class="footer-links">
-        <a href="#showreel">Showreel</a><a href="#work">Work</a><a href="#lab">Lab</a><a href="#services">Services</a>
-        <a href="#about">About</a><a href="#contact">Contact</a>
+        <a href="#showreel">Showreel</a><a href="#work">Work</a><a href="#lab">Lab</a>
+        <a href="#contact">Contact</a>
         <a href="https://janssonliam.de/impressum.html">Impressum</a>
         <a href="https://janssonliam.de/datenschutz.html">Datenschutz</a>
       </div>
@@ -1341,31 +1159,9 @@
       screen.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); activate(); } });
     })();
 
-    /* ============ WORK GRID — filters, hover-play, modal ============ */
-    (() => {
-      const pills = $$(".filter-pill"), gridCards = $$("#work-grid .work-card"), cards = $$(".work-card");
-      pills.forEach(p => p.addEventListener("click", () => {
-        pills.forEach(x => { x.classList.remove("active"); x.setAttribute("aria-selected", "false"); });
-        p.classList.add("active"); p.setAttribute("aria-selected", "true");
-        const f = p.dataset.filter;
-        gridCards.forEach(c => c.classList.toggle("hidden", f !== "all" && c.dataset.cat !== f && c.dataset.cat !== "all"));
-      }));
-
-      cards.forEach(card => {
-        const v = $("video", card);
-        if (v && FINE && !RM) {
-          card.addEventListener("mouseenter", () => { v.preload = "auto"; v.play().catch(() => {}); });
-          card.addEventListener("mouseleave", () => { v.pause(); v.currentTime = 0; });
-        }
-        if (!card.classList.contains("slot-empty")) {
-          const open = () => openModal(
-            PREVIEW_ONLY ? $("video", card).getAttribute("src") : card.dataset.full,
-            card.dataset.title);
-          card.addEventListener("click", open);
-          card.addEventListener("keydown", e => { if (e.key === "Enter") open(); });
-        }
-      });
-    })();
+    /* WORK GRID handler removed: the grid now renders from portfolio/app.js.
+       It also matched .filter-pill globally, which would have double-bound
+       the new filters. */
 
     /* ============ BLANK SLOTS — soft signal-noise placeholders ============ */
     (() => {
@@ -1411,32 +1207,6 @@
     modal.addEventListener("click", e => { if (e.target === modal) closeModal(); });
     addEventListener("keydown", e => { if (e.key === "Escape" && modal.classList.contains("open")) closeModal(); });
 
-    /* ============ STICKERS — drag toys (desktop only) ============ */
-    (() => {
-      if (!FINE) return;
-      $$(".sticker").forEach(st => {
-        st.style.display = "block";
-        st.classList.add("draggable");
-        let sx, sy, ox, oy, dragging = false;
-        st.addEventListener("pointerdown", e => {
-          dragging = true; st.classList.add("dragging");
-          st.setPointerCapture(e.pointerId);
-          sx = e.clientX; sy = e.clientY;
-          ox = parseFloat(st.dataset.dx || 0); oy = parseFloat(st.dataset.dy || 0);
-          e.preventDefault();
-        });
-        st.addEventListener("pointermove", e => {
-          if (!dragging) return;
-          const dx = ox + e.clientX - sx, dy = oy + e.clientY - sy;
-          st.dataset.dx = dx; st.dataset.dy = dy;
-          st.style.translate = `${dx}px ${dy}px`;
-        });
-        const drop = () => { dragging = false; st.classList.remove("dragging"); };
-        st.addEventListener("pointerup", drop);
-        st.addEventListener("pointercancel", drop);
-      });
-    })();
-
     /* ============ COPY EMAIL ============ */
     (() => {
       const btn = $("#copy-email");
@@ -1450,5 +1220,53 @@
 
     /* ============ CONTACT HEADLINE — words already wrapped; nothing to run ============ */
   </script>
+
+  <!-- ── portfolio: video player ── -->
+  <div class="viewer" id="viewer" role="dialog" aria-modal="true" aria-label="Clip player" hidden>
+    <button class="v-close" id="vClose" aria-label="Close player">✕</button>
+    <button class="v-nav v-prev" id="vPrev" aria-label="Previous clip">↑</button>
+    <button class="v-nav v-next" id="vNext" aria-label="Next clip">↓</button>
+    <div class="v-stage" id="vStage">
+      <div class="v-ticks" id="vTicks" aria-hidden="true"></div>
+      <div class="v-frame">
+        <video id="vVideo" playsinline preload="auto"></video>
+        <button class="v-tap" id="vTap" aria-label="Play or pause"></button>
+        <div class="v-pausedot" id="vPauseDot" aria-hidden="true">❚❚</div>
+      </div>
+      <div class="v-meta">
+        <h2 class="v-title" id="vTitle"></h2>
+        <p class="v-sub mono" id="vSub"></p>
+      </div>
+      <div class="v-tools">
+        <button class="v-btn mono" id="vSound" aria-pressed="false">Sound off</button>
+        <span class="v-pos mono" id="vPos"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── portfolio: carousel lightbox ── -->
+  <div class="viewer lb" id="lightbox" role="dialog" aria-modal="true" aria-label="Post viewer" hidden>
+    <button class="v-close" id="lbClose" aria-label="Close viewer">✕</button>
+    <button class="lb-arrow lb-prev" id="lbPrev" aria-label="Previous">←</button>
+    <button class="lb-arrow lb-next" id="lbNext" aria-label="Next">→</button>
+    <div class="lb-stage">
+      <div class="lb-frame">
+        <img id="lbImg" alt="">
+        <video id="lbVideo" playsinline loop muted preload="auto" hidden></video>
+        <button class="lb-sound mono" id="lbSound" aria-pressed="false" hidden>Sound off</button>
+      </div>
+      <div class="lb-dots" id="lbDots" aria-hidden="true"></div>
+      <div class="v-meta">
+        <h2 class="v-title" id="lbTitle"></h2>
+        <p class="v-sub mono" id="lbSub"></p>
+      </div>
+    </div>
+  </div>
+
+  <script>window.PORTFOLIO_BASE = "portfolio/";</script>
+  <script src="portfolio/clips.js"></script>
+  <script src="portfolio/ai.js"></script>
+  <script src="portfolio/posts.js"></script>
+  <script src="portfolio/app.js"></script>
 </body>
 </html>

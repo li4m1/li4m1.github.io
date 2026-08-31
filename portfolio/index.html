@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<!--
+     ♛  JANSSON — PORTFOLIO / SOCIAL
+        Same rules as the main site: no build step, no trackers,
+        every font and frame served from this domain.
+-->
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+  <title>Portfolio · Social — Liam Jansson</title>
+  <meta name="description" content="Social work by Liam Jansson — vertical short-form video and static posts for brands, artists and street culture.">
+  <meta name="theme-color" content="#02010A">
+  <link rel="canonical" href="https://janssonliam.de/portfolio/">
+  <link rel="icon" type="image/png" href="../crown.png">
+  <link rel="apple-touch-icon" href="../crown.png">
+
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://janssonliam.de/portfolio/">
+  <meta property="og:title" content="Portfolio · Social — Liam Jansson">
+  <meta property="og:description" content="Vertical short-form video and static posts.">
+  <meta property="og:image" content="https://janssonliam.de/og-image.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://janssonliam.de/og-image.jpg">
+
+  <link rel="preload" href="../Captions.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="../fonts/Inter-var.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <a class="skip" href="#shortform">Skip to work</a>
+
+  <!-- ── top bar ── -->
+  <header class="bar">
+    <a class="back" href="../" aria-label="Back to janssonliam.de">
+      <span aria-hidden="true">←</span> <span class="back-txt">Jansson</span>
+    </a>
+    <nav class="bar-nav mono" aria-label="Sections">
+      <a href="#shortform">Short form</a>
+      <a href="#ai">AI</a>
+      <a href="#static">Static</a>
+    </nav>
+  </header>
+
+  <!-- ── masthead ── -->
+  <section class="mast">
+    <div class="bg-word" aria-hidden="true">FEED</div>
+    <div class="inner">
+      <div class="eyebrow"><span class="num">//</span><span>Portfolio</span><span class="rule"></span></div>
+      <h1 class="display">Social <em>work</em>.</h1>
+      <p class="lead">
+        Everything made for the feed. Vertical cuts with the hook in the first
+        second, and the stills and carousels that run alongside them.
+      </p>
+      <div class="stat-row mono">
+        <span><b id="stat-count">0</b> clips</span>
+        <span><b id="stat-ai">0</b> ai</span>
+        <span><b id="stat-posts">0</b> posts</span>
+        <span><b id="stat-mins">0</b> runtime</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 01 short form ── -->
+  <section class="wrap" id="shortform">
+    <div class="inner">
+      <div class="eyebrow"><span class="num">01</span><span>Short Form</span><span class="rule"></span></div>
+      <h2 class="sec-title">Video.</h2>
+
+      <div class="controls">
+        <div class="filter-row" id="filters" role="tablist" aria-label="Filter clips"></div>
+        <button class="sound-pref mono" id="soundPref" aria-pressed="false">
+          <span class="dot" aria-hidden="true"></span><span id="soundPrefTxt">Sound off</span>
+        </button>
+      </div>
+
+      <div class="reel-grid" id="reelGrid"></div>
+      <p class="empty mono" id="empty" hidden>Nothing in that category yet.</p>
+    </div>
+  </section>
+
+  <!-- ── 02 ai video ── -->
+  <section class="wrap wrap-alt" id="ai">
+    <div class="inner">
+      <div class="eyebrow"><span class="num">02</span><span>AI Video</span><span class="rule"></span></div>
+      <h2 class="sec-title">Generated.</h2>
+      <p class="sec-lead">
+        Work made with or assisted by generative tools. Any aspect ratio —
+        these aren't cut to the feed the way the short form is.
+      </p>
+
+      <div class="controls">
+        <div class="filter-row" id="aiFilters" role="tablist" aria-label="Filter AI clips"></div>
+      </div>
+
+      <div class="reel-grid reel-grid-wide" id="aiGrid"></div>
+      <p class="empty mono" id="aiEmpty" hidden>Nothing in that category yet.</p>
+
+      <div class="controls" id="aiPostControls">
+        <div class="filter-row" id="aiPostFilters" role="tablist" aria-label="Filter AI stills"></div>
+      </div>
+      <div class="post-grid" id="aiPostGrid"></div>
+      <p class="empty mono" id="aiPostEmpty" hidden>Nothing in that category yet.</p>
+    </div>
+  </section>
+
+  <!-- ── 03 static posts ── -->
+  <section class="wrap" id="static">
+    <div class="inner">
+      <div class="eyebrow"><span class="num">03</span><span>Static Posts</span><span class="rule"></span></div>
+      <h2 class="sec-title">Stills.</h2>
+
+      <div class="controls">
+        <div class="filter-row" id="postFilters" role="tablist" aria-label="Filter posts"></div>
+      </div>
+
+      <div class="post-grid" id="postGrid"></div>
+      <p class="empty mono" id="postEmpty" hidden>Nothing in that category yet.</p>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <div class="inner foot-in">
+      <span class="mono">© <span id="yr"></span> Liam Jansson</span>
+      <nav class="foot-nav mono">
+        <a href="../">Main site</a>
+        <a href="../impressum.html">Impressum</a>
+        <a href="../datenschutz.html">Datenschutz</a>
+      </nav>
+    </div>
+  </footer>
+
+  <!-- ── video viewer ── -->
+  <div class="viewer" id="viewer" role="dialog" aria-modal="true" aria-label="Clip player" hidden>
+    <button class="v-close" id="vClose" aria-label="Close player">✕</button>
+    <button class="v-nav v-prev" id="vPrev" aria-label="Previous clip">↑</button>
+    <button class="v-nav v-next" id="vNext" aria-label="Next clip">↓</button>
+
+    <div class="v-stage" id="vStage">
+      <div class="v-ticks" id="vTicks" aria-hidden="true"></div>
+      <div class="v-frame">
+        <video id="vVideo" playsinline preload="auto"></video>
+        <button class="v-tap" id="vTap" aria-label="Play or pause"></button>
+        <div class="v-pausedot" id="vPauseDot" aria-hidden="true">❚❚</div>
+      </div>
+      <div class="v-meta">
+        <h2 class="v-title" id="vTitle"></h2>
+        <p class="v-sub mono" id="vSub"></p>
+      </div>
+      <div class="v-tools">
+        <button class="v-btn mono" id="vSound" aria-pressed="false">Sound off</button>
+        <span class="v-pos mono" id="vPos"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── image lightbox ── -->
+  <div class="viewer lb" id="lightbox" role="dialog" aria-modal="true" aria-label="Post viewer" hidden>
+    <button class="v-close" id="lbClose" aria-label="Close viewer">✕</button>
+    <button class="lb-arrow lb-prev" id="lbPrev" aria-label="Previous">←</button>
+    <button class="lb-arrow lb-next" id="lbNext" aria-label="Next">→</button>
+
+    <div class="lb-stage">
+      <div class="lb-frame">
+        <img id="lbImg" alt="">
+        <video id="lbVideo" playsinline loop muted preload="auto" hidden></video>
+        <button class="lb-sound mono" id="lbSound" aria-pressed="false" hidden>Sound off</button>
+      </div>
+      <div class="lb-dots" id="lbDots" aria-hidden="true"></div>
+      <div class="v-meta">
+        <h2 class="v-title" id="lbTitle"></h2>
+        <p class="v-sub mono" id="lbSub"></p>
+      </div>
+    </div>
+  </div>
+
+  <script src="clips.js"></script>
+  <script src="ai.js"></script>
+  <script src="posts.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
