@@ -241,7 +241,11 @@
 
     /* ============ 01 HERO ============ */
     #hero {
-      min-height: 100svh; display: flex; flex-direction: column; justify-content: center;
+      /* The wordmark block is short now that the role lines are gone, so a
+         full-viewport box left it floating between two dead bands. Slightly
+         shorter, and nudged above centre so the strip and SCROLL hint own
+         the lower third instead of it reading as empty. */
+      min-height: 74svh; display: flex; flex-direction: column; justify-content: center;
       overflow: hidden;
     }
     /* dark scrim over the film strip so the white wordmark stays legible on any
@@ -466,7 +470,168 @@
     .lab-card:focus-visible { border-color: var(--gold); }
     .lab-card.slot-empty { border-style: dashed; border-color: rgba(240,180,41,0.35); }
 
-    /* ============ 06 SERVICES — paper section ============ */
+    /* ============ 07 RUGS — paper section. The rip SVGs carry the colour of
+       the section they tear away from, so the join reads as one torn sheet ============ */
+    .rip-from-ink   { background: var(--ink); }
+    .rip-from-night { background: var(--night); }
+
+    .rug-lead {
+      max-width: 54ch; color: var(--ink-mut); font-size: var(--fs-body-lg);
+      margin: -1rem 0 2.5rem;
+    }
+    .rug-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: clamp(1rem, 2.5vw, 1.75rem);
+    }
+    .rug-card {
+      position: relative; border-radius: var(--radius); overflow: hidden;
+      background: var(--paper); border: 1px solid var(--line-dark);
+      transition: transform var(--dur) var(--eo), box-shadow var(--dur) ease;
+    }
+    .rug-card.wide { grid-column: span 2; }
+    .rug-shot { position: relative; aspect-ratio: 4/3; overflow: hidden; }
+    .rug-card.wide .rug-shot { aspect-ratio: 8/3; }
+    .rug-shot img { width: 100%; height: 100%; object-fit: cover; }
+
+    /* reserved slot: yarn loops drawn in CSS, so an unphotographed rug still
+       looks like a rug rather than an empty box */
+    .rug-shot.soon {
+      background:
+        repeating-linear-gradient(90deg, rgba(20,9,51,0.07) 0 3px, transparent 3px 9px),
+        repeating-linear-gradient(0deg,  rgba(20,9,51,0.05) 0 3px, transparent 3px 9px),
+        radial-gradient(circle at 30% 25%, rgba(108,26,219,0.13), transparent 60%),
+        radial-gradient(circle at 75% 70%, rgba(240,180,41,0.16), transparent 60%),
+        var(--paper);
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.35rem;
+      outline: 1px dashed rgba(20,9,51,0.22); outline-offset: -1px;
+    }
+    .rug-shot.soon b {
+      font-family: var(--font-display); font-size: 1.5rem; letter-spacing: 0.04em; color: var(--ink-text);
+    }
+    .rug-shot.soon span {
+      font-family: var(--font-mono); font-size: var(--fs-label); letter-spacing: 0.2em;
+      text-transform: uppercase; color: var(--ink-mut);
+    }
+    .rug-info { padding: 1rem 1.15rem 1.2rem; }
+    .rug-title { font-family: var(--font-display); font-size: var(--fs-h3); letter-spacing: 0.01em; }
+    .rug-meta {
+      font-family: var(--font-mono); font-size: var(--fs-label); letter-spacing: 0.08em;
+      text-transform: uppercase; color: var(--ink-mut); margin-top: 0.3rem;
+    }
+    @media (hover: hover) and (pointer: fine) {
+      .rug-card:hover { transform: translateY(-6px); box-shadow: var(--paper-shadow); }
+    }
+
+    /* spec strip — the honest facts about how they're made */
+    .rug-specs {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px;
+      background: var(--line-dark); border: 1px solid var(--line-dark);
+      border-radius: var(--radius); overflow: hidden; margin-top: clamp(1.75rem, 4vw, 2.75rem);
+    }
+    .rug-specs div { background: var(--cream); padding: 1.25rem 1.15rem; }
+    .rug-specs dt {
+      font-family: var(--font-mono); font-size: var(--fs-label); letter-spacing: 0.14em;
+      text-transform: uppercase; color: var(--ink-mut); margin-bottom: 0.4rem;
+    }
+    .rug-specs dd { font-family: var(--font-display); font-size: 1.25rem; line-height: 1.15; }
+
+    .rug-cta {
+      display: flex; align-items: center; gap: 1.25rem; flex-wrap: wrap;
+      margin-top: clamp(1.75rem, 4vw, 2.5rem);
+    }
+    .rug-cta .note { color: var(--ink-mut); }
+    .btn-ink {
+      display: inline-flex; align-items: center; gap: 0.6em;
+      font-family: var(--font-mono); font-size: var(--fs-small); letter-spacing: 0.06em;
+      text-transform: uppercase; background: var(--ink); color: var(--cream);
+      padding: 0.9em 1.8em; border-radius: var(--pill);
+      transition: transform var(--dur-fast) var(--eo), box-shadow var(--dur) ease;
+    }
+    .btn-ink:hover { transform: translateY(-2px); box-shadow: var(--paper-shadow); }
+    .btn-ink:active { transform: scale(0.97); }
+
+    /* ============ 08 KÖNIGSKARTEN — the deck art is the hero, so the section
+       borrows the deck's own red instead of the site purple ============ */
+    #koenigskarten { --kk-red: #C4212C; overflow: hidden; }
+    .kk-top {
+      display: grid; grid-template-columns: 1.05fr 1fr; gap: clamp(1.5rem, 4vw, 3.5rem);
+      align-items: center;
+    }
+    .kk-logo { max-width: 380px; margin-bottom: 1.5rem; }
+    .kk-logo img { width: 100%; filter: drop-shadow(0 8px 24px rgba(0,0,0,0.55)); }
+    .kk-lead { color: var(--text-mut); font-size: var(--fs-body-lg); max-width: 46ch; }
+    .kk-lead strong { color: var(--cream); font-weight: 600; }
+    .kk-suits {
+      display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 1.6rem;
+    }
+    .kk-suit {
+      font-family: var(--font-mono); font-size: var(--fs-label); letter-spacing: 0.12em;
+      text-transform: uppercase; padding: 0.5em 1.1em; border-radius: var(--pill);
+      border: 1px solid var(--line); color: var(--text-mut);
+      transition: all var(--dur-fast) ease;
+    }
+    .kk-suit i { font-style: normal; margin-right: 0.45em; }
+    .kk-suit.red { color: var(--kk-red); border-color: rgba(196,33,44,0.5); }
+    .kk-suit:hover { border-color: var(--gold); color: var(--gold); }
+    .kk-suit.red:hover { border-color: var(--kk-red); color: var(--kk-red); }
+
+    /* the fanned deck floats — slow drift, paused for reduced motion */
+    .kk-hero { position: relative; }
+    .kk-hero::before {
+      content: ""; position: absolute; inset: -12% -6%;
+      background: radial-gradient(ellipse at 50% 55%, rgba(196,33,44,0.22), transparent 68%);
+      pointer-events: none;
+    }
+    .kk-hero img {
+      position: relative; width: 100%;
+      filter: drop-shadow(0 26px 60px rgba(0,0,0,0.6));
+      animation: kkFloat 7s ease-in-out infinite;
+    }
+    @keyframes kkFloat {
+      50% { transform: translateY(-14px) rotate(-1.1deg); }
+    }
+
+    .kk-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: clamp(1rem, 2.5vw, 1.75rem); margin-top: clamp(2.5rem, 6vw, 4rem);
+    }
+    .kk-card {
+      position: relative; border-radius: var(--radius); overflow: hidden;
+      background: var(--ink); border: 1px solid var(--line);
+      aspect-ratio: 4/3; display: flex; align-items: center; justify-content: center;
+      transition: transform var(--dur) var(--eo), border-color var(--dur) ease;
+    }
+    .kk-card img { width: 100%; height: 100%; object-fit: cover; }
+    .kk-card.soon {
+      flex-direction: column; gap: 0.35rem;
+      border-style: dashed; border-color: rgba(196,33,44,0.4);
+      background:
+        repeating-linear-gradient(135deg, rgba(196,33,44,0.06) 0 8px, transparent 8px 16px),
+        var(--ink);
+    }
+    .kk-card.soon b {
+      font-family: var(--font-display); font-size: 1.5rem; letter-spacing: 0.04em; color: var(--kk-red);
+    }
+    .kk-card.soon span {
+      font-family: var(--font-mono); font-size: var(--fs-label); letter-spacing: 0.2em;
+      text-transform: uppercase; color: var(--text-mut);
+    }
+    @media (hover: hover) and (pointer: fine) {
+      .kk-card:hover { transform: translateY(-6px); border-color: rgba(196,33,44,0.7); }
+    }
+
+    .kk-cta { display: flex; align-items: center; gap: 1.25rem; flex-wrap: wrap; margin-top: clamp(1.75rem, 4vw, 2.5rem); }
+    .kk-cta .note { color: var(--text-mut); }
+    .btn-red {
+      display: inline-flex; align-items: center; gap: 0.6em;
+      font-family: var(--font-mono); font-size: var(--fs-small); letter-spacing: 0.06em;
+      text-transform: uppercase; background: var(--kk-red); color: #fff;
+      padding: 0.9em 1.8em; border-radius: var(--pill);
+      transition: transform var(--dur-fast) var(--eo), box-shadow var(--dur) ease;
+    }
+    .btn-red:hover { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(196,33,44,0.32); }
+    .btn-red:active { transform: scale(0.97); }
+
 
     /* ============ 07 ABOUT — paper section ============ */
     .toolkit-label { display: block; font-family: var(--font-mono); font-size: var(--fs-label); letter-spacing: 0.15em; text-transform: uppercase; color: var(--ink-mut); margin: 1.75rem 0 0.9rem; }
@@ -567,16 +732,32 @@
       .work-grid { grid-template-columns: repeat(2, 1fr); }
       .lab-grid { grid-template-columns: 1fr; }
       .contact-grid { grid-template-columns: 1fr; }
+      .rug-grid { grid-template-columns: repeat(2, 1fr); }
+      .rug-card.wide { grid-column: span 2; }
+      .rug-specs { grid-template-columns: repeat(2, 1fr); }
+      .kk-top { grid-template-columns: 1fr; }
+      .kk-hero { max-width: 560px; }
+      .kk-grid { grid-template-columns: repeat(2, 1fr); }
       .orbit-badge { width: 90px; top: -46px; right: -6px; }
       .tv { max-width: 560px; }
     }
     @media (max-width: 620px) {
       .work-grid { grid-template-columns: 1fr; }
+      .rug-grid { grid-template-columns: 1fr; }
+      .rug-card.wide { grid-column: auto; }
+      .rug-card.wide .rug-shot { aspect-ratio: 4/3; }
+      .kk-grid { grid-template-columns: 1fr; }
       .dock a { width: 34px; height: 34px; }
       .scroll-hint { display: none; }
       /* Captions' J-tail ink overshoots its box left — pad so it can't clip at the edge */
       .hero-name { font-size: clamp(3.2rem, 16vw, 5rem); padding-left: 0.22em; }
       .topbar .chip { display: none; }
+    }
+    /* nine dots now that rugs + Königskarten are in — shrink the dock so the
+       end dots can't clip off a narrow phone */
+    @media (max-width: 430px) {
+      .dock { gap: 0.15rem; padding: 0.4rem 0.5rem; }
+      .dock a { width: 30px; height: 30px; font-size: 0.625rem; }
     }
 
     /* ============ REDUCED MOTION — the master off-switch ============ */
@@ -589,10 +770,197 @@
       }
       .reveal, .hero-name .ch { opacity: 1 !important; transform: none !important; }
       .strip-track, .marquee-track, .orbit-badge { animation: none !important; }
+      .kk-hero img { animation: none !important; }
       .scroll-hint, .chip .dot-live, .lab-live i { animation: none !important; }
       #loader { display: none !important; }
     }
-  </style>
+  
+    /* ═══════════════ V3 — LANDING STAGE ═══════════════
+       Wordmark centre, work scattered around it. Tiles are placed from a
+       table in JS (x/y/size/rot/depth) and kept out of a centre exclusion
+       zone so the name always reads clean. ═══════════════ */
+    #home {
+      min-height: 100svh; display: flex; align-items: center; justify-content: center;
+      overflow: hidden; position: relative;
+    }
+    .stage { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
+    .stage-tile {
+      position: absolute; display: block; border-radius: var(--radius-sm); overflow: hidden;
+      background: var(--ink); pointer-events: auto; cursor: pointer;
+      box-shadow: 0 18px 50px rgba(0,0,0,0.55);
+      opacity: 0; transform: scale(0.86) rotate(var(--rot));
+      transition: opacity 0.9s var(--eo), transform 0.9s var(--eo), box-shadow var(--dur) ease;
+      transition-delay: calc(var(--i) * 60ms);
+      will-change: transform;
+    }
+    body.loaded .stage-tile { opacity: 1; transform: scale(1) rotate(var(--rot)); }
+    .stage-tile img, .stage-tile video {
+      width: 100%; height: 100%; object-fit: cover; display: block;
+      filter: saturate(1.02) brightness(0.94);
+      transition: filter var(--dur-slow) var(--eo);
+    }
+    .stage-tile video { position: absolute; inset: 0; opacity: 0; transition: opacity 0.4s ease; }
+    .stage-tile.playing video { opacity: 1; }
+    .stage-tile::after {
+      content: ""; position: absolute; inset: 0; pointer-events: none;
+      background: var(--purple); mix-blend-mode: color; opacity: 0.22;
+      transition: opacity var(--dur-slow) var(--eo);
+    }
+    .stage-cap {
+      position: absolute; left: 0; right: 0; bottom: 0; z-index: 3;
+      padding: 0.5rem 0.6rem 0.45rem;
+      font-family: var(--font-mono); font-size: 0.5625rem; letter-spacing: 0.14em;
+      text-transform: uppercase; color: var(--cream);
+      background: linear-gradient(transparent, rgba(2,1,10,0.85));
+      opacity: 0; transform: translateY(4px);
+      transition: opacity var(--dur) ease, transform var(--dur) var(--eo);
+    }
+    @media (hover: hover) and (pointer: fine) {
+      .stage-tile:hover { box-shadow: 0 26px 70px rgba(240,180,41,0.28); z-index: 5; }
+      .stage-tile:hover img, .stage-tile:hover video { filter: none; }
+      .stage-tile:hover::after { opacity: 0; }
+      .stage-tile:hover .stage-cap { opacity: 1; transform: none; }
+    }
+    .stage-tile:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; z-index: 5; }
+
+    /* the name sits above the field, with a soft well behind it so the
+       wordmark never fights a bright frame */
+    .home-inner {
+      position: relative; z-index: 3; text-align: center;
+      padding: 0 var(--gutter); pointer-events: none;
+    }
+    .home-inner::before {
+      content: ""; position: absolute; left: 50%; top: 50%; z-index: -1;
+      width: 128%; height: 240%; transform: translate(-50%,-50%);
+      background: radial-gradient(ellipse at center, rgba(2,1,10,0.92) 0%, rgba(2,1,10,0.62) 38%, transparent 66%);
+      pointer-events: none;
+    }
+    .home-eyebrow {
+      display: flex; gap: 1.1rem; justify-content: center; flex-wrap: wrap;
+      margin-bottom: 0.9rem; color: var(--text-mut);
+    }
+    .home-name {
+      font-family: var(--font-display); font-size: var(--fs-mega); line-height: 0.92;
+      letter-spacing: 0.01em; display: flex; align-items: baseline; justify-content: center;
+      flex-wrap: nowrap; user-select: none;
+      text-shadow: 0 2px 34px rgba(2,1,10,0.8), 0 0 12px rgba(2,1,10,0.6);
+    }
+    .home-name .ch { display: inline-block; opacity: 0; transform: translateY(0.45em) rotate(3deg); will-change: transform; }
+    body.loaded .home-name .ch { animation: chRise 0.7s var(--eo) forwards; animation-delay: calc(0.1s + var(--i) * 0.055s); }
+    .home-name .crown-wrap { margin: 0 -0.09em; }
+    .home-name .crown-o {
+      width: 1em; transform: translateY(0.16em); transform-origin: 50% 80%;
+      transition: transform var(--dur) var(--eo);
+      filter: drop-shadow(0 2px 14px rgba(2,1,10,0.6));
+    }
+    .home-name:hover .crown-o { transform: translateY(0.16em) rotate(-12deg); }
+    .home-ctas { display: flex; gap: 1rem; justify-content: center; align-items: center; flex-wrap: wrap; margin-top: clamp(1.5rem, 3vw, 2.5rem); pointer-events: auto; }
+
+    /* ═══════════════ V3 — CATEGORY RAIL ═══════════════
+       One card per discipline, each playing a real clip under its name.
+       This is the part that replaces six separate sections. ═══════════════ */
+    .rail {
+      display: grid; grid-auto-flow: column; grid-auto-columns: minmax(190px, 1fr);
+      gap: clamp(0.6rem, 1.4vw, 1rem); margin-bottom: clamp(1.75rem, 4vw, 2.75rem);
+      overflow-x: auto; scroll-snap-type: x mandatory;
+      scrollbar-width: none; padding-bottom: 0.25rem;
+    }
+    .rail::-webkit-scrollbar { display: none; }
+    .rail-card {
+      display: block; padding: 0; text-align: left;
+      position: relative; scroll-snap-align: start; cursor: pointer;
+      aspect-ratio: 4/5; border-radius: var(--radius); overflow: hidden;
+      background: var(--ink); border: 1px solid var(--line);
+      transition: transform var(--dur) var(--eo), border-color var(--dur) ease;
+    }
+    .rail-card img, .rail-card video { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .rail-card video { position: absolute; inset: 0; opacity: 0; transition: opacity 0.35s ease; }
+    .rail-card.playing video { opacity: 1; }
+    .rail-card::after {
+      content: ""; position: absolute; inset: 0;
+      background: linear-gradient(transparent 34%, rgba(2,1,10,0.9));
+      transition: opacity var(--dur) ease;
+    }
+    .rail-meta { display: block; position: absolute; left: 0; right: 0; bottom: 0; z-index: 2; padding: 0.85rem 0.9rem; text-align: left; }
+    .rail-name { display: block; font-family: var(--font-display); font-size: 1.2rem; line-height: 1.1; letter-spacing: 0.01em; color: var(--cream); }
+    .rail-n {
+      display: block;
+      font-family: var(--font-mono); font-size: 0.625rem; letter-spacing: 0.16em;
+      text-transform: uppercase; color: var(--gold); margin-top: 0.15rem;
+    }
+    .rail-card.active { border-color: var(--gold); }
+    .rail-card.active .rail-n { color: var(--cream); }
+    @media (hover: hover) and (pointer: fine) {
+      .rail-card:hover { transform: translateY(-5px); border-color: rgba(240,180,41,0.5); }
+    }
+    .rail-card:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+
+    /* ═══════════════ V3 — UNIFIED WORK GRID ═══════════════ */
+    .idx-head { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.25rem; }
+    .idx-count { font-family: var(--font-mono); font-size: var(--fs-label); letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-mut); }
+    .idx-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: clamp(0.7rem, 1.6vw, 1.2rem); }
+    .idx-grid.stills { grid-template-columns: repeat(3, 1fr); }
+    .idx-card {
+      display: block; text-align: left; padding: 0;
+      position: relative; border-radius: var(--radius-sm); overflow: hidden;
+      background: var(--ink); cursor: pointer; border: 1px solid transparent;
+      transition: transform var(--dur) var(--eo), box-shadow var(--dur) ease, border-color var(--dur) ease;
+    }
+    .idx-thumb { display: block; position: relative; overflow: hidden; background: var(--ink); }
+    .idx-card img, .idx-card video { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .idx-card video { position: absolute; inset: 0; opacity: 0; transition: opacity 0.35s ease; }
+    .idx-card.playing video { opacity: 1; }
+    .idx-shade {
+      position: absolute; inset: 0; z-index: 2; pointer-events: none;
+      background: linear-gradient(transparent 45%, rgba(2,1,10,0.92));
+    }
+    .idx-meta { display: block; position: absolute; left: 0; right: 0; bottom: 0; z-index: 3; padding: 0.7rem 0.75rem 0.65rem; }
+    .idx-title { display: block; font-family: var(--font-display); font-size: 1rem; letter-spacing: 0.01em; color: var(--cream); }
+    .idx-sub {
+      font-family: var(--font-mono); font-size: 0.5625rem; letter-spacing: 0.14em;
+      text-transform: uppercase; color: var(--text-mut); margin-top: 0.12rem;
+      display: flex; gap: 0.5rem; flex-wrap: wrap;
+    }
+    .idx-dur {
+      position: absolute; top: 0.5rem; right: 0.55rem; z-index: 3;
+      font-family: var(--font-mono); font-size: 0.5625rem; letter-spacing: 0.08em;
+      background: rgba(2,1,10,0.7); color: var(--cream);
+      padding: 0.2em 0.5em; border-radius: var(--pill); backdrop-filter: blur(6px);
+    }
+    .idx-card.hidden { display: none; }
+    @media (hover: hover) and (pointer: fine) {
+      .idx-card:hover { transform: translateY(-5px); box-shadow: var(--shadow); border-color: rgba(240,180,41,0.4); }
+    }
+    .idx-card:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+
+    /* reserved cards — photography has no shoot yet, same honest treatment
+       the rugs use rather than a fake thumbnail */
+    .idx-card.soon {
+      cursor: default; border: 1px dashed rgba(240,180,41,0.32);
+      display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 0.3rem;
+      background:
+        repeating-linear-gradient(135deg, rgba(108,26,219,0.10) 0 8px, transparent 8px 16px),
+        var(--ink);
+    }
+    .idx-card.soon b { font-family: var(--font-display); font-size: 1.25rem; color: var(--gold); }
+    .idx-card.soon span { font-family: var(--font-mono); font-size: 0.5625rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-mut); }
+
+    @media (max-width: 1000px) {
+      .idx-grid { grid-template-columns: repeat(3, 1fr); }
+      .idx-grid.stills { grid-template-columns: repeat(2, 1fr); }
+      .rail { grid-auto-columns: minmax(150px, 1fr); }
+    }
+    @media (max-width: 620px) {
+      .idx-grid, .idx-grid.stills { grid-template-columns: repeat(2, 1fr); }
+      .rail { grid-auto-columns: minmax(132px, 1fr); }
+      .rail-card { aspect-ratio: 3/4; }
+      .home-name { font-size: clamp(3.2rem, 17vw, 5rem); padding-left: 0.22em; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .stage-tile { opacity: 1 !important; transform: rotate(var(--rot)) !important; }
+      .stage-tile video, .rail-card video, .idx-card video { display: none; }
+    }
+</style>
   <noscript><style>
     #loader { display: none; }
     .reveal, .hero-name .ch { opacity: 1; transform: none; }
@@ -601,73 +969,53 @@
   <link rel="stylesheet" href="portfolio/components.css">
 </head>
 <body>
-
-  <!-- ── Loader ── -->
   <div id="loader" aria-hidden="true">
-    <img class="crown" src="crown.png" alt="">
+    <div class="load-mark"><img src="crown.png" alt=""></div>
     <div class="count"><b id="load-num">0</b> / 100</div>
   </div>
 
-  <!-- ── Top bar ── -->
   <div class="topbar">
-    <a href="#hero" class="logo" aria-label="Back to top"><img src="crown.png" alt="Crown logo"></a>
+    <a href="#home" class="logo" aria-label="Back to top"><img src="crown.png" alt="Crown logo"></a>
     <span class="chip"><i class="dot-live"></i> BERLIN · <span id="bln-clock">--:--</span></span>
   </div>
 
-  <!-- ── Dock nav ── -->
   <nav class="dock" aria-label="Sections">
-    <a href="#hero"     data-sec="hero"><span>01</span><span class="tip">Home</span></a>
-    <a href="#showreel" data-sec="showreel"><span>02</span><span class="tip">Showreel</span></a>
-    <a href="#work"     data-sec="work"><span>03</span><span class="tip">Short Form</span></a>
-    <a href="#ai"       data-sec="ai"><span>04</span><span class="tip">AI Video</span></a>
-    <a href="#static"   data-sec="static"><span>05</span><span class="tip">Static</span></a>
-    <a href="#lab"      data-sec="lab"><span>06</span><span class="tip">Lab</span></a>
-    <a href="#contact"  data-sec="contact"><span>07</span><span class="tip">Contact</span></a>
+    <a href="#home"    data-sec="home"><span>01</span><span class="tip">Home</span></a>
+    <a href="#reel"    data-sec="reel"><span>02</span><span class="tip">Showreel</span></a>
+    <a href="#work"    data-sec="work"><span>03</span><span class="tip">Work</span></a>
+    <a href="#stills"  data-sec="stills"><span>04</span><span class="tip">Photo</span></a>
+    <a href="#lab"     data-sec="lab"><span>05</span><span class="tip">Lab</span></a>
+    <a href="#rugs"    data-sec="rugs"><span>06</span><span class="tip">Rugs</span></a>
+    <a href="#koenigskarten" data-sec="koenigskarten"><span>07</span><span class="tip">Königskarten</span></a>
+    <a href="#contact" data-sec="contact"><span>08</span><span class="tip">Contact</span></a>
   </nav>
 
-  <!-- ── 01 Hero ── -->
-  <section id="hero" class="bg-night">
-    <div class="hero-strip" aria-hidden="true">
-      <div class="strip-track" id="strip-track">
-        <video src="clips/previews/berlin final.mp4"    poster="clips/posters/berlin final.jpg"    autoplay loop muted playsinline preload="metadata"></video>
-        <video src="clips/previews/4eva 1 new.mp4"      poster="clips/posters/4eva 1 new.jpg"      autoplay loop muted playsinline preload="metadata"></video>
-        <video src="clips/previews/muay thai fight.mp4" poster="clips/posters/muay thai fight.jpg" autoplay loop muted playsinline preload="metadata"></video>
-        <video src="clips/previews/pool vid.mp4"        poster="clips/posters/pool vid.jpg"        autoplay loop muted playsinline preload="metadata"></video>
-        <video src="clips/previews/where is he.mp4"     poster="clips/posters/where is he.jpg"     autoplay loop muted playsinline preload="metadata"></video>
-        <video src="clips/previews/bts final.mp4"       poster="clips/posters/bts final.jpg"       autoplay loop muted playsinline preload="metadata"></video>
-        <!-- duplicated by JS for the seamless loop -->
-      </div>
-    </div>
-    <div class="hero-inner">
-      <div class="hero-eyebrow mono">
+  <!-- ── 01 Landing — wordmark centre, work scattered around it ── -->
+  <section id="home" class="bg-night">
+    <div class="stage" id="stage" aria-hidden="true"><!-- tiles built in JS --></div>
+    <div class="home-inner">
+      <div class="home-eyebrow mono">
         <span style="color:var(--gold)">01</span>
         <span>Videographer / Editor</span>
         <span>EST. Berlin</span>
       </div>
-      <h1 class="hero-name" aria-label="Jansson">
+      <h1 class="home-name" aria-label="Jansson">
         <span class="ch" style="--i:0">J</span><span class="ch" style="--i:1">A</span><span class="ch" style="--i:2">N</span><span class="ch" style="--i:3">S</span><span class="ch" style="--i:4">S</span><span class="ch crown-wrap" style="--i:5"><img class="crown-o" src="crown.png" alt="O"></span><span class="ch" style="--i:6">N</span>
       </h1>
-      <div class="hero-ctas reveal" style="--d:8">
-        <a href="#showreel" class="btn btn-gold">▶ Showreel</a>
-        <a href="#work" class="btn-text">Selected work →</a>
+      <div class="home-ctas">
+        <a href="#reel" class="btn btn-gold">▶ Showreel</a>
+        <a href="#work" class="btn-text">All work →</a>
       </div>
     </div>
     <span class="scroll-hint mono" aria-hidden="true">SCROLL</span>
   </section>
 
-  <!-- ── 02 Showreel ── -->
-  <section id="showreel" class="bg-ink">
-    <span class="bg-word" aria-hidden="true">JANSSON</span>
+  <!-- ── 02 Showreel — the TV stays, it's the signature ── -->
+  <section id="reel" class="bg-ink">
     <div class="inner">
       <div class="eyebrow"><span class="num">02</span><span>Showreel</span><span class="rule"></span></div>
       <div class="reel-stage reveal">
-        <svg class="orbit-badge" viewBox="0 0 110 110" aria-hidden="true">
-          <defs><path id="orbitPath" d="M55,55 m-40,0 a40,40 0 1,1 80,0 a40,40 0 1,1 -80,0"/></defs>
-          <text><textPath href="#orbitPath">· SHOWREEL · 2023-2026 · PRESS PLAY </textPath></text>
-        </svg>
         <div class="tv">
-          <img src="tv.png" alt="" aria-hidden="true" class="tv-img">
-          <img src="Asset 4.png" alt="" aria-hidden="true" class="tv-crown">
           <div class="tv-screen" id="tv-screen" role="button" tabindex="0" aria-label="Play showreel with sound">
             <video id="reel-video" muted loop playsinline preload="metadata" poster="clips/posters/showreel.jpg">
               <source src="clips/showreel.mp4" type="video/mp4">
@@ -676,85 +1024,239 @@
             <button class="tv-unmute" id="tv-unmute" aria-label="Unmute and play">Press play</button>
           </div>
         </div>
-        <p class="reel-meta">
-          <span>Selected Work 2023–2026</span><span>Runtime 0:31</span><span>Liam Jansson</span>
-        </p>
       </div>
     </div>
   </section>
 
-  <!-- ── 03 Work grid ── -->
-  <!-- ── 03 Short form ── -->
+  <!-- ── 03 Work — one index. Category lives on the rail, not in the page
+       structure: six disciplines, each previewing a real clip. ── -->
   <section id="work" class="bg-night">
     <div class="inner">
-      <div class="eyebrow"><span class="num">03</span><span>Short Form</span><span class="rule"></span></div>
-      <h2 class="work-display-title reveal">Video <em>work</em>.</h2>
-
-      <div class="controls reveal" style="--d:1">
-        <div class="filter-row" id="filters" role="tablist" aria-label="Filter clips"></div>
-        <button class="sound-pref mono" id="soundPref" aria-pressed="false">
-          <span class="dot" aria-hidden="true"></span><span id="soundPrefTxt">Sound off</span>
-        </button>
+      <div class="eyebrow"><span class="num">03</span><span>Work</span><span class="rule"></span></div>
+      <h2 class="work-display-title reveal">Everything that <em>moves</em>.</h2>
+      <div class="rail reveal" id="workRail" role="group" aria-label="Filter by discipline"></div>
+      <div class="idx-head">
+        <span class="idx-count mono" id="workCount"></span>
+        <span class="idx-count mono">Hover to play · click to open</span>
       </div>
-
-      <div class="reel-grid" id="reelGrid"></div>
-      <p class="empty mono" id="empty" hidden>Nothing in that category yet.</p>
+      <div class="idx-grid" id="workGrid"></div>
     </div>
   </section>
 
-  <!-- ── 04 AI video ── -->
-  <section id="ai" class="bg-ink">
+  <!-- ── 04 Photography & stills ── -->
+  <section id="stills" class="bg-ink">
     <div class="inner">
-      <div class="eyebrow"><span class="num">04</span><span>AI Video</span><span class="rule"></span></div>
-      <h2 class="work-display-title reveal">AI <em>work</em>.</h2>
-      <p class="sec-lead reveal" style="--d:1">
-        Work made with or assisted by generative tools. Any aspect ratio —
-        these aren't cut to the feed the way the short form is.
-      </p>
-
-      <div class="controls reveal" style="--d:1">
-        <div class="filter-row" id="aiFilters" role="tablist" aria-label="Filter AI clips"></div>
+      <div class="eyebrow"><span class="num">04</span><span>Photography &amp; Stills</span><span class="rule"></span></div>
+      <h2 class="work-display-title reveal">Everything that <em>doesn’t</em>.</h2>
+      <div class="rail reveal" id="stillRail" role="group" aria-label="Filter stills"></div>
+      <div class="idx-head">
+        <span class="idx-count mono" id="stillCount"></span>
+        <span class="idx-count mono">Click to open the set</span>
       </div>
-
-      <div class="reel-grid reel-grid-wide" id="aiGrid"></div>
-      <p class="empty mono" id="aiEmpty" hidden>Nothing in that category yet.</p>
-
-      <div class="controls reveal" id="aiPostControls">
-        <div class="filter-row" id="aiPostFilters" role="tablist" aria-label="Filter AI stills"></div>
-      </div>
-      <div class="post-grid" id="aiPostGrid"></div>
-      <p class="empty mono" id="aiPostEmpty" hidden>Nothing in that category yet.</p>
+      <div class="idx-grid stills" id="stillGrid"></div>
     </div>
   </section>
 
-  <!-- ── 05 Static posts ── -->
-  <section id="static" class="bg-night">
+  <!-- ── 05 Lab ── -->
+  <section id="lab" class="bg-night">
     <div class="inner">
-      <div class="eyebrow"><span class="num">05</span><span>Static Posts</span><span class="rule"></span></div>
-      <h2 class="work-display-title reveal">Stills <em>&amp; carousels</em>.</h2>
-
-      <div class="controls reveal" style="--d:1">
-        <div class="filter-row" id="postFilters" role="tablist" aria-label="Filter posts"></div>
-      </div>
-
-      <div class="post-grid" id="postGrid"></div>
-      <p class="empty mono" id="postEmpty" hidden>Nothing in that category yet.</p>
-    </div>
-  </section>
-
-  <!-- ── 05 Lab — live builds ── -->
-  <section id="lab" class="bg-ink">
-    <div class="inner">
-      <div class="eyebrow"><span class="num">06</span><span>The Lab</span><span class="rule"></span></div>
+      <div class="eyebrow"><span class="num">05</span><span>The Lab</span><span class="rule"></span></div>
       <h2 class="work-display-title reveal">I also <em>build</em>.</h2>
       <p class="lab-lead reveal" style="--d:1">
         Not everything I make is a film. These are live sites and tools I built
         and shipped. The previews aren't screenshots, each card runs the
         product's own code in miniature. Click in and use them.
       </p>
-      <div class="lab-grid" id="lab-grid"><!-- cards render from the LAB array below --></div>
+      <div class="lab-grid" id="lab-grid"></div>
     </div>
   </section>
+  <!-- ── 06 Rugs — the one paper section. Torn in from ink, torn out to night.
+       When the shoot lands: swap a <div class="rug-shot soon">…</div> for
+       <div class="rug-shot"><img src="rugs/piece-01.jpg" alt="…" loading="lazy"></div>
+       and nothing else needs to change. ── -->
+  <svg class="rip rip-from-night" viewBox="0 0 1200 42" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M0,42 H1200 V12 L1188,8 L1166,18 L1149,7 L1125,8 L1101,7 L1083,28 L1071,16 L1059,18 L1044,11 L1030,22 L1014,27 L997,19 L984,18 L967,28 L943,25 L918,12 L902,19 L882,15 L857,11 L843,15 L822,9 L810,19 L789,12 L763,16 L750,11 L738,28 L713,11 L691,7 L675,16 L663,10 L645,13 L632,9 L613,24 L594,13 L576,9 L561,10 L550,14 L531,11 L507,23 L486,29 L474,28 L451,13 L437,14 L425,10 L400,9 L388,18 L373,15 L362,21 L339,9 L317,16 L303,8 L277,14 L262,8 L243,14 L232,10 L217,18 L197,17 L175,9 L154,21 L137,10 L120,15 L109,7 L90,29 L68,14 L46,8 L28,14 L11,27 L0,16 Z"/>
+  </svg>
+  <section id="rugs" class="bg-cream">
+    <div class="inner">
+      <div class="eyebrow"><span class="num">06</span><span>Handmade Rugs</span><span class="rule"></span></div>
+      <h2 class="work-display-title reveal">Tufted <em>by hand</em>.</h2>
+      <p class="rug-lead reveal" style="--d:1">
+        A sketch goes on the frame, the yarn gets punched in by hand, then the pile
+        is carved back until the shape stands up off the floor. Slow work, and the
+        only part of what I make that you can walk on. Every piece is a one-off.
+      </p>
+
+      <div class="rug-grid">
+        <article class="rug-card wide reveal" style="--d:1">
+          <div class="rug-shot soon"><b>SOON</b><span>piece 01</span></div>
+          <div class="rug-info">
+            <h3 class="rug-title">Piece 01</h3>
+            <p class="rug-meta">Hand-tufted · one-off</p>
+          </div>
+        </article>
+        <article class="rug-card reveal" style="--d:2">
+          <div class="rug-shot soon"><b>SOON</b><span>piece 02</span></div>
+          <div class="rug-info">
+            <h3 class="rug-title">Piece 02</h3>
+            <p class="rug-meta">Hand-tufted · one-off</p>
+          </div>
+        </article>
+        <article class="rug-card reveal" style="--d:3">
+          <div class="rug-shot soon"><b>SOON</b><span>on the frame</span></div>
+          <div class="rug-info">
+            <h3 class="rug-title">Process</h3>
+            <p class="rug-meta">Frame to finished pile</p>
+          </div>
+        </article>
+        <article class="rug-card wide reveal" style="--d:4">
+          <div class="rug-shot soon"><b>SOON</b><span>pile detail</span></div>
+          <div class="rug-info">
+            <h3 class="rug-title">Detail</h3>
+            <p class="rug-meta">Carved edges, close up</p>
+          </div>
+        </article>
+      </div>
+
+      <dl class="rug-specs reveal" style="--d:2">
+        <div><dt>Technique</dt><dd>Hand-tufted</dd></div>
+        <div><dt>Edition</dt><dd>One-off, never repeated</dd></div>
+        <div><dt>Made in</dt><dd>Berlin</dd></div>
+        <div><dt>Commissions</dt><dd>Open</dd></div>
+      </dl>
+
+      <div class="rug-cta reveal" style="--d:3">
+        <span class="note">Want one made to your own design?</span>
+        <a class="btn-ink" href="#contact">Start a commission →</a>
+      </div>
+    </div>
+  </section>
+  <svg class="rip rip-out rip-from-night" viewBox="0 0 1200 42" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M0,42 H1200 V12 L1188,8 L1166,18 L1149,7 L1125,8 L1101,7 L1083,28 L1071,16 L1059,18 L1044,11 L1030,22 L1014,27 L997,19 L984,18 L967,28 L943,25 L918,12 L902,19 L882,15 L857,11 L843,15 L822,9 L810,19 L789,12 L763,16 L750,11 L738,28 L713,11 L691,7 L675,16 L663,10 L645,13 L632,9 L613,24 L594,13 L576,9 L561,10 L550,14 L531,11 L507,23 L486,29 L474,28 L451,13 L437,14 L425,10 L400,9 L388,18 L373,15 L362,21 L339,9 L317,16 L303,8 L277,14 L262,8 L243,14 L232,10 L217,18 L197,17 L175,9 L154,21 L137,10 L120,15 L109,7 L90,29 L68,14 L46,8 L28,14 L11,27 L0,16 Z"/>
+  </svg>
+
+  <!-- ── 07 Königskarten — hand-drawn deck. Real art up top, more shots reserved ── -->
+  <section id="koenigskarten" class="bg-night">
+    <span class="bg-word" aria-hidden="true">KARTEN</span>
+    <div class="inner">
+      <div class="eyebrow"><span class="num">07</span><span>Königskarten</span><span class="rule"></span></div>
+
+      <div class="kk-top">
+        <div class="reveal">
+          <div class="kk-logo"><img src="carddeck/koenigskarten-logo.png" alt="Königskarten hand-lettered logo" width="558" height="418"></div>
+          <p class="kk-lead">
+            A full deck, drawn by hand. Graffiti court cards, a crown motif running
+            through every suit, and a back that tiles its own name. Taken from the
+            first pencil sketch all the way to a <strong>print-ready</strong> file.
+          </p>
+          <div class="kk-suits">
+            <span class="kk-suit"><i>♠</i>Spades</span>
+            <span class="kk-suit red"><i>♥</i>Hearts</span>
+            <span class="kk-suit red"><i>♦</i>Diamonds</span>
+            <span class="kk-suit"><i>♣</i>Clubs</span>
+            <span class="kk-suit">Hand-drawn</span>
+            <span class="kk-suit">Print-ready</span>
+          </div>
+        </div>
+        <div class="kk-hero reveal" style="--d:1">
+          <img src="carddeck/deck-fan.png" alt="Königskarten deck fanned out — the red crown-tiled back beside three hand-drawn court cards" width="954" height="818">
+        </div>
+      </div>
+
+      <div class="kk-grid">
+        <div class="kk-card soon reveal" style="--d:1"><b>SOON</b><span>court cards</span></div>
+        <div class="kk-card soon reveal" style="--d:2"><b>SOON</b><span>card backs</span></div>
+        <div class="kk-card soon reveal" style="--d:3"><b>SOON</b><span>full deck</span></div>
+      </div>
+
+      <div class="kk-cta reveal" style="--d:2">
+        <span class="note">Want a deck — or any print run — designed from scratch?</span>
+        <a class="btn-red" href="#contact">Talk to me →</a>
+      </div>
+    </div>
+  </section>
+
+
+  <div class="marquee" aria-hidden="true">
+    <div class="marquee-track">
+      <span>LET'S WORK TOGETHER <em>·</em> BERLIN &amp; WORLDWIDE <em>·</em> </span><span>LET'S WORK TOGETHER <em>·</em> BERLIN &amp; WORLDWIDE <em>·</em> </span>
+    </div>
+  </div>
+
+  <!-- ── 08 Contact ── -->
+  <section id="contact" class="bg-ink">
+    <span class="bg-word" aria-hidden="true">CONTACT</span>
+    <div class="inner">
+      <div class="eyebrow"><span class="num">08</span><span>Contact</span><span class="rule"></span></div>
+      <h2 class="contact-headline reveal">
+        <span class="w">Let's</span> <span class="w">make</span> <span class="w">something.</span>
+      </h2>
+      <div class="contact-grid">
+        <div class="reveal" style="--d:1">
+          <p class="contact-blurb">Have a brief or just an idea? Email me directly — usually a quick reply.</p>
+          <div class="email-row">
+            <a href="mailto:janssonliam16@gmail.com" class="contact-email">janssonliam16@gmail.com</a>
+            <button class="copy-btn" id="copy-email">Copy</button>
+          </div>
+          <div class="contact-socials">
+            <a href="https://instagram.com" target="_blank" rel="noopener">Instagram</a>
+            <a href="https://vimeo.com" target="_blank" rel="noopener">Vimeo</a>
+            <a href="https://youtube.com" target="_blank" rel="noopener">YouTube</a>
+            <a href="https://linkedin.com" target="_blank" rel="noopener">LinkedIn</a>
+          </div>
+        </div>
+        <aside class="avail-card reveal" style="--d:2">
+          <span class="chip"><i class="dot-live"></i> Available</span>
+          <p class="big">Booking projects for Q3 2026</p>
+          <p>Music videos, brand films, events and post-only work. Berlin-based, travels anywhere the story is.</p>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="footer-inner">
+      <a href="#home" class="footer-logo" aria-label="Back to top"><img src="crown.png" alt=""></a>
+      <span class="mono">© <span id="yr"></span> Liam Jansson</span>
+      <span class="mono"><a href="impressum.html">Impressum</a> · <a href="datenschutz.html">Datenschutz</a></span>
+    </div>
+  </footer>
+
+  <!-- ── viewer: video ── -->
+  <div class="viewer" id="viewer" role="dialog" aria-modal="true" aria-label="Clip player" hidden>
+    <button class="v-close" id="vClose" aria-label="Close player">✕</button>
+    <button class="v-nav v-prev" id="vPrev" aria-label="Previous clip">↑</button>
+    <button class="v-nav v-next" id="vNext" aria-label="Next clip">↓</button>
+    <div class="v-stage" id="vStage">
+      <div class="v-frame">
+        <video id="vVideo" playsinline preload="auto" controls></video>
+      </div>
+      <div class="v-meta">
+        <h2 class="v-title" id="vTitle"></h2>
+        <p class="v-sub mono" id="vSub"></p>
+      </div>
+      <div class="v-tools">
+        <button class="v-btn mono" id="vSound" aria-pressed="false">Sound off</button>
+        <span class="v-pos mono" id="vPos"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── lightbox: stills ── -->
+  <div class="viewer lb" id="lightbox" role="dialog" aria-modal="true" aria-label="Post viewer" hidden>
+    <button class="v-close" id="lbClose" aria-label="Close viewer">✕</button>
+    <button class="lb-arrow lb-prev" id="lbPrev" aria-label="Previous">←</button>
+    <button class="lb-arrow lb-next" id="lbNext" aria-label="Next">→</button>
+    <div class="lb-stage">
+      <div class="lb-frame">
+        <img id="lbImg" alt="">
+      </div>
+      <div class="v-meta">
+        <h2 class="v-title" id="lbTitle"></h2>
+        <p class="v-sub mono" id="lbSub"></p>
+      </div>
+    </div>
+  </div>
 
   <script>
     /* ═══ THE LAB — to add a project, add ONE entry here:
@@ -951,66 +1453,6 @@
       }
     })();
   </script>
-
-  <!-- ── Marquee ── -->
-  <div class="marquee" aria-hidden="true">
-    <div class="marquee-track">
-      <span>LET'S WORK TOGETHER <em>·</em> BERLIN &amp; WORLDWIDE <em>·</em> </span><span>LET'S WORK TOGETHER <em>·</em> BERLIN &amp; WORLDWIDE <em>·</em> </span>
-    </div>
-  </div>
-
-  <!-- ── 08 Contact ── -->
-  <section id="contact" class="bg-ink">
-    <span class="bg-word" aria-hidden="true">CONTACT</span>
-    <div class="inner">
-      <div class="eyebrow"><span class="num">07</span><span>Contact</span><span class="rule"></span></div>
-      <h2 class="contact-headline reveal">
-        <span class="w">Let's</span> <span class="w">make</span> <span class="w">something.</span>
-      </h2>
-      <div class="contact-grid">
-        <div class="reveal" style="--d:1">
-          <p class="contact-blurb">Have a brief or just an idea? Email me directly — usually a quick reply.</p>
-          <div class="email-row">
-            <a href="mailto:janssonliam16@gmail.com" class="contact-email">janssonliam16@gmail.com</a>
-            <button class="copy-btn" id="copy-email">Copy</button>
-          </div>
-          <div class="contact-socials">
-            <a href="https://instagram.com" target="_blank" rel="noopener">Instagram</a>
-            <a href="https://vimeo.com" target="_blank" rel="noopener">Vimeo</a>
-            <a href="https://youtube.com" target="_blank" rel="noopener">YouTube</a>
-            <a href="https://linkedin.com" target="_blank" rel="noopener">LinkedIn</a>
-          </div>
-        </div>
-        <aside class="avail-card reveal" style="--d:2">
-          <span class="chip"><i class="dot-live"></i> Available</span>
-          <p class="big">Booking projects for Q3 2026</p>
-          <p>Music videos, brand films, events and post-only work. Berlin-based, travels anywhere the story is.</p>
-        </aside>
-      </div>
-    </div>
-  </section>
-
-  <!-- ── Footer ── -->
-  <footer>
-    <div class="footer-inner">
-      <a href="#hero" class="footer-logo" aria-label="Back to top"><img src="crown.png" alt=""></a>
-      <div class="footer-links">
-        <a href="#showreel">Showreel</a><a href="#work">Work</a><a href="#lab">Lab</a>
-        <a href="#contact">Contact</a>
-        <a href="https://janssonliam.de/impressum.html">Impressum</a>
-        <a href="https://janssonliam.de/datenschutz.html">Datenschutz</a>
-      </div>
-      <span class="footer-copy">© 2026 Liam Jansson</span>
-    </div>
-  </footer>
-
-  <!-- ── Modal player ── -->
-  <div class="modal" id="modal" role="dialog" aria-modal="true" aria-label="Video player">
-    <button class="modal-close" id="modal-close" aria-label="Close">✕</button>
-    <video id="modal-video" controls playsinline preload="none"></video>
-    <span class="modal-title" id="modal-title"></span>
-  </div>
-
   <script>
     "use strict";
     /* PREVIEW_ONLY: grids/carousels always use preview encodes; this flag only
@@ -1102,13 +1544,6 @@
       dock.addEventListener("mouseleave", () => links.forEach(a => a.style.transform = ""));
     })();
 
-    /* ============ HERO STRIP — duplicate track for seamless loop ============ */
-    (() => {
-      const track = $("#strip-track");
-      track.innerHTML += track.innerHTML;         // second copy → translateX(-50%) loops clean
-      if (RM) $$("video", track).forEach(v => { v.removeAttribute("autoplay"); v.pause(); });
-    })();
-
     /* ============ BERLIN CLOCK ============ */
     (() => {
       const el = $("#bln-clock");
@@ -1163,50 +1598,6 @@
        It also matched .filter-pill globally, which would have double-bound
        the new filters. */
 
-    /* ============ BLANK SLOTS — soft signal-noise placeholders ============ */
-    (() => {
-      $$(".slot-canvas").forEach(canvas => {
-        const ctx = canvas.getContext("2d");
-        let timer = null;
-        function frame() {
-          const w = canvas.width = 160, h = canvas.height = 90;
-          const img = ctx.createImageData(w, h), d = img.data;
-          for (let i = 0; i < d.length; i += 4) {
-            const v = 8 + Math.random() * 34 | 0;            // dark violet noise
-            d[i] = v + 12; d[i+1] = v * 0.4 | 0; d[i+2] = v + 30; d[i+3] = 255;
-          }
-          ctx.putImageData(img, 0, 0);
-        }
-        frame();
-        if (RM) return;
-        new IntersectionObserver(e => {
-          if (e[0].isIntersecting) { if (!timer) timer = setInterval(frame, 90); }
-          else { clearInterval(timer); timer = null; }
-        }, { threshold: 0.1 }).observe(canvas);
-      });
-    })();
-
-    /* ============ MODAL PLAYER ============ */
-    const modal = $("#modal"), mVideo = $("#modal-video"), mTitle = $("#modal-title");
-    let lastFocus = null;
-    function openModal(src, title) {
-      lastFocus = document.activeElement;
-      mVideo.src = src; mTitle.textContent = title || "";
-      modal.classList.add("open");
-      document.body.style.overflow = "hidden";
-      mVideo.play().catch(() => {});
-      $("#modal-close").focus();
-    }
-    function closeModal() {
-      mVideo.pause(); mVideo.removeAttribute("src"); mVideo.load();
-      modal.classList.remove("open");
-      document.body.style.overflow = "";
-      lastFocus?.focus?.();
-    }
-    $("#modal-close").addEventListener("click", closeModal);
-    modal.addEventListener("click", e => { if (e.target === modal) closeModal(); });
-    addEventListener("keydown", e => { if (e.key === "Escape" && modal.classList.contains("open")) closeModal(); });
-
     /* ============ COPY EMAIL ============ */
     (() => {
       const btn = $("#copy-email");
@@ -1220,53 +1611,382 @@
 
     /* ============ CONTACT HEADLINE — words already wrapped; nothing to run ============ */
   </script>
-
-  <!-- ── portfolio: video player ── -->
-  <div class="viewer" id="viewer" role="dialog" aria-modal="true" aria-label="Clip player" hidden>
-    <button class="v-close" id="vClose" aria-label="Close player">✕</button>
-    <button class="v-nav v-prev" id="vPrev" aria-label="Previous clip">↑</button>
-    <button class="v-nav v-next" id="vNext" aria-label="Next clip">↓</button>
-    <div class="v-stage" id="vStage">
-      <div class="v-ticks" id="vTicks" aria-hidden="true"></div>
-      <div class="v-frame">
-        <video id="vVideo" playsinline preload="auto"></video>
-        <button class="v-tap" id="vTap" aria-label="Play or pause"></button>
-        <div class="v-pausedot" id="vPauseDot" aria-hidden="true">❚❚</div>
-      </div>
-      <div class="v-meta">
-        <h2 class="v-title" id="vTitle"></h2>
-        <p class="v-sub mono" id="vSub"></p>
-      </div>
-      <div class="v-tools">
-        <button class="v-btn mono" id="vSound" aria-pressed="false">Sound off</button>
-        <span class="v-pos mono" id="vPos"></span>
-      </div>
-    </div>
-  </div>
-
-  <!-- ── portfolio: carousel lightbox ── -->
-  <div class="viewer lb" id="lightbox" role="dialog" aria-modal="true" aria-label="Post viewer" hidden>
-    <button class="v-close" id="lbClose" aria-label="Close viewer">✕</button>
-    <button class="lb-arrow lb-prev" id="lbPrev" aria-label="Previous">←</button>
-    <button class="lb-arrow lb-next" id="lbNext" aria-label="Next">→</button>
-    <div class="lb-stage">
-      <div class="lb-frame">
-        <img id="lbImg" alt="">
-        <video id="lbVideo" playsinline loop muted preload="auto" hidden></video>
-        <button class="lb-sound mono" id="lbSound" aria-pressed="false" hidden>Sound off</button>
-      </div>
-      <div class="lb-dots" id="lbDots" aria-hidden="true"></div>
-      <div class="v-meta">
-        <h2 class="v-title" id="lbTitle"></h2>
-        <p class="v-sub mono" id="lbSub"></p>
-      </div>
-    </div>
-  </div>
-
   <script>window.PORTFOLIO_BASE = "portfolio/";</script>
   <script src="portfolio/clips.js"></script>
   <script src="portfolio/ai.js"></script>
   <script src="portfolio/posts.js"></script>
-  <script src="portfolio/app.js"></script>
+  <script>
+  /* ═══════════════════════════════════════════════════════════════════
+     JANSSON v3 — landing stage, category rails, unified index.
+
+     TAXONOMY lives here and nowhere else. To move a clip between
+     categories, change one word. Keys must match CATS below.
+
+     Seeded from the real data, not invented: brand clips shot vertical
+     are social cuts; brand clips shot landscape/square are the longer
+     edit pieces. Re-tag anything I read wrong.
+     ═══════════════════════════════════════════════════════════════════ */
+  const TAGS = {
+    /* social — brand work cut for the feed */
+    "teaser-tempelhof": "social", "berlin41": "social", "aw26": "social",
+    "trailer-4-week-2-2160-1": "social",
+    /* edit — the longer pieces that show the cut, not the clip */
+    "berkin-dreh-timeline": "edit", "berlin-final": "edit",
+    "malta-finall": "edit", "lichter": "edit",
+    /* music */
+    "thats-not-me-1": "music", "benni-1-7": "music", "benni-1-6": "music",
+    "song-scene": "music", "halo-new": "music", "4eva-2-final": "music",
+    "4eva-1-new": "music", "nev-2-resize": "music", "nev-final": "music",
+    /* street */
+    "dreh-bts-1": "street", "crazy-vid-1": "street", "where-is-he": "street",
+    "soir-aftermovie": "street", "bts-ubahn-reel": "street",
+    "bts-final": "street", "c4809": "street",
+  };
+
+  /* rail cards: label + the clip whose frame represents the category */
+  const CATS = [
+    { key: "social", name: "Social",     face: "aw26" },
+    { key: "edit",   name: "Video Edit", face: "berlin-final" },
+    { key: "music",  name: "Music",      face: "halo-new" },
+    { key: "street", name: "Street",     face: "where-is-he" },
+    { key: "ai",     name: "AI",         face: null },
+  ];
+  const STILL_CATS = [
+    { key: "photo",  name: "Photography",   face: null },
+    { key: "social", name: "Social Stills", face: "static-post-2" },
+    { key: "ai",     name: "AI Stills",     face: "arcteryx-shoot-ai" },
+  ];
+
+  (() => {
+    "use strict";
+    const $  = (s, r = document) => r.querySelector(s);
+    const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+    const RM = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const FINE = matchMedia("(hover: hover) and (pointer: fine)").matches;
+
+    const P = "portfolio/";
+    const vidSrc  = (c) => `${P}media/${c.slug}.mp4`;
+    const vidPost = (c) => `${P}media/posters/${c.slug}.jpg`;
+    const aiSrc   = (c) => `${P}media/ai/${c.slug}.mp4`;
+    const aiPost  = (c) => `${P}media/ai/posters/${c.slug}.jpg`;
+    const pad     = (n) => String(n).padStart(2, "0");
+    const postImg = (p, n) => `${P}media/posts/${p.slug}-${pad(n)}.jpg`;
+
+    /* ── build the unified item list ─────────────────────────────── */
+    const clips = (typeof CLIPS !== "undefined" ? CLIPS : []).map(c => ({
+      ...c, kind: "video", cat: TAGS[c.slug] || c.cat,
+      src: vidSrc(c), poster: vidPost(c),
+    }));
+    const ai = (typeof AI_CLIPS !== "undefined" ? AI_CLIPS : []).map(c => ({
+      ...c, kind: "video", cat: "ai", src: aiSrc(c), poster: aiPost(c),
+    }));
+    const VIDEOS = [...clips, ...ai];
+
+    const posts = (typeof POSTS !== "undefined" ? POSTS : []).map(p => ({
+      ...p, kind: "post", cat: "social", poster: postImg(p, 1),
+    }));
+    const aiPosts = (typeof AI_POSTS !== "undefined" ? AI_POSTS : []).map(p => ({
+      ...p, kind: "post", cat: "ai", poster: postImg(p, 1),
+    }));
+    const STILLS = [...posts, ...aiPosts];
+
+    const countIn = (list, key) => list.filter(i => i.cat === key).length;
+
+    /* ── 01 LANDING STAGE ─────────────────────────────────────────
+       Hand-placed composition. Every tile sits outside a centre
+       exclusion zone so the wordmark always reads clean. ── */
+    /* Wide: a ring around the name. Narrow: two bands, above and below it —
+       there is no room at a phone's sides without crowding the wordmark. */
+    const LAYOUT_WIDE = [
+      { x:  4, y: 12, w: 16, rot: -6, d: 0.9 },
+      { x:  3, y: 47, w: 14, rot:  5, d: 0.6 },
+      { x: 11, y: 69, w: 13, rot: -3, d: 1.2 },
+      { x: 80, y: 10, w: 15, rot:  6, d: 1.0 },
+      { x: 83, y: 44, w: 14, rot: -5, d: 0.7 },
+      { x: 72, y: 68, w: 12, rot:  4, d: 1.3 },
+      { x: 37, y:  5, w: 13, rot: -2, d: 0.5 },
+      { x: 47, y: 70, w: 13, rot:  3, d: 0.8 },
+      { x: 22, y: 28, w: 11, rot:  8, d: 1.5 },
+      { x: 68, y: 26, w: 11, rot: -8, d: 1.4 },
+    ];
+    const LAYOUT_NARROW = [
+      { x:  3, y:  7, w: 42, rot: -5, d: 0.9 },
+      { x: 54, y:  4, w: 36, rot:  4, d: 0.6 },
+      { x: 24, y: 21, w: 36, rot:  3, d: 1.2 },
+      { x:  5, y: 63, w: 40, rot:  5, d: 1.0 },
+      { x: 56, y: 66, w: 34, rot: -4, d: 0.8 },
+      { x: 26, y: 77, w: 30, rot:  2, d: 1.3 },
+    ];
+    const pickLayout = () =>
+      innerWidth <= 720 ? LAYOUT_NARROW : LAYOUT_WIDE;
+    /* the light preview loops at the site root — small enough to autoplay */
+    const PREVIEWS = [
+      "berlin final", "4eva 1 new", "muay thai fight", "pool vid",
+      "where is he", "bts final", "aw26", "Berlin41", "C4809",
+      "shadowboxing final",
+    ];
+
+    const stage = $("#stage");
+    if (stage) {
+      let LAYOUT = pickLayout();
+      const n = LAYOUT.length;
+      LAYOUT.forEach((L, i) => {
+        const name = PREVIEWS[i % PREVIEWS.length];
+        const clip = VIDEOS[i % VIDEOS.length];
+        const a = document.createElement("button");
+        a.className = "stage-tile";
+        a.type = "button";
+        a.style.cssText =
+          `left:${L.x}%;top:${L.y}%;width:max(104px, ${L.w}vw);` +
+          `aspect-ratio:16/10;--rot:${L.rot}deg;--i:${i}`;
+        a.dataset.depth = L.d;
+        a.setAttribute("aria-label", `Open ${clip.title}`);
+        a.innerHTML =
+          `<img src="clips/posters/${name}.jpg" alt="" loading="eager" decoding="async">` +
+          `<video muted loop playsinline preload="none" src="clips/previews/${name}.mp4"></video>` +
+          `<span class="stage-cap">${clip.title}</span>`;
+        a.addEventListener("click", () => openViewer(VIDEOS, VIDEOS.indexOf(clip)));
+        stage.appendChild(a);
+      });
+
+      const tiles = $$(".stage-tile", stage);
+      let wasNarrow = innerWidth <= 720;
+      addEventListener("resize", () => {
+        const narrow = innerWidth <= 720;
+        if (narrow === wasNarrow) return;
+        wasNarrow = narrow;
+        const L2 = pickLayout();
+        tiles.forEach((t, i) => {
+          const L = L2[i];
+          if (!L) { t.style.display = "none"; return; }
+          t.style.display = "";
+          t.style.left = L.x + "%"; t.style.top = L.y + "%";
+          t.style.width = `max(104px, ${L.w}vw)`;
+          t.style.setProperty("--rot", L.rot + "deg");
+          t.dataset.depth = L.d;
+        });
+      }, { passive: true });
+      /* three tiles carry motion on their own so the page is alive at rest;
+         the rest wake on hover. Cheap: the previews are ~280KB each. */
+      if (!RM) {
+        [0, 4, 7].forEach(i => {
+          const t = tiles[i]; if (!t) return;
+          const v = $("video", t);
+          v.preload = "auto";
+          v.play().then(() => t.classList.add("playing")).catch(() => {});
+        });
+        if (FINE) tiles.forEach(t => {
+          const v = $("video", t);
+          t.addEventListener("mouseenter", () => {
+            v.play().then(() => t.classList.add("playing")).catch(() => {});
+          });
+        });
+      }
+
+      /* mouse parallax — transform only, and only on a real pointer */
+      if (FINE && !RM) {
+        let tx = 0, ty = 0, cx = 0, cy = 0, raf = 0;
+        const loop = () => {
+          cx += (tx - cx) * 0.06; cy += (ty - cy) * 0.06;
+          tiles.forEach(t => {
+            const d = +t.dataset.depth;
+            t.style.translate = `${(cx * d * 26).toFixed(2)}px ${(cy * d * 20).toFixed(2)}px`;
+          });
+          raf = Math.abs(tx - cx) > 0.001 || Math.abs(ty - cy) > 0.001
+            ? requestAnimationFrame(loop) : 0;
+        };
+        $("#home").addEventListener("mousemove", (e) => {
+          const r = e.currentTarget.getBoundingClientRect();
+          tx = (e.clientX - r.left) / r.width  - 0.5;
+          ty = (e.clientY - r.top)  / r.height - 0.5;
+          if (!raf) raf = requestAnimationFrame(loop);
+        });
+      }
+    }
+
+    /* ── shared: build a rail + a grid, wired together ───────────── */
+    function buildSection({ railEl, gridEl, countEl, cats, items, stills }) {
+      const rail = $(railEl), grid = $(gridEl), countOut = $(countEl);
+      if (!rail || !grid) return;
+      let active = "all";
+
+      /* rail */
+      const mk = (key, name, face, n) => {
+        const b = document.createElement("button");
+        b.className = "rail-card"; b.type = "button";
+        b.dataset.cat = key;
+        b.setAttribute("aria-pressed", "false");
+        const item = face ? items.find(i => i.slug === face)
+                  : key === "all" ? items[0]
+                  : items.find(i => i.cat === key);
+        const media = item
+          ? `<img src="${item.poster}" alt="" loading="lazy" decoding="async">` +
+            (item.kind === "video" && !RM
+              ? `<video muted loop playsinline preload="none" src="${item.src}"></video>` : "")
+          : `<span class="idx-card soon" style="position:absolute;inset:0;border:0;background:
+               repeating-linear-gradient(135deg,rgba(108,26,219,0.12) 0 8px,transparent 8px 16px),#140933">
+             </span>`;
+        b.innerHTML = media +
+          `<span class="rail-meta"><span class="rail-name">${name}</span>` +
+          `<span class="rail-n">${n ? n + (n === 1 ? " piece" : " pieces") : "reserved"}</span></span>`;
+        return b;
+      };
+
+      const all = mk("all", "Everything", null, items.length);
+      all.classList.add("active"); all.setAttribute("aria-pressed", "true");
+      rail.appendChild(all);
+      cats.forEach(c => rail.appendChild(mk(c.key, c.name, c.face, countIn(items, c.key))));
+
+      /* hover-to-play on the rail */
+      if (FINE && !RM) $$(".rail-card", rail).forEach(c => {
+        const v = $("video", c); if (!v) return;
+        c.addEventListener("mouseenter", () => { v.play().then(() => c.classList.add("playing")).catch(() => {}); });
+        c.addEventListener("mouseleave", () => { v.pause(); c.classList.remove("playing"); });
+      });
+
+      /* grid */
+      items.forEach((it, i) => {
+        const card = document.createElement("button");
+        card.className = "idx-card"; card.type = "button";
+        card.dataset.cat = it.cat;
+        const ar = it.ar ? it.ar.replace("/", " / ") : "4 / 5";
+        card.innerHTML =
+          `<span class="idx-thumb" style="aspect-ratio:${stills ? "4 / 5" : "4 / 5"}">` +
+            `<img src="${it.poster}" alt="" loading="lazy" decoding="async">` +
+            (it.kind === "video" && !RM
+              ? `<video muted loop playsinline preload="none" src="${it.src}"></video>` : "") +
+          `</span>` +
+          `<span class="idx-shade"></span>` +
+          (it.dur ? `<span class="idx-dur">${it.dur}</span>` : "") +
+          `<span class="idx-meta"><span class="idx-title">${it.title}</span>` +
+          `<span class="idx-sub"><span>${it.platform || ""}</span><span>${it.year || ""}</span></span></span>`;
+        card.addEventListener("click", () =>
+          it.kind === "video" ? openViewer(items, i) : openLightbox(items, i));
+        if (FINE && !RM && it.kind === "video") {
+          const v = $("video", card);
+          card.addEventListener("mouseenter", () => { v.play().then(() => card.classList.add("playing")).catch(() => {}); });
+          card.addEventListener("mouseleave", () => { v.pause(); card.classList.remove("playing"); });
+        }
+        grid.appendChild(card);
+      });
+
+      /* photography has no shoot yet — say so instead of faking it */
+      if (stills) {
+        for (let i = 0; i < 3; i++) {
+          const s = document.createElement("div");
+          s.className = "idx-card soon"; s.dataset.cat = "photo";
+          s.style.aspectRatio = "4 / 5";
+          s.innerHTML = `<b>SOON</b><span>photo 0${i + 1}</span>`;
+          grid.appendChild(s);
+        }
+      }
+
+      const apply = () => {
+        let shown = 0;
+        $$(".idx-card", grid).forEach(c => {
+          const hit = active === "all" || c.dataset.cat === active;
+          c.classList.toggle("hidden", !hit);
+          if (hit) shown++;
+        });
+        if (countOut) countOut.textContent =
+          `${shown} ${shown === 1 ? "piece" : "pieces"}${active === "all" ? "" : " · " + active}`;
+      };
+      apply();
+
+      rail.addEventListener("click", (e) => {
+        const b = e.target.closest(".rail-card"); if (!b) return;
+        active = b.dataset.cat === active ? "all" : b.dataset.cat;
+        $$(".rail-card", rail).forEach(c => {
+          const on = c.dataset.cat === active;
+          c.classList.toggle("active", on);
+          c.setAttribute("aria-pressed", String(on));
+        });
+        apply();
+      });
+    }
+
+    buildSection({
+      railEl: "#workRail", gridEl: "#workGrid", countEl: "#workCount",
+      cats: CATS, items: VIDEOS,
+    });
+    buildSection({
+      railEl: "#stillRail", gridEl: "#stillGrid", countEl: "#stillCount",
+      cats: STILL_CATS, items: STILLS, stills: true,
+    });
+
+    /* ── viewer: one video, arrow/swipe through the filtered set ── */
+    const vw = $("#viewer"), vv = $("#vVideo");
+    let vList = [], vI = 0, sound = false;
+    function openViewer(list, i) {
+      vList = list.filter(x => x.kind === "video");
+      vI = Math.max(0, vList.indexOf(list[i]));
+      vw.hidden = false; document.body.style.overflow = "hidden";
+      loadV();
+    }
+    function loadV() {
+      const c = vList[vI]; if (!c) return;
+      vv.src = c.src; vv.poster = c.poster; vv.muted = !sound;
+      vv.play().catch(() => {});
+      $("#vTitle").textContent = c.title;
+      $("#vSub").textContent = [c.platform, c.year, c.dur].filter(Boolean).join(" · ");
+      $("#vPos").textContent = `${vI + 1} / ${vList.length}`;
+    }
+    const closeV = () => {
+      vw.hidden = true; vv.pause(); vv.removeAttribute("src"); vv.load();
+      document.body.style.overflow = "";
+    };
+    const stepV = (d) => { vI = (vI + d + vList.length) % vList.length; loadV(); };
+    $("#vClose")?.addEventListener("click", closeV);
+    $("#vPrev")?.addEventListener("click", () => stepV(-1));
+    $("#vNext")?.addEventListener("click", () => stepV(1));
+    $("#vSound")?.addEventListener("click", (e) => {
+      sound = !sound; vv.muted = !sound;
+      e.currentTarget.textContent = sound ? "Sound on" : "Sound off";
+      e.currentTarget.setAttribute("aria-pressed", String(sound));
+    });
+    vw?.addEventListener("click", (e) => { if (e.target === vw) closeV(); });
+
+    /* ── lightbox: carousels of stills ── */
+    const lb = $("#lightbox"), lbImg = $("#lbImg");
+    let lList = [], lI = 0, lN = 1, lPage = 1;
+    function openLightbox(list, i) {
+      lList = list.filter(x => x.kind === "post");
+      lI = Math.max(0, lList.indexOf(list[i])); lPage = 1;
+      lb.hidden = false; document.body.style.overflow = "hidden";
+      loadL();
+    }
+    function loadL() {
+      const p = lList[lI]; if (!p) return;
+      lN = p.slides ? p.slides.length : 1;
+      lbImg.src = postImg(p, lPage);
+      $("#lbTitle").textContent = p.title;
+      $("#lbSub").textContent = `${[p.platform, p.year].filter(Boolean).join(" · ")} — ${lPage} / ${lN}`;
+    }
+    const closeL = () => { lb.hidden = true; lbImg.removeAttribute("src"); document.body.style.overflow = ""; };
+    const stepL = (d) => {
+      lPage += d;
+      if (lPage > lN) { lI = (lI + 1) % lList.length; lPage = 1; }
+      else if (lPage < 1) { lI = (lI - 1 + lList.length) % lList.length; lPage = 1; }
+      loadL();
+    };
+    $("#lbClose")?.addEventListener("click", closeL);
+    $("#lbPrev")?.addEventListener("click", () => stepL(-1));
+    $("#lbNext")?.addEventListener("click", () => stepL(1));
+    lb?.addEventListener("click", (e) => { if (e.target === lb) closeL(); });
+
+    addEventListener("keydown", (e) => {
+      if (!vw.hidden) {
+        if (e.key === "Escape") closeV();
+        if (e.key === "ArrowRight" || e.key === "ArrowDown") stepV(1);
+        if (e.key === "ArrowLeft"  || e.key === "ArrowUp")   stepV(-1);
+      } else if (!lb.hidden) {
+        if (e.key === "Escape") closeL();
+        if (e.key === "ArrowRight") stepL(1);
+        if (e.key === "ArrowLeft")  stepL(-1);
+      }
+    });
+  })();
+  </script>
+
 </body>
 </html>
