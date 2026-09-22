@@ -5,3 +5,10 @@
 # history is permanent and these are ~52MB of unused PNGs.
 corteiz ai shoot/
 arcteryx shoot ai/
+
+# local sorting workspace (symlinks, never published)
+/_sort
+
+# local backups — not site content
+/index-BEFORE-v3.html.bak
+/v3.html

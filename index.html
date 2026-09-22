@@ -64,7 +64,7 @@
       --font-mono:    'JetBrains Mono', ui-monospace, 'SF Mono', monospace;
 
       --fs-mega:    clamp(4rem, 14.5vw, 13rem);
-      --fs-display: clamp(3rem, 9vw, 7.5rem);
+      --fs-display: clamp(1.9rem, 9vw, 7.5rem);   /* the 3rem floor beat 9vw on a phone */
       --fs-h2:      clamp(2rem, 4.5vw, 3.75rem);
       --fs-h3:      1.375rem;
       --fs-body-lg: 1.25rem;
@@ -75,6 +75,7 @@
       /* MOTION — enter/exit ride ease-out, on-screen moves ride in-out */
       --eo:  cubic-bezier(0.23, 1, 0.32, 1);       /* out-quint  */
       --eio: cubic-bezier(0.645, 0.045, 0.355, 1);  /* in-out-cubic */
+      --eo-expo: cubic-bezier(0.16, 1, 0.3, 1);     /* out-expo — long travel */
       --dur-fast: 0.15s;
       --dur:      0.28s;
       --dur-slow: 0.6s;
@@ -125,7 +126,10 @@
     }
     #loader.out { transform: translateY(-100%); }
     #loader.gone { display: none; }
-    #loader .crown { width: clamp(48px, 7vw, 84px); opacity: 0; animation: crownIn 0.4s var(--eo) 0.1s forwards; }
+    #loader .load-mark img {
+      display: block; width: clamp(48px, 7vw, 84px);
+      opacity: 0; animation: crownIn 0.4s var(--eo) 0.1s forwards;
+    }
     #loader .count { font-family: var(--font-mono); font-size: clamp(1rem, 2vw, 1.35rem); color: var(--text-mut); letter-spacing: 0.15em; }
     #loader .count b { color: var(--gold); font-weight: 500; }
     @keyframes crownIn { from { opacity: 0; transform: scale(0.9) translateY(8px); } to { opacity: 1; transform: none; } }
@@ -187,6 +191,7 @@
       transition: background-color var(--dur-fast) ease, color var(--dur-fast) ease;
       transform-origin: bottom center; will-change: transform;
     }
+    .dock a[hidden] { display: none; }   /* author display beats the UA [hidden] rule */
     .dock a:hover { color: var(--cream); }
     .dock a.active { background: var(--purple); color: #fff; }
     .dock a .tip {
@@ -202,11 +207,13 @@
     section { position: relative; }
     .inner {
       max-width: var(--max-w); margin: 0 auto;
-      padding: clamp(5rem, 12vh, 9rem) var(--gutter);
+      /* was clamp(5rem, 12vh, 9rem) — about 200px of empty band top and
+         bottom of every section, ~1.7 screens of the page spent on padding. */
+      padding: clamp(2.25rem, 6vh, 4.5rem) var(--gutter);
       position: relative; z-index: 2;
     }
     .eyebrow {
-      display: flex; align-items: center; gap: 1rem; margin-bottom: 2.5rem;
+      display: flex; align-items: center; gap: 1rem; margin-bottom: 1.25rem;
       font-family: var(--font-mono); font-size: var(--fs-label);
       letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-mut);
     }
@@ -221,7 +228,7 @@
     /* giant background word */
     .bg-word {
       position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
-      font-family: var(--font-display); font-size: clamp(8rem, 24vw, 22rem);
+      font-family: var(--font-display); font-size: clamp(5rem, 24vw, 22rem);
       color: transparent; -webkit-text-stroke: 1px rgba(108,26,219,0.28);
       white-space: nowrap; pointer-events: none; user-select: none; z-index: 0;
     }
@@ -324,40 +331,10 @@
     }
     @keyframes hintDrift { 0%,100% { transform: translateY(0); } 50% { transform: translateY(10px); } }
 
-    /* ============ 02 SHOWREEL (the TV stays — it's signature) ============ */
-    #showreel { overflow: hidden; }
-    .reel-stage { position: relative; max-width: 980px; margin: 0 auto; }
-    .tv { position: relative; width: 100%; max-width: 850px; margin: 0 auto; }
-    .tv-img { width: 100%; position: relative; z-index: 2; pointer-events: none; }
-    .tv-crown { position: absolute; z-index: 3; width: 42%; top: -22%; right: -12%; pointer-events: none; }
-    .tv-screen {
-      /* aligned to the png's transparent opening (alpha bbox: 12.9/16.7/57.5/60.2) + slight bleed */
-      position: absolute; z-index: 1; top: 16.2%; left: 12.5%; width: 58.4%; height: 61.2%;
-      overflow: hidden; border-radius: 50% / 6%; background: #000; cursor: pointer;
-    }
-    .tv-screen video { width: 100%; height: 100%; object-fit: cover; }
-    #static-canvas { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0.9; transition: opacity 0.5s ease; }
-    .tv-unmute {
-      position: absolute; inset: auto 0 12% 0; margin: 0 auto; width: max-content;
-      font-family: var(--font-mono); font-size: var(--fs-label); letter-spacing: 0.1em; text-transform: uppercase;
-      background: var(--gold); color: var(--ink); padding: 0.7em 1.6em; border-radius: var(--pill);
-      transition: transform var(--dur-fast) var(--eo);
-    }
-    .tv-unmute:hover { transform: scale(1.06); }
-    .tv-unmute:active { transform: scale(0.97); }
-    .reel-meta {
-      display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap;
-      margin-top: 1.5rem; font-family: var(--font-mono); font-size: var(--fs-label);
-      letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-mut);
-    }
-    .orbit-badge { position: absolute; top: -70px; right: -30px; width: 130px; z-index: 4; animation: orbitSpin 18s linear infinite; pointer-events: none; }
-    .orbit-badge text { font-family: var(--font-mono); font-size: 11.5px; letter-spacing: 2.5px; fill: var(--gold); }
-    @keyframes orbitSpin { to { transform: rotate(360deg); } }
-
     /* ============ 03 WORK GRID (04 AI WORK shares these styles) ============ */
     .work-display-title {
       font-family: var(--font-display); font-size: var(--fs-display); line-height: 0.95;
-      margin-bottom: 2.5rem;
+      margin-bottom: 1.5rem;
     }
     .work-display-title em { font-style: normal; color: transparent; -webkit-text-stroke: 1.5px var(--purple); }
     .work-controls { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; margin-bottom: 2.5rem; }
@@ -430,15 +407,20 @@
       max-width: 56ch; color: var(--text-mut); font-size: var(--fs-body-lg);
       margin: -1rem 0 2.5rem;
     }
-    .lab-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: clamp(1rem, 2.5vw, 2rem); }
+    /* Small cards: more per row, and every bit of chrome scaled down with
+       them so a narrow card doesn't read as a big card that got squeezed. */
+    .lab-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: clamp(0.7rem, 1.5vw, 1.15rem);
+    }
     .lab-card {
       display: flex; flex-direction: column; border-radius: var(--radius); overflow: hidden;
       background: var(--night); border: 1px solid var(--line);
       transition: transform var(--dur) var(--eo), box-shadow var(--dur) ease, border-color var(--dur) ease;
     }
-    .lab-chrome { display: flex; align-items: center; gap: 0.75rem; padding: 0.7rem 1rem; border-bottom: 1px solid var(--line); }
+    .lab-chrome { display: flex; align-items: center; gap: 0.5rem; padding: 0.45rem 0.7rem; border-bottom: 1px solid var(--line); }
     .lab-dots { display: flex; gap: 5px; }
-    .lab-dots i { width: 9px; height: 9px; border-radius: 50%; background: var(--line); }
+    .lab-dots i { width: 6px; height: 6px; border-radius: 50%; background: var(--line); }
     .lab-url {
       font-family: var(--font-mono); font-size: var(--fs-label); letter-spacing: 0.04em;
       color: var(--text-mut); flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
@@ -452,17 +434,17 @@
     .lab-view canvas { width: 100%; height: 100%; display: block; }
     .lab-view canvas.px { image-rendering: pixelated; } /* thermal cams are chunky on purpose */
     .lab-open {
-      position: absolute; right: 0.9rem; bottom: 0.9rem; padding: 0.55em 1.2em; border-radius: var(--pill);
+      position: absolute; right: 0.6rem; bottom: 0.6rem; padding: 0.4em 0.95em; border-radius: var(--pill);
       background: var(--gold); color: var(--ink); font-family: var(--font-mono); font-size: var(--fs-label);
       letter-spacing: 0.08em; text-transform: uppercase;
       opacity: 0; transform: translateY(6px);
       transition: opacity var(--dur-fast) ease, transform var(--dur) var(--eo);
     }
     @media (hover: none) { .lab-open { opacity: 1; transform: none; } } /* touch: affordance always on */
-    .lab-info { padding: 1.1rem 1.25rem 1.3rem; }
-    .lab-title { font-family: var(--font-display); font-size: var(--fs-h3); letter-spacing: 0.01em; }
+    .lab-info { padding: 0.75rem 0.85rem 0.9rem; }
+    .lab-title { font-family: var(--font-display); font-size: 1.05rem; letter-spacing: 0.01em; }
     .lab-meta { font-family: var(--font-mono); font-size: var(--fs-label); letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-mut); margin-top: 0.3rem; }
-    .lab-desc { color: var(--text-mut); font-size: var(--fs-small); margin-top: 0.55rem; max-width: 46ch; }
+    .lab-desc { color: var(--text-mut); font-size: 0.8125rem; line-height: 1.45; margin-top: 0.4rem; }
     @media (hover: hover) and (pointer: fine) {
       .lab-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-pop); border-color: rgba(240,180,41,0.45); }
       .lab-card:hover .lab-open { opacity: 1; transform: none; }
@@ -742,6 +724,25 @@
       .tv { max-width: 560px; }
     }
     @media (max-width: 620px) {
+      /* 20px lead paragraphs are heavy at this width — match body size */
+      :root { --fs-body-lg: 1.0625rem; }
+
+      /* Websites: two per row. At ~165px wide the domain line and the
+         description have nowhere to go, so they drop out and the card becomes
+         preview + title + meta. The LIVE dot stays, its label doesn't. */
+      .lab-grid { grid-template-columns: repeat(2, 1fr); gap: 0.55rem; }
+      .lab-chrome { padding: 0.35rem 0.45rem; gap: 0.35rem; }
+      .lab-url { display: none; }
+      .lab-dots i { width: 5px; height: 5px; }
+      .lab-live { margin-left: auto; gap: 0; font-size: 0; }
+      .lab-live i { width: 6px; height: 6px; }
+      .lab-info { padding: 0.5rem 0.55rem 0.6rem; }
+      .lab-title { font-size: 0.82rem; line-height: 1.15; }
+      .lab-meta { font-size: 0.5625rem; letter-spacing: 0.06em; margin-top: 0.2rem; }
+      .lab-desc { display: none; }
+      .lab-open { right: 0.4rem; bottom: 0.4rem; padding: 0.35em 0.75em; font-size: 0.5625rem; }
+      .lab-lead { margin-bottom: 1.5rem; font-size: var(--fs-small); }
+
       .work-grid { grid-template-columns: 1fr; }
       .rug-grid { grid-template-columns: 1fr; }
       .rug-card.wide { grid-column: auto; }
@@ -780,20 +781,33 @@
        table in JS (x/y/size/rot/depth) and kept out of a centre exclusion
        zone so the name always reads clean. ═══════════════ */
     #home {
-      min-height: 100svh; display: flex; align-items: center; justify-content: center;
+      /* Not a full screen: at 100svh the landing filled the viewport exactly and
+         gave no sign anything followed. 82svh lets the next section peek, and
+         the tile field still clears the wordmark at every width tested —
+         collisions only start below ~72svh. */
+      min-height: 82svh; display: flex; align-items: center; justify-content: center;
       overflow: hidden; position: relative;
     }
     .stage { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
     .stage-tile {
       position: absolute; display: block; border-radius: var(--radius-sm); overflow: hidden;
-      background: var(--ink); pointer-events: auto; cursor: pointer;
+      background: var(--ink); pointer-events: auto; cursor: default;
       box-shadow: 0 18px 50px rgba(0,0,0,0.55);
-      opacity: 0; transform: scale(0.86) rotate(var(--rot));
-      transition: opacity 0.9s var(--eo), transform 0.9s var(--eo), box-shadow var(--dur) ease;
-      transition-delay: calc(var(--i) * 60ms);
+      /* entrance: every tile starts off-stage on its own outward vector
+         (--fx/--fy, written by JS from where it sits) and converges inward to
+         rest. transform only — the mouse parallax writes the separate
+         `translate` property, so the two compose instead of fighting.
+         Per-property delays: the stagger must not reach box-shadow, or the
+         hover glow would lag by up to half a second. */
+      opacity: 0;
+      transform: translate3d(var(--fx, 0), var(--fy, 0), 0) scale(0.92) rotate(calc(var(--rot) * 2.4));
+      transition:
+        opacity    0.5s  var(--eo)      calc(var(--i) * 55ms),
+        transform  1.05s var(--eo-expo) calc(var(--i) * 55ms),
+        box-shadow var(--dur) ease 0s;
       will-change: transform;
     }
-    body.loaded .stage-tile { opacity: 1; transform: scale(1) rotate(var(--rot)); }
+    .stage.in .stage-tile { opacity: 1; transform: translate3d(0,0,0) scale(1) rotate(var(--rot)); }
     .stage-tile img, .stage-tile video {
       width: 100%; height: 100%; object-fit: cover; display: block;
       filter: saturate(1.02) brightness(0.94);
@@ -821,7 +835,46 @@
       .stage-tile:hover::after { opacity: 0; }
       .stage-tile:hover .stage-cap { opacity: 1; transform: none; }
     }
-    .stage-tile:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; z-index: 5; }
+
+    /* ── Phone landing: two counter-sliding strips. Positioned so each band
+       sits 24px off the text block, the same spacing the scattered field
+       used. Masked at both ends so they fade out rather than cut. ── */
+    .pstrip {
+      position: absolute; left: 0; width: 100%; overflow: hidden;
+      pointer-events: none;
+      -webkit-mask-image: linear-gradient(90deg, transparent, #000 11%, #000 89%, transparent);
+              mask-image: linear-gradient(90deg, transparent, #000 11%, #000 89%, transparent);
+      opacity: 0;
+      transition: opacity 0.7s var(--eo), transform 1.05s var(--eo-expo);
+    }
+    /* Anchored to the centre, not to a percentage of the section, so the
+       24px gaps hold whatever height the landing is given.
+       55px = half the eyebrow+wordmark block, 95px = a strip. */
+    .pstrip { height: 95px; }
+    /* +36px = half the topbar's 72px. The topbar only eats space at the top,
+       so a centred composition has equal margins but unequal *clear* space;
+       shifting by half the overlap evens the visible gaps. */
+    .pstrip-a { top: calc(50% - 138px); transform: translateX(-38%); }
+    .pstrip-b { top: calc(50% + 115px); transform: translateX(38%); }
+    .stage.in .pstrip { opacity: 1; transform: translateX(0); }
+    .pstrip-track { display: flex; gap: 10px; width: max-content; will-change: transform; }
+    .pstrip-a .pstrip-track { animation: pslideA 54s linear infinite; }
+    .pstrip-b .pstrip-track { animation: pslideB 66s linear infinite; }
+    @keyframes pslideA { to   { transform: translateX(-50%); } }
+    @keyframes pslideB { from { transform: translateX(-50%); } }
+    .pcell {
+      flex: 0 0 auto; position: relative; width: 152px; aspect-ratio: 16 / 10;
+      border-radius: var(--radius-sm); overflow: hidden; background: var(--ink);
+      box-shadow: 0 10px 26px rgba(0,0,0,0.5);
+    }
+    .pcell img, .pcell video { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .pcell video { position: absolute; inset: 0; opacity: 0; transition: opacity 0.4s ease; }
+    .pcell.playing video { opacity: 1; }
+    .pcell::after {
+      content: ""; position: absolute; inset: 0; pointer-events: none;
+      background: var(--purple); mix-blend-mode: color; opacity: 0.2;
+    }
+
 
     /* the name sits above the field, with a soft well behind it so the
        wordmark never fights a bright frame */
@@ -854,7 +907,6 @@
       filter: drop-shadow(0 2px 14px rgba(2,1,10,0.6));
     }
     .home-name:hover .crown-o { transform: translateY(0.16em) rotate(-12deg); }
-    .home-ctas { display: flex; gap: 1rem; justify-content: center; align-items: center; flex-wrap: wrap; margin-top: clamp(1.5rem, 3vw, 2.5rem); pointer-events: auto; }
 
     /* ═══════════════ V3 — CATEGORY RAIL ═══════════════
        One card per discipline, each playing a real clip under its name.
@@ -928,6 +980,118 @@
       padding: 0.2em 0.5em; border-radius: var(--pill); backdrop-filter: blur(6px);
     }
     .idx-card.hidden { display: none; }
+
+    /* ── lightbox filmstrip: on a wide screen the neighbouring images sit
+       either side of the current one and can be clicked; on a phone there is
+       no room beside it, so they become a strip underneath. ── */
+    /* components.css puts the overlays at z-index 90, but the dock sits at 200
+       and was floating over both the lightbox and the video player. */
+    /* ids, because components.css loads after this block and would otherwise
+       win on equal specificity */
+    #viewer, #lightbox { z-index: var(--z-modal); }
+    /* Flex and grid items default to min-width:auto and refuse to shrink below
+       their intrinsic size. The frame takes its width from height x aspect
+       ratio, so without this the rail grew to 993px inside a 390px screen and
+       everything slid off the right edge. */
+    .lb-stage > * { min-width: 0; }
+    .lb-rail { --peek-reserve: calc(2 * (clamp(70px, 10vw, 140px) + clamp(0.5rem, 1.4vw, 1.1rem))); }
+    .lb-rail .lb-frame {
+      min-width: 0;
+      max-width: calc(100% - var(--peek-reserve));
+    }
+    .lb-rail {
+      display: flex; align-items: center; justify-content: center;
+      gap: clamp(0.5rem, 1.4vw, 1.1rem); height: 100%; min-height: 0; width: 100%;
+    }
+    .lb-peek {
+      flex: 0 0 auto; width: clamp(70px, 10vw, 140px);
+      border-radius: var(--radius-sm); overflow: hidden; background: #000;
+      opacity: 0.38; cursor: pointer;
+      transition: opacity var(--dur) ease, transform var(--dur) var(--eo);
+    }
+    .lb-peek img { width: 100%; aspect-ratio: 1 / 1; object-fit: cover; display: block; }
+    .lb-peek[hidden] { display: none; }
+    @media (hover: hover) and (pointer: fine) {
+      .lb-peek:hover { opacity: 0.85; transform: scale(1.04); }
+    }
+    /* The rest of the set, under the image. Centred while it fits, scrollable
+       once it doesn't. */
+    .lb-strip {
+      display: flex; gap: 0.4rem; overflow-x: auto;
+      width: fit-content; max-width: 100%; margin-inline: auto;
+      padding: 0.15rem; scrollbar-width: none;
+    }
+    .lb-strip::-webkit-scrollbar { display: none; }
+    .lb-thumb {
+      flex: 0 0 auto; width: 54px; aspect-ratio: 1; border-radius: 6px;
+      overflow: hidden; opacity: 0.45; border: 1px solid transparent; cursor: pointer;
+      transition: opacity var(--dur-fast) ease, border-color var(--dur-fast) ease;
+    }
+    .lb-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .lb-thumb.on { opacity: 1; border-color: var(--gold); }
+    @media (hover: hover) and (pointer: fine) {
+      .lb-thumb:hover { opacity: 0.8; }
+    }
+    @media (max-width: 860px) {
+      .lb-peek { display: none; }        /* no room beside the image */
+      .lb-rail { --peek-reserve: 0px; }  /* ...so stop reserving room for them */
+      .lb-thumb { width: 46px; }
+      /* Fill the space and let the image letterbox itself, rather than holding
+         a fixed-ratio black box the picture sits inside. */
+      .lb-rail .lb-frame {
+        width: 100%; height: 100%; aspect-ratio: auto;
+        background: transparent; box-shadow: none;
+      }
+      .lb-rail .lb-frame img { background: transparent; }
+    }
+
+    /* ── Videos: named runs, and the client runs nested under Social ── */
+    /* section title sits centred over the runs; the eyebrow keeps the number
+       and the rule, so the word is not said twice */
+    .videos-title { text-align: center; }
+    .vgroup { margin-bottom: clamp(2.75rem, 5vw, 4.5rem); }
+    .vgroup:last-of-type { margin-bottom: 0; }
+    .vgroup-head { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.25rem; }
+    .vgroup-name {
+      font-family: var(--font-display); font-size: clamp(1.35rem, 3vw, 2rem);
+      line-height: 1; letter-spacing: 0.01em; color: var(--cream);
+    }
+    .vgroup-rule { flex: 1; height: 1px; background: var(--line); }
+    .vgroup-n { color: var(--text-mut); white-space: nowrap; }
+    .vsub { margin-bottom: clamp(1.75rem, 3vw, 2.5rem); }
+    .vsub:last-child { margin-bottom: 0; }
+    .vsub-name {
+      display: flex; align-items: center; gap: 0.6rem;
+      color: var(--gold); margin-bottom: 0.85rem;
+    }
+    .vsub-name span {
+      color: var(--text-mut); border: 1px solid var(--line); border-radius: var(--pill);
+      padding: 0.15em 0.65em; font-size: 0.92em; letter-spacing: 0.06em;
+    }
+    .vgroup-more {
+      display: block; margin: 1.35rem auto 0;
+      font-family: var(--font-mono); font-size: var(--fs-label);
+      letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-mut);
+      border: 1px solid var(--line); border-radius: var(--pill); padding: 0.75em 1.9em;
+      transition: color var(--dur-fast) ease, border-color var(--dur-fast) ease,
+                  transform var(--dur-fast) var(--eo);
+    }
+    /* the run is cut mid-row and faded out, with the row behind blurred back,
+       so the edge reads as "more below" rather than as the end of the work */
+    .idx-grid.clipped {
+      overflow: hidden;
+      -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - var(--fade, 80px)), transparent 100%);
+              mask-image: linear-gradient(to bottom, #000 calc(100% - var(--fade, 80px)), transparent 100%);
+    }
+    .idx-card.peek { filter: blur(3px); opacity: 0.7; pointer-events: none; }
+    /* author `display` would otherwise beat the UA rule for [hidden] */
+    .vgroup-more[hidden] { display: none; }
+    .vgroup-more:hover { color: var(--gold); border-color: rgba(240,180,41,0.45); }
+    .vgroup-more:active { transform: scale(0.97); }
+    /* unfolded cards rise in behind the button that asked for them. No
+       forwards fill — the hover lift owns transform once this settles. */
+    @keyframes unveilIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+    .idx-card.unveil { animation: unveilIn 0.5s var(--eo) backwards; animation-delay: calc(var(--u) * 35ms); }
     @media (hover: hover) and (pointer: fine) {
       .idx-card:hover { transform: translateY(-5px); box-shadow: var(--shadow); border-color: rgba(240,180,41,0.4); }
     }
@@ -954,10 +1118,24 @@
       .idx-grid, .idx-grid.stills { grid-template-columns: repeat(2, 1fr); }
       .rail { grid-auto-columns: minmax(132px, 1fr); }
       .rail-card { aspect-ratio: 3/4; }
-      .home-name { font-size: clamp(3.2rem, 17vw, 5rem); padding-left: 0.22em; }
+      .home-name {
+        font-size: clamp(3.2rem, 17vw, 5rem); padding-left: 0.22em;
+        /* Optical, not geometric: the box measures centred between the eyebrow
+           and the strip below, but the crown-O is translated down 0.16em, so
+           the wordmark's visual mass reads low. Transform, so the block height
+           and its centring are untouched. */
+        transform: translateY(-5px);
+      }
+      /* the strip composition is ~350px tall; a full-height landing left a
+         void above and below it. padding-top clears the fixed topbar, and
+         moves the flex-centred wordmark down by half of it to match the
+         strips' shift. */
+      #home { min-height: 60svh; padding-top: 72px; }
     }
     @media (prefers-reduced-motion: reduce) {
       .stage-tile { opacity: 1 !important; transform: rotate(var(--rot)) !important; }
+      .pstrip { opacity: 1 !important; transform: none !important; overflow-x: auto; }
+      .pstrip-track { animation: none !important; }
       .stage-tile video, .rail-card video, .idx-card video { display: none; }
     }
 </style>
@@ -981,13 +1159,12 @@
 
   <nav class="dock" aria-label="Sections">
     <a href="#home"    data-sec="home"><span>01</span><span class="tip">Home</span></a>
-    <a href="#reel"    data-sec="reel"><span>02</span><span class="tip">Showreel</span></a>
-    <a href="#work"    data-sec="work"><span>03</span><span class="tip">Work</span></a>
-    <a href="#stills"  data-sec="stills"><span>04</span><span class="tip">Photo</span></a>
-    <a href="#lab"     data-sec="lab"><span>05</span><span class="tip">Lab</span></a>
-    <a href="#rugs"    data-sec="rugs"><span>06</span><span class="tip">Rugs</span></a>
-    <a href="#koenigskarten" data-sec="koenigskarten"><span>07</span><span class="tip">Königskarten</span></a>
-    <a href="#contact" data-sec="contact"><span>08</span><span class="tip">Contact</span></a>
+    <a href="#videos"  data-sec="videos"><span>02</span><span class="tip">Videos</span></a>
+    <a href="#ai"      data-sec="ai"><span>03</span><span class="tip">AI</span></a>
+    <a href="#lab"     data-sec="lab"><span>04</span><span class="tip">Websites</span></a>
+    <a href="#rugs"    data-sec="rugs"><span>05</span><span class="tip">Rug</span></a>
+    <a href="#koenigskarten" data-sec="koenigskarten"><span>06</span><span class="tip">Königskarten</span></a>
+    <a href="#contact" data-sec="contact"><span>07</span><span class="tip">Contact</span></a>
   </nav>
 
   <!-- ── 01 Landing — wordmark centre, work scattered around it ── -->
@@ -1002,66 +1179,43 @@
       <h1 class="home-name" aria-label="Jansson">
         <span class="ch" style="--i:0">J</span><span class="ch" style="--i:1">A</span><span class="ch" style="--i:2">N</span><span class="ch" style="--i:3">S</span><span class="ch" style="--i:4">S</span><span class="ch crown-wrap" style="--i:5"><img class="crown-o" src="crown.png" alt="O"></span><span class="ch" style="--i:6">N</span>
       </h1>
-      <div class="home-ctas">
-        <a href="#reel" class="btn btn-gold">▶ Showreel</a>
-        <a href="#work" class="btn-text">All work →</a>
-      </div>
     </div>
     <span class="scroll-hint mono" aria-hidden="true">SCROLL</span>
   </section>
 
-  <!-- ── 02 Showreel — the TV stays, it's the signature ── -->
-  <section id="reel" class="bg-ink">
+  <!-- ── 02 Videos — one index, three named runs. Each opens with two rows
+       and unfolds the rest behind a show-more, so the page stays short. ── -->
+  <section id="videos" class="bg-night">
     <div class="inner">
-      <div class="eyebrow"><span class="num">02</span><span>Showreel</span><span class="rule"></span></div>
-      <div class="reel-stage reveal">
-        <div class="tv">
-          <div class="tv-screen" id="tv-screen" role="button" tabindex="0" aria-label="Play showreel with sound">
-            <video id="reel-video" muted loop playsinline preload="metadata" poster="clips/posters/showreel.jpg">
-              <source src="clips/showreel.mp4" type="video/mp4">
-            </video>
-            <canvas id="static-canvas" aria-hidden="true"></canvas>
-            <button class="tv-unmute" id="tv-unmute" aria-label="Unmute and play">Press play</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ── 03 Work — one index. Category lives on the rail, not in the page
-       structure: six disciplines, each previewing a real clip. ── -->
-  <section id="work" class="bg-night">
-    <div class="inner">
-      <div class="eyebrow"><span class="num">03</span><span>Work</span><span class="rule"></span></div>
-      <h2 class="work-display-title reveal">Everything that <em>moves</em>.</h2>
-      <div class="rail reveal" id="workRail" role="group" aria-label="Filter by discipline"></div>
+      <div class="eyebrow"><span class="num">02</span><span class="rule"></span></div>
+      <h2 class="work-display-title videos-title reveal">Videos</h2>
       <div class="idx-head">
-        <span class="idx-count mono" id="workCount"></span>
+        <span class="idx-count mono" id="videoCount"></span>
         <span class="idx-count mono">Hover to play · click to open</span>
       </div>
-      <div class="idx-grid" id="workGrid"></div>
+      <div id="videoGroups"></div>
     </div>
   </section>
 
-  <!-- ── 04 Photography & stills ── -->
-  <section id="stills" class="bg-ink">
+  <!-- ── 03 AI — generated work, video and stills in one run ── -->
+  <section id="ai" class="bg-ink">
     <div class="inner">
-      <div class="eyebrow"><span class="num">04</span><span>Photography &amp; Stills</span><span class="rule"></span></div>
-      <h2 class="work-display-title reveal">Everything that <em>doesn’t</em>.</h2>
-      <div class="rail reveal" id="stillRail" role="group" aria-label="Filter stills"></div>
+      <div class="eyebrow"><span class="num">03</span><span class="rule"></span></div>
+      <h2 class="work-display-title videos-title reveal">AI</h2>
       <div class="idx-head">
-        <span class="idx-count mono" id="stillCount"></span>
-        <span class="idx-count mono">Click to open the set</span>
+        <span class="idx-count mono" id="aiCount"></span>
+        <span class="idx-count mono">Hover to play · click to open</span>
       </div>
-      <div class="idx-grid stills" id="stillGrid"></div>
+      <div id="aiGrid"></div>
     </div>
   </section>
+
 
   <!-- ── 05 Lab ── -->
   <section id="lab" class="bg-night">
     <div class="inner">
-      <div class="eyebrow"><span class="num">05</span><span>The Lab</span><span class="rule"></span></div>
-      <h2 class="work-display-title reveal">I also <em>build</em>.</h2>
+      <div class="eyebrow"><span class="num">04</span><span class="rule"></span></div>
+      <h2 class="work-display-title videos-title reveal">Websites</h2>
       <p class="lab-lead reveal" style="--d:1">
         Not everything I make is a film. These are live sites and tools I built
         and shipped. The previews aren't screenshots, each card runs the
@@ -1079,7 +1233,7 @@
   </svg>
   <section id="rugs" class="bg-cream">
     <div class="inner">
-      <div class="eyebrow"><span class="num">06</span><span>Handmade Rugs</span><span class="rule"></span></div>
+      <div class="eyebrow"><span class="num">05</span><span>Rug</span><span class="rule"></span></div>
       <h2 class="work-display-title reveal">Tufted <em>by hand</em>.</h2>
       <p class="rug-lead reveal" style="--d:1">
         A sketch goes on the frame, the yarn gets punched in by hand, then the pile
@@ -1139,7 +1293,7 @@
   <section id="koenigskarten" class="bg-night">
     <span class="bg-word" aria-hidden="true">KARTEN</span>
     <div class="inner">
-      <div class="eyebrow"><span class="num">07</span><span>Königskarten</span><span class="rule"></span></div>
+      <div class="eyebrow"><span class="num">06</span><span>Königskarten</span><span class="rule"></span></div>
 
       <div class="kk-top">
         <div class="reveal">
@@ -1187,7 +1341,7 @@
   <section id="contact" class="bg-ink">
     <span class="bg-word" aria-hidden="true">CONTACT</span>
     <div class="inner">
-      <div class="eyebrow"><span class="num">08</span><span>Contact</span><span class="rule"></span></div>
+      <div class="eyebrow"><span class="num">07</span><span>Contact</span><span class="rule"></span></div>
       <h2 class="contact-headline reveal">
         <span class="w">Let's</span> <span class="w">make</span> <span class="w">something.</span>
       </h2>
@@ -1248,13 +1402,18 @@
     <button class="lb-arrow lb-prev" id="lbPrev" aria-label="Previous">←</button>
     <button class="lb-arrow lb-next" id="lbNext" aria-label="Next">→</button>
     <div class="lb-stage">
-      <div class="lb-frame">
-        <img id="lbImg" alt="">
+      <div class="lb-rail">
+        <button class="lb-peek" id="lbPeekPrev" aria-label="Previous image" hidden><img alt=""></button>
+        <div class="lb-frame">
+          <img id="lbImg" alt="">
+        </div>
+        <button class="lb-peek" id="lbPeekNext" aria-label="Next image" hidden><img alt=""></button>
       </div>
       <div class="v-meta">
         <h2 class="v-title" id="lbTitle"></h2>
         <p class="v-sub mono" id="lbSub"></p>
       </div>
+      <div class="lb-strip" id="lbStrip" aria-label="All images"></div>
     </div>
   </div>
 
@@ -1469,6 +1628,7 @@
       const loader = $("#loader");
       const finish = () => {
         document.body.classList.add("loaded");
+        dispatchEvent(new Event("site:ready"));
         loader.classList.add("out");
         setTimeout(() => loader.classList.add("gone"), 600);
       };
@@ -1552,48 +1712,6 @@
       tick(); setInterval(tick, 30000);
     })();
 
-    /* ============ TV SHOWREEL — static until pressed, guarded play ============ */
-    (() => {
-      const video = $("#reel-video"), screen = $("#tv-screen"),
-            unmute = $("#tv-unmute"), canvas = $("#static-canvas");
-      const ctx = canvas.getContext("2d");
-      let raf = null, playing = false;
-
-      function drawStatic() {
-        const w = canvas.offsetWidth | 0 || 2, h = canvas.offsetHeight | 0 || 2;
-        if (canvas.width !== w) canvas.width = w;
-        if (canvas.height !== h) canvas.height = h;
-        const img = ctx.createImageData(w, h), d = img.data;
-        for (let i = 0; i < d.length; i += 4) { const v = Math.random() * 255 | 0; d[i] = d[i+1] = d[i+2] = v; d[i+3] = 255; }
-        ctx.putImageData(img, 0, 0);
-        raf = requestAnimationFrame(drawStatic);
-      }
-      function stopStatic() { if (raf) cancelAnimationFrame(raf); raf = null; canvas.style.opacity = 0; }
-      if (!RM) drawStatic(); else canvas.style.opacity = 0.12;
-
-      // pre-buffer when the TV approaches the viewport
-      new IntersectionObserver((e, io) => {
-        if (e[0].isIntersecting) { video.preload = "auto"; video.load(); io.disconnect(); }
-      }, { rootMargin: "600px" }).observe(video);
-
-      // once running, pause reel + audio whenever the TV leaves the viewport
-      new IntersectionObserver(e => {
-        if (!playing) return;
-        if (e[0].isIntersecting) video.play().catch(() => {});
-        else video.pause();
-      }, { threshold: 0.15 }).observe(screen);
-
-      function activate() {
-        if (playing) { video.muted = !video.muted; return; }
-        video.muted = false;
-        const p = video.play();
-        if (p) p.then(() => { playing = true; stopStatic(); unmute.style.display = "none"; })
-               .catch(() => { unmute.textContent = "Tap again ▶"; });
-      }
-      screen.addEventListener("click", activate);
-      screen.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); activate(); } });
-    })();
-
     /* WORK GRID handler removed: the grid now renders from portfolio/app.js.
        It also matched .filter-pill globally, which would have double-bound
        the new filters. */
@@ -1617,44 +1735,40 @@
   <script src="portfolio/posts.js"></script>
   <script>
   /* ═══════════════════════════════════════════════════════════════════
-     JANSSON v3 — landing stage, category rails, unified index.
+     JANSSON v3 — landing stage, grouped video index, stills rail.
 
      TAXONOMY lives here and nowhere else. To move a clip between
-     categories, change one word. Keys must match CATS below.
+     runs, change one word. Keys must match VIDEO_GROUPS below.
+     Social is grouped a level deeper by each clip's `client` field
+     in portfolio/clips.js — fill that in and the runs appear.
 
      Seeded from the real data, not invented: brand clips shot vertical
      are social cuts; brand clips shot landscape/square are the longer
      edit pieces. Re-tag anything I read wrong.
      ═══════════════════════════════════════════════════════════════════ */
   const TAGS = {
-    /* social — brand work cut for the feed */
-    "teaser-tempelhof": "social", "berlin41": "social", "aw26": "social",
-    "trailer-4-week-2-2160-1": "social",
-    /* edit — the longer pieces that show the cut, not the clip */
-    "berkin-dreh-timeline": "edit", "berlin-final": "edit",
-    "malta-finall": "edit", "lichter": "edit",
-    /* music */
-    "thats-not-me-1": "music", "benni-1-7": "music", "benni-1-6": "music",
-    "song-scene": "music", "halo-new": "music", "4eva-2-final": "music",
-    "4eva-1-new": "music", "nev-2-resize": "music", "nev-final": "music",
-    /* street */
-    "dreh-bts-1": "street", "crazy-vid-1": "street", "where-is-he": "street",
-    "soir-aftermovie": "street", "bts-ubahn-reel": "street",
-    "bts-final": "street", "c4809": "street",
+    /* social media content — grouped by client folder */
+    "teaser-tempelhof": "social",
+    /* shot & edited — filmed and cut as a piece */
+    "4eva-1-new": "shot", "4eva-2-final": "shot", "aw26": "shot",
+    "benni-1-6": "shot", "benni-1-7": "shot", "berkin-dreh-timeline": "shot",
+    "berlin-final": "shot", "berlin41": "shot", "bts-final": "shot",
+    "bts-ubahn-reel": "shot", "c4809": "shot", "crazy-vid-1": "shot",
+    "dreh-bts-1": "shot", "halo-new": "shot", "lichter": "shot",
+    "malta-finall": "shot", "nev-2-resize": "shot", "nev-final": "shot",
+    "soir-aftermovie": "shot", "song-scene": "shot", "thats-not-me-1": "shot",
+    "trailer-4-week-2-2160-1": "shot", "where-is-he": "shot",
   };
 
-  /* rail cards: label + the clip whose frame represents the category */
-  const CATS = [
-    { key: "social", name: "Social",     face: "aw26" },
-    { key: "edit",   name: "Video Edit", face: "berlin-final" },
-    { key: "music",  name: "Music",      face: "halo-new" },
-    { key: "street", name: "Street",     face: "where-is-he" },
-    { key: "ai",     name: "AI",         face: null },
+  /* the three runs inside Videos. Social splits one level further, by
+     client, because feed work reads as "who it was for". AI clips are parked. */
+  const VIDEO_GROUPS = [
+    { key: "shot",   name: "Shot &amp; Edited" },
+    { key: "social", name: "Social Media Content", splitBy: "client" },
   ];
   const STILL_CATS = [
     { key: "photo",  name: "Photography",   face: null },
     { key: "social", name: "Social Stills", face: "static-post-2" },
-    { key: "ai",     name: "AI Stills",     face: "arcteryx-shoot-ai" },
   ];
 
   (() => {
@@ -1677,10 +1791,12 @@
       ...c, kind: "video", cat: TAGS[c.slug] || c.cat,
       src: vidSrc(c), poster: vidPost(c),
     }));
+    /* AI clips are parked — the mapping stays so they are one edit from
+       coming back, but they are not in the index for now. */
     const ai = (typeof AI_CLIPS !== "undefined" ? AI_CLIPS : []).map(c => ({
       ...c, kind: "video", cat: "ai", src: aiSrc(c), poster: aiPost(c),
     }));
-    const VIDEOS = [...clips, ...ai];
+    const VIDEOS = [...clips];
 
     const posts = (typeof POSTS !== "undefined" ? POSTS : []).map(p => ({
       ...p, kind: "post", cat: "social", poster: postImg(p, 1),
@@ -1688,7 +1804,10 @@
     const aiPosts = (typeof AI_POSTS !== "undefined" ? AI_POSTS : []).map(p => ({
       ...p, kind: "post", cat: "ai", poster: postImg(p, 1),
     }));
-    const STILLS = [...posts, ...aiPosts];
+    const STILLS = [...posts];                 // AI stills moved to their own section
+    /* One cover per set — the set opens in the viewer, which carries the rest
+       of it as thumbnails under the image. */
+    const AI_ITEMS = [...ai, ...aiPosts];
 
     const countIn = (list, key) => list.filter(i => i.cat === key).length;
 
@@ -1709,82 +1828,124 @@
       { x: 22, y: 28, w: 11, rot:  8, d: 1.5 },
       { x: 68, y: 26, w: 11, rot: -8, d: 1.4 },
     ];
-    const LAYOUT_NARROW = [
-      { x:  3, y:  7, w: 42, rot: -5, d: 0.9 },
-      { x: 54, y:  4, w: 36, rot:  4, d: 0.6 },
-      { x: 24, y: 21, w: 36, rot:  3, d: 1.2 },
-      { x:  5, y: 63, w: 40, rot:  5, d: 1.0 },
-      { x: 56, y: 66, w: 34, rot: -4, d: 0.8 },
-      { x: 26, y: 77, w: 30, rot:  2, d: 1.3 },
-    ];
-    const pickLayout = () =>
-      innerWidth <= 720 ? LAYOUT_NARROW : LAYOUT_WIDE;
     /* the light preview loops at the site root — small enough to autoplay */
     const PREVIEWS = [
       "berlin final", "4eva 1 new", "muay thai fight", "pool vid",
-      "where is he", "bts final", "aw26", "Berlin41", "C4809",
-      "shadowboxing final",
+      "where is he", "bts final", "aw26", "Berlin41",
+      "C4809", "shadowboxing final",
     ];
+
+    /* Where a tile flies in from. Each one is pushed straight out along the
+       line from stage centre through its own centre, far enough to clear the
+       edge, so the field converges inward rather than every tile sliding in
+       from the same side. vw on x / vh on y keeps the push proportional to the
+       axis it travels along. */
+    const OUT_PUSH = 78;
+    const outVec = (L) => {
+      const dx = (L.x + L.w / 2) - 50, dy = (L.y + 14) - 50;
+      const len = Math.hypot(dx, dy) || 1;
+      return [(dx / len * OUT_PUSH).toFixed(1), (dy / len * OUT_PUSH).toFixed(1)];
+    };
 
     const stage = $("#stage");
     if (stage) {
-      let LAYOUT = pickLayout();
-      const n = LAYOUT.length;
-      LAYOUT.forEach((L, i) => {
-        const name = PREVIEWS[i % PREVIEWS.length];
-        const clip = VIDEOS[i % VIDEOS.length];
-        const a = document.createElement("button");
-        a.className = "stage-tile";
-        a.type = "button";
-        a.style.cssText =
-          `left:${L.x}%;top:${L.y}%;width:max(104px, ${L.w}vw);` +
-          `aspect-ratio:16/10;--rot:${L.rot}deg;--i:${i}`;
-        a.dataset.depth = L.d;
-        a.setAttribute("aria-label", `Open ${clip.title}`);
-        a.innerHTML =
-          `<img src="clips/posters/${name}.jpg" alt="" loading="eager" decoding="async">` +
-          `<video muted loop playsinline preload="none" src="clips/previews/${name}.mp4"></video>` +
-          `<span class="stage-cap">${clip.title}</span>`;
-        a.addEventListener("click", () => openViewer(VIDEOS, VIDEOS.indexOf(clip)));
-        stage.appendChild(a);
-      });
+      const isNarrow = () => innerWidth <= 720;
 
-      const tiles = $$(".stage-tile", stage);
-      let wasNarrow = innerWidth <= 720;
-      addEventListener("resize", () => {
-        const narrow = innerWidth <= 720;
-        if (narrow === wasNarrow) return;
-        wasNarrow = narrow;
-        const L2 = pickLayout();
-        tiles.forEach((t, i) => {
-          const L = L2[i];
-          if (!L) { t.style.display = "none"; return; }
-          t.style.display = "";
-          t.style.left = L.x + "%"; t.style.top = L.y + "%";
-          t.style.width = `max(104px, ${L.w}vw)`;
-          t.style.setProperty("--rot", L.rot + "deg");
-          t.dataset.depth = L.d;
+      /* ── Wide: the scattered field. It works because there is room around
+         the wordmark to scatter into. ── */
+      function buildScatter() {
+        const L0 = LAYOUT_WIDE;
+        const rank = [];
+        L0.map((L, i) => i)
+          .sort((a, b) => L0[a].d - L0[b].d)
+          .forEach((idx, r) => { rank[idx] = r; });
+        L0.forEach((L, i) => {
+          const name = PREVIEWS[i % PREVIEWS.length];
+          const a = document.createElement("div");   // decoration — not a control
+          a.className = "stage-tile";
+          const [fx, fy] = outVec(L);
+          a.style.cssText =
+            `left:${L.x}%;top:${L.y}%;width:max(104px, ${L.w}vw);` +
+            `aspect-ratio:16/10;--rot:${L.rot}deg;--i:${rank[i]};` +
+            `--fx:${fx}vw;--fy:${fy}vh`;
+          a.dataset.depth = L.d;
+          a.setAttribute("aria-hidden", "true");
+          a.innerHTML =
+            `<img src="clips/posters/${name}.jpg" alt="" loading="eager" decoding="async">` +
+            `<video muted loop playsinline preload="none" src="clips/previews/${name}.mp4"></video>` +
+            `<span class="stage-cap">${VIDEOS[i % VIDEOS.length].title}</span>`;
+          stage.appendChild(a);
         });
-      }, { passive: true });
-      /* three tiles carry motion on their own so the page is alive at rest;
-         the rest wake on hover. Cheap: the previews are ~280KB each. */
-      if (!RM) {
-        [0, 4, 7].forEach(i => {
-          const t = tiles[i]; if (!t) return;
-          const v = $("video", t);
-          v.preload = "auto";
-          v.play().then(() => t.classList.add("playing")).catch(() => {});
-        });
-        if (FINE) tiles.forEach(t => {
-          const v = $("video", t);
-          t.addEventListener("mouseenter", () => {
-            v.play().then(() => t.classList.add("playing")).catch(() => {});
+        const tiles = $$(".stage-tile", stage);
+        playWhenWhole(tiles);
+        if (!RM) {
+          if (FINE) tiles.forEach(t => {
+            const v = $("video", t);
+            t.addEventListener("mouseenter", () => {
+              v.play().then(() => t.classList.add("playing")).catch(() => {});
+            });
           });
+        }
+        if (FINE && !RM) parallax(tiles);
+      }
+
+      /* ── Phone: two counter-sliding strips instead. At 390px the wordmark
+         spans the screen, so there is no "around" to scatter into — six small
+         rotated tiles read as clutter and clip at both edges. A strip is one
+         element per band: edge to edge by design, no rotation, nothing that
+         can collide with the name, and it shows more work rather than less. ── */
+      function buildStrips() {
+        [["a", 0], ["b", 5]].forEach(([key, offset]) => {
+          const wrap = document.createElement("div");
+          wrap.className = `pstrip pstrip-${key}`;
+          const track = document.createElement("div");
+          track.className = "pstrip-track";
+          for (let pass = 0; pass < 2; pass++) {     // laid down twice so it loops seamlessly
+            for (let k = 0; k < 5; k++) {
+              const name = PREVIEWS[(k + offset) % PREVIEWS.length];
+              const cell = document.createElement("div");   // decoration — not a control
+              cell.className = "pcell";
+              cell.setAttribute("aria-hidden", "true");
+              cell.innerHTML =
+                `<img src="clips/posters/${name}.jpg" alt="" loading="eager" decoding="async">` +
+                `<video muted loop playsinline preload="none" src="clips/previews/${name}.mp4"></video>`;
+              track.appendChild(cell);
+            }
+          }
+          wrap.appendChild(track);
+          stage.appendChild(wrap);
+        });
+        /* every cell plays, but only while wholly inside the strip's clip —
+           the ones sliding through the masked edges stay paused */
+        playWhenWhole($$(".pcell", stage));
+      }
+
+      /* Play only while a clip is wholly visible. A half-cut preview is a
+         decoder running for nothing, and on a phone twenty of them at once is
+         the difference between smooth and hot. The observer also catches the
+         landing scrolling away, so nothing plays off-screen. */
+      function playWhenWhole(els) {
+        if (RM) return;
+        const io = new IntersectionObserver(entries => {
+          entries.forEach(e => {
+            const v = $("video", e.target); if (!v) return;
+            if (e.intersectionRatio >= 0.99) {
+              v.play().then(() => e.target.classList.add("playing")).catch(() => {});
+            } else {
+              v.pause();
+              e.target.classList.remove("playing");
+            }
+          });
+        }, { threshold: [0, 0.99] });
+        els.forEach(el => {
+          const v = $("video", el); if (!v) return;
+          v.preload = "auto";
+          io.observe(el);
         });
       }
 
       /* mouse parallax — transform only, and only on a real pointer */
-      if (FINE && !RM) {
+      function parallax(tiles) {
         let tx = 0, ty = 0, cx = 0, cy = 0, raf = 0;
         const loop = () => {
           cx += (tx - cx) * 0.06; cy += (ty - cy) * 0.06;
@@ -1802,9 +1963,146 @@
           if (!raf) raf = requestAnimationFrame(loop);
         });
       }
+
+      let narrow = isNarrow();
+      const build = () => {
+        stage.innerHTML = "";
+        stage.classList.remove("in");
+        (narrow ? buildStrips : buildScatter)();
+      };
+      const startStage = () => { void stage.offsetWidth; stage.classList.add("in"); };
+
+      build();
+      if (document.body.classList.contains("loaded")) startStage();
+      else addEventListener("site:ready", startStage, { once: true });
+
+      /* crossing the breakpoint swaps the whole idiom, so rebuild */
+      addEventListener("resize", () => {
+        if (isNarrow() === narrow) return;
+        narrow = isNarrow();
+        build();
+        startStage();
+      }, { passive: true });
     }
 
     /* ── shared: build a rail + a grid, wired together ───────────── */
+    /* one card. Shared by the stills rail and by every run under Videos. */
+    const makeCard = (it, list, i) => {
+      const card = document.createElement("button");
+      card.className = "idx-card"; card.type = "button";
+      card.dataset.cat = it.cat;
+      card.innerHTML =
+        `<span class="idx-thumb" style="aspect-ratio:4 / 5">` +
+          `<img src="${it.poster}" alt="" loading="lazy" decoding="async">` +
+          (it.kind === "video" && !RM
+            ? `<video muted loop playsinline preload="none" src="${it.src}"></video>` : "") +
+        `</span>` +
+        `<span class="idx-shade"></span>` +
+        (it.dur ? `<span class="idx-dur">${it.dur}</span>` : "") +
+        `<span class="idx-meta"><span class="idx-title">${it.title}</span>` +
+        `<span class="idx-sub"><span>${it.platform || ""}</span><span>${it.year || ""}</span></span></span>`;
+      card.addEventListener("click", () =>
+        it.kind === "video" ? openViewer(list, i) : openLightbox(list, i));
+      if (FINE && !RM && it.kind === "video") {
+        const v = $("video", card);
+        card.addEventListener("mouseenter", () => { v.play().then(() => card.classList.add("playing")).catch(() => {}); });
+        card.addEventListener("mouseleave", () => { v.pause(); card.classList.remove("playing"); });
+      }
+      return card;
+    };
+
+    /* A run of cards: four, then the rest peeking through a blur and a fade so
+       it reads as "there is more" rather than as a hard edge. Four is fixed at
+       every width — one row on desktop, two on a phone. The clip height is
+       measured from the first held-back card, so it re-measures on resize. */
+    const SHOW = 4, PEEK = 0.45, UNLABELLED = "Other";
+    function renderRun(host, list, show = SHOW) {
+      const grid = document.createElement("div");
+      grid.className = "idx-grid";
+      list.forEach((it, i) => grid.appendChild(makeCard(it, list, i)));
+      host.appendChild(grid);
+      if (list.length <= show) return;
+
+      const cards = $$(".idx-card", grid);
+      grid.classList.add("clipped");
+      cards.slice(show).forEach(c => {
+        c.classList.add("peek");
+        c.tabIndex = -1;                    // half-cut cards stay out of the tab order
+      });
+
+      const more = document.createElement("button");
+      more.className = "vgroup-more"; more.type = "button";
+      more.textContent = `Show all ${list.length}`;
+      host.appendChild(more);
+      let expanded = false;
+
+      const relayout = () => {
+        if (expanded) return;
+        const top = grid.getBoundingClientRect().top;
+        const r = cards[show].getBoundingClientRect();
+        grid.style.maxHeight = ((r.top - top) + r.height * PEEK) + "px";
+        grid.style.setProperty("--fade", (r.height * PEEK) + "px");
+      };
+      relayout();
+      addEventListener("resize", relayout, { passive: true });
+      addEventListener("load", relayout, { once: true });   // posters can shift layout
+
+      more.addEventListener("click", () => {
+        expanded = true;
+        grid.classList.remove("clipped");
+        grid.style.maxHeight = "";
+        let n = 0;
+        cards.forEach(c => {
+          if (!c.classList.contains("peek")) return;
+          c.classList.remove("peek");
+          c.tabIndex = 0;
+          c.style.setProperty("--u", n++);
+          c.classList.add("unveil");
+        });
+        more.remove();
+      });
+    }
+
+    /* Videos: three named runs down the page. A group carrying splitBy breaks
+       one level further — Social buckets by client, anything not yet labelled
+       collecting at the end rather than being dropped. */
+    function buildVideoGroups(mountSel, groups, items) {
+      const mount = $(mountSel); if (!mount) return;
+      groups.forEach(g => {
+        const list = items.filter(i => i.cat === g.key);
+        if (!list.length) return;
+        const sec = document.createElement("section");
+        sec.className = "vgroup"; sec.dataset.group = g.key;
+        sec.innerHTML =
+          `<header class="vgroup-head"><h3 class="vgroup-name">${g.name}</h3>` +
+          `<span class="vgroup-rule"></span>` +
+          `<span class="vgroup-n mono">${list.length} ${list.length === 1 ? "piece" : "pieces"}</span></header>`;
+        if (g.splitBy) {
+          const buckets = new Map();
+          list.forEach(it => {
+            const k = String(it[g.splitBy] || "").trim() || UNLABELLED;
+            if (!buckets.has(k)) buckets.set(k, []);
+            buckets.get(k).push(it);
+          });
+          const entries = [...buckets.entries()]
+            .sort((a, b) => (a[0] === UNLABELLED) - (b[0] === UNLABELLED) || b[1].length - a[1].length);
+          if (entries.length === 1 && entries[0][0] === UNLABELLED) {
+            renderRun(sec, entries[0][1]);        // nothing to label it against yet
+          } else
+          entries.forEach(([name, sub]) => {
+              const box = document.createElement("div");
+              box.className = "vsub";
+              box.innerHTML = `<h4 class="vsub-name mono">${name}<span>${sub.length}</span></h4>`;
+              renderRun(box, sub);
+              sec.appendChild(box);
+            });
+        } else {
+          renderRun(sec, list);
+        }
+        mount.appendChild(sec);
+      });
+    }
+
     function buildSection({ railEl, gridEl, countEl, cats, items, stills }) {
       const rail = $(railEl), grid = $(gridEl), countOut = $(countEl);
       if (!rail || !grid) return;
@@ -1845,30 +2143,7 @@
       });
 
       /* grid */
-      items.forEach((it, i) => {
-        const card = document.createElement("button");
-        card.className = "idx-card"; card.type = "button";
-        card.dataset.cat = it.cat;
-        const ar = it.ar ? it.ar.replace("/", " / ") : "4 / 5";
-        card.innerHTML =
-          `<span class="idx-thumb" style="aspect-ratio:${stills ? "4 / 5" : "4 / 5"}">` +
-            `<img src="${it.poster}" alt="" loading="lazy" decoding="async">` +
-            (it.kind === "video" && !RM
-              ? `<video muted loop playsinline preload="none" src="${it.src}"></video>` : "") +
-          `</span>` +
-          `<span class="idx-shade"></span>` +
-          (it.dur ? `<span class="idx-dur">${it.dur}</span>` : "") +
-          `<span class="idx-meta"><span class="idx-title">${it.title}</span>` +
-          `<span class="idx-sub"><span>${it.platform || ""}</span><span>${it.year || ""}</span></span></span>`;
-        card.addEventListener("click", () =>
-          it.kind === "video" ? openViewer(items, i) : openLightbox(items, i));
-        if (FINE && !RM && it.kind === "video") {
-          const v = $("video", card);
-          card.addEventListener("mouseenter", () => { v.play().then(() => card.classList.add("playing")).catch(() => {}); });
-          card.addEventListener("mouseleave", () => { v.pause(); card.classList.remove("playing"); });
-        }
-        grid.appendChild(card);
-      });
+      items.forEach((it, i) => grid.appendChild(makeCard(it, items, i)));
 
       /* photography has no shoot yet — say so instead of faking it */
       if (stills) {
@@ -1905,13 +2180,26 @@
       });
     }
 
-    buildSection({
-      railEl: "#workRail", gridEl: "#workGrid", countEl: "#workCount",
-      cats: CATS, items: VIDEOS,
-    });
-    buildSection({
-      railEl: "#stillRail", gridEl: "#stillGrid", countEl: "#stillCount",
-      cats: STILL_CATS, items: STILLS, stills: true,
+    buildVideoGroups("#videoGroups", VIDEO_GROUPS, VIDEOS);
+    const vCount = $("#videoCount");
+    if (vCount) vCount.textContent = `${VIDEOS.length} pieces`;
+
+    const aiHost = $("#aiGrid");
+    if (aiHost && AI_ITEMS.length) {
+      renderRun(aiHost, AI_ITEMS, 8);   // opens on more pictures than the video runs
+      const aCount = $("#aiCount");
+      if (aCount) aCount.textContent = `${AI_ITEMS.length} pieces`;
+    }
+
+    /* A section with nothing in it is dropped rather than shown as a bare
+       heading — and its dock stop goes with it, so the nav can't scroll to
+       an empty screen. */
+    ["videos", "ai"].forEach(id => {
+      const sec = $("#" + id);
+      if (!sec || $(".idx-card", sec)) return;
+      sec.hidden = true;
+      const stop = $(`.dock a[data-sec="${id}"]`);
+      if (stop) stop.hidden = true;
     });
 
     /* ── viewer: one video, arrow/swipe through the filtered set ── */
@@ -1921,6 +2209,11 @@
       vList = list.filter(x => x.kind === "video");
       vI = Math.max(0, vList.indexOf(list[i]));
       vw.hidden = false; document.body.style.overflow = "hidden";
+      /* .viewer is opacity:0 until .open — without this the overlay is displayed
+         but invisible, eats every click and leaves the page scroll-locked.
+         Next frame, so the fade actually runs instead of being skipped. */
+      void vw.offsetWidth;            // flush layout so the fade has a start value
+      vw.classList.add("open");
       loadV();
     }
     function loadV() {
@@ -1932,6 +2225,7 @@
       $("#vPos").textContent = `${vI + 1} / ${vList.length}`;
     }
     const closeV = () => {
+      vw.classList.remove("open");
       vw.hidden = true; vv.pause(); vv.removeAttribute("src"); vv.load();
       document.body.style.overflow = "";
     };
@@ -1947,31 +2241,93 @@
     vw?.addEventListener("click", (e) => { if (e.target === vw) closeV(); });
 
     /* ── lightbox: carousels of stills ── */
-    const lb = $("#lightbox"), lbImg = $("#lbImg");
-    let lList = [], lI = 0, lN = 1, lPage = 1;
+    const lb = $("#lightbox"), lbImg = $("#lbImg"), lbStrip = $("#lbStrip");
+    const lbFrame = $(".lb-frame", lb);
+    const peeks = [[$("#lbPeekPrev"), -1], [$("#lbPeekNext"), 1]];
+    let lFrames = [], lF = 0;
+
+    /* Every set in view is flattened into one continuous run of images, so
+       stepping crosses set boundaries and the strip can show the lot. */
     function openLightbox(list, i) {
-      lList = list.filter(x => x.kind === "post");
-      lI = Math.max(0, lList.indexOf(list[i])); lPage = 1;
+      const clicked = list[i];
+      const seen = new Set();
+      lFrames = [];
+      list.filter(x => x.kind === "post").forEach(p => {
+        if (seen.has(p.slug)) return;        // expanded cards repeat their set
+        seen.add(p.slug);
+        const n = p.slides ? p.slides.length : 1;
+        for (let k = 1; k <= n; k++) lFrames.push({ post: p, page: k, src: postImg(p, k) });
+      });
+      if (!lFrames.length) return;
+      const want = lFrames.findIndex(f =>
+        f.post.slug === clicked.slug && f.page === (clicked.page || 1));
+      lF = Math.max(0, want);
+      buildStrip();
       lb.hidden = false; document.body.style.overflow = "hidden";
+      void lb.offsetWidth;
+      lb.classList.add("open");
       loadL();
     }
+
+    function buildStrip() {
+      if (!lbStrip) return;
+      lbStrip.innerHTML = "";
+      lFrames.forEach((f, n) => {
+        const b = document.createElement("button");
+        b.className = "lb-thumb"; b.type = "button";
+        b.setAttribute("aria-label", `Image ${n + 1} of ${lFrames.length}`);
+        b.innerHTML = `<img src="${f.src}" alt="" loading="lazy" decoding="async">`;
+        b.addEventListener("click", () => { lF = n; loadL(); });
+        lbStrip.appendChild(b);
+      });
+    }
+
+    const frameAt = (n) => lFrames[(n + lFrames.length) % lFrames.length];
+
     function loadL() {
-      const p = lList[lI]; if (!p) return;
-      lN = p.slides ? p.slides.length : 1;
-      lbImg.src = postImg(p, lPage);
-      $("#lbTitle").textContent = p.title;
-      $("#lbSub").textContent = `${[p.platform, p.year].filter(Boolean).join(" · ")} — ${lPage} / ${lN}`;
+      const f = lFrames[lF]; if (!f) return;
+      lbImg.src = f.src;
+      if (lbFrame && f.post.ar) lbFrame.style.setProperty("--ar", f.post.ar.replace("/", " / "));
+      $("#lbTitle").textContent = f.post.title;
+      $("#lbSub").textContent =
+        `${[f.post.platform, f.post.year].filter(Boolean).join(" · ")} — ${lF + 1} / ${lFrames.length}`;
+      const many = lFrames.length > 1;
+      peeks.forEach(([el, d]) => {
+        if (!el) return;
+        el.hidden = !many;
+        if (many) $("img", el).src = frameAt(lF + d).src;
+      });
+      $$(".lb-thumb", lbStrip).forEach((t, n) => t.classList.toggle("on", n === lF));
+      $(".lb-thumb.on", lbStrip)?.scrollIntoView({ block: "nearest", inline: "center" });
     }
-    const closeL = () => { lb.hidden = true; lbImg.removeAttribute("src"); document.body.style.overflow = ""; };
-    const stepL = (d) => {
-      lPage += d;
-      if (lPage > lN) { lI = (lI + 1) % lList.length; lPage = 1; }
-      else if (lPage < 1) { lI = (lI - 1 + lList.length) % lList.length; lPage = 1; }
-      loadL();
+
+    const closeL = () => {
+      lb.classList.remove("open");
+      lb.hidden = true; lbImg.removeAttribute("src"); document.body.style.overflow = "";
     };
+    const stepL = (d) => { lF = (lF + d + lFrames.length) % lFrames.length; loadL(); };
+
     $("#lbClose")?.addEventListener("click", closeL);
     $("#lbPrev")?.addEventListener("click", () => stepL(-1));
     $("#lbNext")?.addEventListener("click", () => stepL(1));
+    peeks.forEach(([el, d]) => el?.addEventListener("click", () => stepL(d)));
+
+    /* swipe — on a phone the peeks are hidden and the arrows are small */
+    (() => {
+      const stage = $(".lb-stage", lb); if (!stage) return;
+      let x0 = null, y0 = 0;
+      stage.addEventListener("touchstart", (e) => {
+        x0 = e.touches[0].clientX; y0 = e.touches[0].clientY;
+      }, { passive: true });
+      stage.addEventListener("touchend", (e) => {
+        if (x0 === null) return;
+        const dx = e.changedTouches[0].clientX - x0;
+        const dy = e.changedTouches[0].clientY - y0;
+        if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy)) stepL(dx < 0 ? 1 : -1);
+        x0 = null;
+      }, { passive: true });
+    })();
+
     lb?.addEventListener("click", (e) => { if (e.target === lb) closeL(); });
 
     addEventListener("keydown", (e) => {
