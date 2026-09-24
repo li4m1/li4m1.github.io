@@ -333,7 +333,12 @@
 
     /* ============ 03 WORK GRID (04 AI WORK shares these styles) ============ */
     .work-display-title {
+      /* Captions' ascenders are taller than a 0.95 line box, so the tops of
+         tall letters (the H and I in "Hi, I'm") sat flush against the box
+         edge and read as sliced off. Pad the top rather than opening up
+         line-height, which would loosen the leading on wrapped headings. */
       font-family: var(--font-display); font-size: var(--fs-display); line-height: 0.95;
+      padding-top: 0.14em;
       margin-bottom: 1.5rem;
     }
     .work-display-title em { font-style: normal; color: transparent; -webkit-text-stroke: 1.5px var(--purple); }
@@ -1023,7 +1028,7 @@
     }
     .lb-strip::-webkit-scrollbar { display: none; }
     .lb-thumb {
-      flex: 0 0 auto; width: 54px; aspect-ratio: 1; border-radius: 6px;
+      flex: 0 0 auto; width: 44px; aspect-ratio: 1; border-radius: 6px;
       overflow: hidden; opacity: 0.45; border: 1px solid transparent; cursor: pointer;
       transition: opacity var(--dur-fast) ease, border-color var(--dur-fast) ease;
     }
@@ -1044,6 +1049,243 @@
       }
       .lb-rail .lb-frame img { background: transparent; }
     }
+
+    /* ── About: portrait on the left, a short intro on the right ── */
+    .about-top {
+      display: grid; grid-template-columns: 0.85fr 1.15fr;
+      gap: clamp(2rem, 5vw, 4rem); align-items: center;
+    }
+    .about-photo { position: relative; max-width: 360px; }
+    .about-photo::before {
+      content: ""; position: absolute; inset: -14% -10%;
+      background: radial-gradient(ellipse at 50% 42%, rgba(108,26,219,0.28), transparent 68%);
+      pointer-events: none; z-index: -1;
+    }
+    .about-photo img {
+      /* height:auto is required here — the width/height HTML attributes
+         set a fixed 610px height hint that this rule's width:100% alone
+         doesn't clear, so the image stretched to fill 100% width at its
+         native, un-scaled height instead of keeping its aspect ratio. */
+      display: block; width: 100%; height: auto;
+      filter: drop-shadow(0 22px 50px rgba(0,0,0,0.55));
+    }
+    .about-text .work-display-title { margin-bottom: 1.1rem; }
+    .about-lead {
+      color: var(--text-mut); font-size: var(--fs-body-lg); max-width: 46ch;
+    }
+    .ig-link {
+      display: inline-flex; align-items: center; gap: 0.55em;
+      margin-top: 1.25rem; color: var(--cream);
+      font-family: var(--font-mono); font-size: clamp(1.05rem, 1.7vw, 1.3rem);
+      letter-spacing: 0.06em;
+      transition: color var(--dur-fast) ease, opacity var(--dur-fast) ease;
+    }
+    .ig-link:hover { color: var(--gold); }
+    .ig-mark { width: 1.35em; height: 1.35em; flex: none; display: block; }
+    .about-facts {
+      display: flex; gap: 0.6rem; flex-wrap: wrap; margin-top: 1.6rem;
+    }
+    .about-facts span {
+      display: inline-flex; align-items: center; gap: 0.5em;
+      font-size: var(--fs-label); letter-spacing: 0.12em; text-transform: uppercase;
+      padding: 0.5em 1.1em; border-radius: var(--pill);
+      border: 1px solid var(--line); color: var(--text-mut);
+    }
+    .about-keywords {
+      display: flex; flex-wrap: wrap; gap: 0.5rem;
+      margin-top: 0.7rem; padding: 0; list-style: none;
+    }
+    .about-keywords li {
+      font-size: var(--fs-label); letter-spacing: 0.12em; text-transform: uppercase;
+      padding: 0.5em 1.1em; border-radius: var(--pill);
+      border: 1px solid var(--line); color: var(--text-mut);
+    }
+    .tools-row { margin-top: 1.9rem; }
+    .tools-label {
+      display: block; font-size: var(--fs-label); letter-spacing: 0.16em;
+      text-transform: uppercase; color: var(--text-mut); margin-bottom: 0.9rem;
+    }
+    /* auto-fit so the ten tools reflow into as many rows as the column needs
+       instead of overflowing one line */
+    .tools-logos {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 0.85rem 1.2rem; padding: 0; margin: 0; list-style: none;
+    }
+    .tools-logos li { display: flex; align-items: center; gap: 0.6rem; min-width: 0; }
+    .tools-logos img {
+      /* the width/height attrs only reserve space — without height:auto they
+         act as a presentational hint and squash the logo. */
+      display: block; width: 26px; height: auto; flex: none;
+      opacity: 0.75; transition: opacity var(--dur-fast) ease;
+    }
+    .tools-logos span {
+      font-family: var(--font-mono); font-size: var(--fs-label);
+      letter-spacing: 0.04em; color: var(--text-mut);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      transition: color var(--dur-fast) ease;
+    }
+    .tools-logos li:hover img { opacity: 1; }
+    .tools-logos li:hover span { color: var(--cream); }
+    @media (max-width: 720px) {
+      .tools-logos { grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 0.75rem 0.9rem; }
+      .tools-logos img { width: 23px; }
+    }
+    .about-facts .dot-live { width: 7px; height: 7px; border-radius: 50%; background: var(--gold); animation: pulse 2.4s ease-in-out infinite; }
+    @media (max-width: 720px) {
+      .about-top { grid-template-columns: 1fr; }
+      .about-photo { max-width: 260px; margin: 0 auto; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .about-facts .dot-live { animation: none !important; }
+    }
+
+    /* ============ 02 SHOWREEL (the TV stays — it's signature) ============ */
+    #showreel { overflow: hidden; }
+    .reel-stage { position: relative; max-width: 980px; margin: 0 auto; }
+    .tv { position: relative; width: 100%; max-width: 850px; margin: 0 auto; }
+    .tv-img { width: 100%; position: relative; z-index: 2; pointer-events: none; }
+    .tv-crown { position: absolute; z-index: 3; width: 42%; top: -22%; right: -12%; pointer-events: none; }
+    .tv-screen {
+      /* aligned to the png's transparent opening (alpha bbox: 12.9/16.7/57.5/60.2) + slight bleed */
+      position: absolute; z-index: 1; top: 16.2%; left: 12.5%; width: 58.4%; height: 61.2%;
+      overflow: hidden; border-radius: 50% / 6%; background: #000; cursor: pointer;
+    }
+    .tv-screen video { width: 100%; height: 100%; object-fit: cover; }
+    /* ── CRT treatment ──────────────────────────────────────────────
+       Built from the CRT-DUB research (~/CRT_DUB_AE_GUIDE.md). Two rules
+       from it drive the whole stack:
+         1. Composite softness is HORIZONTAL ONLY. An isotropic blur kills
+            the effect instantly — hence the SVG filter below rather than
+            CSS blur(), which has no directional form.
+         2. Bloom goes OVER the scanlines, never under, so highlights go
+            solid and the line structure disappears inside them.
+       The grille is deliberately faint: fat RGB stripes are what a macro
+       shot of a monitor looks like, not a TV seen across a room, and that
+       is the single thing that makes these overlays read as a preset.
+       Deliberately omitted: the rolling hum bar — real filmed references
+       don't have one when the shutter is synced. ── */
+    .crt { position: absolute; inset: 0; z-index: 3; pointer-events: none; }
+    .crt > * { position: absolute; inset: 0; }
+
+    /* a) scanlines — dark line, multiply. 3px period: the guide's
+       height/480 rule lands under 1px on a screen this small, which would
+       just alias into mush. */
+    .crt-scan {
+      background: repeating-linear-gradient(to bottom,
+        rgba(0,0,0,0.42) 0px, rgba(0,0,0,0.42) 1px,
+        transparent 1px, transparent 3px);
+      mix-blend-mode: multiply;
+    }
+    /* b) aperture grille — 10%, per the guide's "far lighter than you think" */
+    .crt-grille {
+      background: repeating-linear-gradient(to right,
+        rgba(255,0,0,0.10) 0px, rgba(0,255,0,0.10) 1px,
+        rgba(0,0,255,0.10) 2px, transparent 3px);
+      mix-blend-mode: multiply;
+    }
+    /* c) bloom — above the mask, so highlights swallow the scanlines */
+    .crt-bloom {
+      background: radial-gradient(ellipse at 50% 45%,
+        rgba(255,244,214,0.16), rgba(255,240,200,0.05) 45%, transparent 70%);
+      mix-blend-mode: screen;
+    }
+    /* g) vignette — corner darkening plus a gentle falloff */
+    .crt-vig {
+      background: radial-gradient(ellipse at 50% 50%,
+        transparent 52%, rgba(0,0,0,0.30) 82%, rgba(0,0,0,0.62) 100%);
+    }
+    /* the glass itself: a soft diagonal reflection */
+    .crt-glare {
+      background: linear-gradient(118deg,
+        rgba(255,255,255,0.10) 0%, rgba(255,255,255,0.03) 18%,
+        transparent 38%, transparent 100%);
+    }
+    /* phosphor flicker — barely there on purpose */
+    @keyframes crtFlicker {
+      0%,100% { opacity: 1; } 47% { opacity: 0.985; }
+      48% { opacity: 0.955; } 49% { opacity: 0.99; }
+    }
+    .tv-screen video#reel-video {
+      /* f) overscan: real sets cut ~5% off every side */
+      transform: scale(1.055);
+      /* the horizontal-only softness, plus a mild tube grade */
+      filter: url(#crtSmear) saturate(1.16) contrast(1.07) brightness(1.03);
+      animation: crtFlicker 5.5s steps(1, end) infinite;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .tv-screen video#reel-video { animation: none; }
+    }
+    #static-canvas { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0.9; transition: opacity 0.5s ease; }
+    .reel-meta {
+      display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap;
+      margin-top: 1.5rem; font-family: var(--font-mono); font-size: var(--fs-label);
+      letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-mut);
+    }
+    /* Driven by a real AnalyserNode on the song — see the reel script. Bars
+       sit flat when nothing is playing, so it reads as an honest indicator
+       rather than decoration that lies. */
+    .wave {
+      display: flex; align-items: flex-end; justify-content: center;
+      gap: 3px; height: 40px; margin: 1.6rem auto 0;
+      width: min(340px, 78%);
+    }
+    .wave i {
+      /* The resting bar has to be visible on its own: at 2px and 35% it was
+         there in the DOM but invisible on this background, so with the song
+         waiting on a gesture there was simply nothing to see. */
+      flex: 1; min-width: 3px; height: 6px; border-radius: 3px;
+      background: linear-gradient(to top, var(--purple), var(--gold));
+      opacity: 0.55;
+      transform-origin: bottom;
+      transition: height 90ms linear, opacity 260ms ease;
+    }
+    .wave.on i { opacity: 1; }
+    .wave-cap {
+      text-align: center; margin-top: 0.7rem;
+      font-size: var(--fs-label); letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--text-mut); opacity: 0.45; transition: opacity 320ms ease, color 320ms ease;
+    }
+    .wave-cap.on { opacity: 0.9; color: var(--cream); }
+    @media (prefers-reduced-motion: reduce) { .wave i { transition: none; } }
+    .tv-note {
+      text-align: center; margin-top: 1.1rem;
+      font-size: var(--fs-label); letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--text-mut);
+    }
+    .tv-title { text-align: center; margin-bottom: clamp(1.25rem, 3vw, 2rem); }
+    .orbit-badge { position: absolute; top: -70px; right: -30px; width: 130px; z-index: 4; animation: orbitSpin 18s linear infinite; pointer-events: none; }
+    .orbit-badge text { font-family: var(--font-mono); font-size: 11.5px; letter-spacing: 2.5px; fill: var(--gold); }
+    @keyframes orbitSpin { to { transform: rotate(360deg); } }
+
+    /* ── A client, as one card. The offset edges behind it and the count
+       badge both say "set, not single" before anyone clicks. The stack lives
+       on a wrapper because .idx-card is overflow:hidden and would clip it. ── */
+    .client-stack { position: relative; }
+    .client-stack > .idx-card { position: relative; z-index: 2; }
+    .client-stack.is-many::before,
+    .client-stack.is-many::after {
+      content: ""; position: absolute; inset: 0; z-index: 1;
+      border-radius: var(--radius-sm);
+      background: var(--ink); border: 1px solid var(--line);
+      transition: transform var(--dur) var(--eo);
+    }
+    .client-stack.is-many::before { transform: translate(5px, 5px) rotate(1.3deg); }
+    .client-stack.is-many::after  { transform: translate(10px, 10px) rotate(2.6deg); opacity: 0.6; }
+    @media (hover: hover) and (pointer: fine) {
+      .client-stack.is-many:hover::before { transform: translate(8px, 7px) rotate(2deg); }
+      .client-stack.is-many:hover::after  { transform: translate(15px, 14px) rotate(3.8deg); }
+    }
+    .client-count {
+      position: absolute; top: 0.6rem; right: 0.6rem; z-index: 3;
+      font-size: var(--fs-label); letter-spacing: 0.1em; text-transform: uppercase;
+      padding: 0.35em 0.75em; border-radius: var(--pill);
+      background: rgba(2,1,10,0.7); border: 1px solid rgba(240,180,41,0.45);
+      color: var(--gold); backdrop-filter: blur(6px);
+    }
+    /* author display would otherwise beat the UA [hidden] rule */
+    .lb-strip[hidden] { display: none; }
+    /* grid/flex children default to min-width:auto and refuse to shrink */
+    .v-stage > * { min-width: 0; }
 
     /* ── Videos: named runs, and the client runs nested under Social ── */
     /* section title sits centred over the runs; the eyebrow keeps the number
@@ -1144,7 +1386,7 @@
     .reveal, .hero-name .ch { opacity: 1; transform: none; }
   </style></noscript>
   <!-- portfolio section components (grids, player, lightbox) -->
-  <link rel="stylesheet" href="portfolio/components.css">
+  <link rel="stylesheet" href="portfolio/components.css?v=11">
 </head>
 <body>
   <div id="loader" aria-hidden="true">
@@ -1157,13 +1399,19 @@
     <span class="chip"><i class="dot-live"></i> BERLIN · <span id="bln-clock">--:--</span></span>
   </div>
 
+  <svg width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute">
+    <filter id="crtSmear" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="1.1 0"/>
+    </filter>
+  </svg>
+
   <nav class="dock" aria-label="Sections">
     <a href="#home"    data-sec="home"><span>01</span><span class="tip">Home</span></a>
-    <a href="#videos"  data-sec="videos"><span>02</span><span class="tip">Videos</span></a>
-    <a href="#ai"      data-sec="ai"><span>03</span><span class="tip">AI</span></a>
-    <a href="#lab"     data-sec="lab"><span>04</span><span class="tip">Websites</span></a>
-    <a href="#rugs"    data-sec="rugs"><span>05</span><span class="tip">Rug</span></a>
-    <a href="#koenigskarten" data-sec="koenigskarten"><span>06</span><span class="tip">Königskarten</span></a>
+    <a href="#about"   data-sec="about"><span>02</span><span class="tip">About</span></a>
+    <a href="#videos"  data-sec="videos"><span>03</span><span class="tip">Videos</span></a>
+    <a href="#ai"      data-sec="ai"><span>04</span><span class="tip">AI</span></a>
+    <a href="#reel"    data-sec="reel"><span>05</span><span class="tip">Visuals</span></a>
+    <a href="#lab"     data-sec="lab"><span>06</span><span class="tip">Websites</span></a>
     <a href="#contact" data-sec="contact"><span>07</span><span class="tip">Contact</span></a>
   </nav>
 
@@ -1183,11 +1431,104 @@
     <span class="scroll-hint mono" aria-hidden="true">SCROLL</span>
   </section>
 
-  <!-- ── 02 Videos — one index, three named runs. Each opens with two rows
+  <!-- ── 02 About — the person behind the work ── -->
+  <section id="about" class="bg-ink">
+    <div class="inner">
+      <div class="eyebrow"><span class="num">02</span><span>About</span><span class="rule"></span></div>
+      <div class="about-top">
+        <div class="about-photo reveal">
+          <img src="about-liam.png" alt="Liam Jansson" width="409" height="610" loading="lazy" decoding="async">
+        </div>
+        <div class="about-text reveal" style="--d:1">
+          <h2 class="work-display-title">Hi, I'm <em>Liam</em>.</h2>
+          <p class="about-lead">
+            My name is Liam, I am a 21 year old Creative from Berlin.
+            I&rsquo;m a Videoeditor and Videographer, but I also do other stuff
+            like Filmmaking, Building Websites, Designing and making Rugs.
+            I love to learn new stuff and to explore my creativity in many ways.
+          </p>
+          <a class="ig-link" href="https://www.instagram.com/li4m1/" target="_blank" rel="noopener me">
+            <svg class="ig-mark" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <defs>
+                <radialGradient id="igGrad" cx="28%" cy="104%" r="140%">
+                  <stop offset="0%" stop-color="#fdf497"/>
+                  <stop offset="8%" stop-color="#fdd85d"/>
+                  <stop offset="30%" stop-color="#fd5949"/>
+                  <stop offset="55%" stop-color="#d6249f"/>
+                  <stop offset="90%" stop-color="#285aeb"/>
+                </radialGradient>
+              </defs>
+              <path fill="url(#igGrad)" d="M12 2.16c3.2 0 3.58.01 4.85.07 1.17.05 1.8.25 2.23.41.56.22.96.48 1.38.9.42.42.68.82.9 1.38.16.43.36 1.06.41 2.23.06 1.27.07 1.65.07 4.85s-.01 3.58-.07 4.85c-.05 1.17-.25 1.8-.41 2.23-.22.56-.48.96-.9 1.38-.42.42-.82.68-1.38.9-.43.16-1.06.36-2.23.41-1.27.06-1.65.07-4.85.07s-3.58-.01-4.85-.07c-1.17-.05-1.8-.25-2.23-.41-.56-.22-.96-.48-1.38-.9-.42-.42-.68-.82-.9-1.38-.16-.43-.36-1.06-.41-2.23-.06-1.27-.07-1.65-.07-4.85s.01-3.58.07-4.85c.05-1.17.25-1.8.41-2.23.22-.56.48-.96.9-1.38.42-.42.82-.68 1.38-.9.43-.16 1.06-.36 2.23-.41 1.27-.06 1.65-.07 4.85-.07M12 0C8.74 0 8.33.01 7.05.07 5.78.13 4.9.33 4.14.63c-.79.3-1.46.72-2.13 1.38C1.35 2.68.93 3.35.63 4.14.33 4.9.13 5.78.07 7.05.01 8.33 0 8.74 0 12s.01 3.67.07 4.95c.06 1.27.26 2.15.56 2.91.3.79.72 1.46 1.38 2.13.67.67 1.34 1.08 2.13 1.38.76.3 1.64.5 2.91.56C8.33 23.99 8.74 24 12 24s3.67-.01 4.95-.07c1.27-.06 2.15-.26 2.91-.56.79-.3 1.46-.72 2.13-1.38.67-.67 1.08-1.34 1.38-2.13.3-.76.5-1.64.56-2.91.06-1.28.07-1.69.07-4.95s-.01-3.67-.07-4.95c-.06-1.27-.26-2.15-.56-2.91-.3-.79-.72-1.46-1.38-2.13-.67-.67-1.34-1.08-2.13-1.38-.76-.3-1.64-.5-2.91-.56C15.67.01 15.26 0 12 0z"/>
+              <path fill="url(#igGrad)" d="M12 5.84A6.16 6.16 0 1 0 18.16 12 6.16 6.16 0 0 0 12 5.84zm0 10.16A4 4 0 1 1 16 12a4 4 0 0 1-4 4z"/>
+              <circle fill="url(#igGrad)" cx="18.41" cy="5.59" r="1.44"/>
+            </svg>
+            <span>@li4m1</span>
+          </a>
+          <div class="about-facts mono">
+            <span><i class="dot-live"></i>Berlin, DE</span>
+          </div>
+          <ul class="about-keywords mono">
+            <li>Video Editing</li>
+            <li>Filmmaking</li>
+            <li>AI-Production</li>
+            <li>Videography</li>
+            <li>Designing</li>
+          </ul>
+          <div class="tools-row">
+            <span class="tools-label mono">Tools</span>
+            <ul class="tools-logos">
+              <li>
+                <img src="logos/after-effects.png" alt="" width="192" height="192" loading="lazy" decoding="async">
+                <span>After Effects</span>
+              </li>
+              <li>
+                <img src="logos/photoshop.png" alt="" width="192" height="192" loading="lazy" decoding="async">
+                <span>Photoshop</span>
+              </li>
+              <li>
+                <img src="logos/premiere.png" alt="" width="192" height="192" loading="lazy" decoding="async">
+                <span>Premiere</span>
+              </li>
+              <li>
+                <img src="logos/capcut.png" alt="" width="192" height="192" loading="lazy" decoding="async">
+                <span>CapCut</span>
+              </li>
+              <li>
+                <img src="logos/claude.png" alt="" width="192" height="192" loading="lazy" decoding="async">
+                <span>Claude Code &amp; Design</span>
+              </li>
+              <li>
+                <img src="logos/higgsfield.png" alt="" width="192" height="192" loading="lazy" decoding="async">
+                <span>Higgsfield</span>
+              </li>
+              <li>
+                <img src="logos/figma.png" alt="" width="192" height="192" loading="lazy" decoding="async">
+                <span>Figma</span>
+              </li>
+              <li>
+                <img src="logos/kling.png" alt="" width="192" height="192" loading="lazy" decoding="async">
+                <span>Kling</span>
+              </li>
+              <li>
+                <img src="logos/nano-banana.png" alt="" width="192" height="192" loading="lazy" decoding="async">
+                <span>Nano Banana</span>
+              </li>
+              <li>
+                <img src="logos/seedance.png" alt="" width="192" height="192" loading="lazy" decoding="async">
+                <span>Seedance</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 03 Videos — one index, three named runs. Each opens with two rows
        and unfolds the rest behind a show-more, so the page stays short. ── -->
   <section id="videos" class="bg-night">
     <div class="inner">
-      <div class="eyebrow"><span class="num">02</span><span class="rule"></span></div>
+      <div class="eyebrow"><span class="num">03</span><span class="rule"></span></div>
       <h2 class="work-display-title videos-title reveal">Videos</h2>
       <div class="idx-head">
         <span class="idx-count mono" id="videoCount"></span>
@@ -1200,7 +1541,7 @@
   <!-- ── 03 AI — generated work, video and stills in one run ── -->
   <section id="ai" class="bg-ink">
     <div class="inner">
-      <div class="eyebrow"><span class="num">03</span><span class="rule"></span></div>
+      <div class="eyebrow"><span class="num">04</span><span class="rule"></span></div>
       <h2 class="work-display-title videos-title reveal">AI</h2>
       <div class="idx-head">
         <span class="idx-count mono" id="aiCount"></span>
@@ -1211,10 +1552,44 @@
   </section>
 
 
+  <!-- ── Showreel — the TV, restored below AI ── -->
+  <section id="reel" class="bg-ink">
+    <span class="bg-word" aria-hidden="true">JANSSON</span>
+    <div class="inner">
+      <div class="eyebrow"><span class="num">05</span><span>Visuals</span><span class="rule"></span></div>
+      <div class="reel-stage reveal">
+        <svg class="orbit-badge" viewBox="0 0 110 110" aria-hidden="true">
+          <defs><path id="orbitPath" d="M55,55 m-40,0 a40,40 0 1,1 80,0 a40,40 0 1,1 -80,0"/></defs>
+          <text><textPath href="#orbitPath">&#183; VISUALS &#183; ALWAYS ROLLING </textPath></text>
+        </svg>
+        <h2 class="work-display-title videos-title reveal tv-title">Jansson <em>TV</em></h2>
+        <div class="tv">
+          <img src="tv.png" alt="" aria-hidden="true" class="tv-img">
+          <img src="Asset 4.png" alt="" aria-hidden="true" class="tv-crown">
+          <audio id="reel-song" src="clips/fx/peace-in-my-soul.mp3" loop preload="none"></audio>
+          <div class="tv-screen" id="tv-screen">
+            <video id="reel-video" muted playsinline preload="metadata"></video>
+            <canvas id="static-canvas" aria-hidden="true"></canvas>
+            <div class="crt" aria-hidden="true">
+              <div class="crt-scan"></div>
+              <div class="crt-grille"></div>
+              <div class="crt-bloom"></div>
+              <div class="crt-vig"></div>
+              <div class="crt-glare"></div>
+            </div>
+          </div>
+        </div>
+        <p class="tv-note mono">All Visuals made by me</p>
+        <div class="wave" id="wave" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+        <p class="wave-cap mono" id="waveCap">Peace In My Soul</p>
+      </div>
+    </div>
+  </section>
+
   <!-- ── 05 Lab ── -->
   <section id="lab" class="bg-night">
     <div class="inner">
-      <div class="eyebrow"><span class="num">04</span><span class="rule"></span></div>
+      <div class="eyebrow"><span class="num">06</span><span class="rule"></span></div>
       <h2 class="work-display-title videos-title reveal">Websites</h2>
       <p class="lab-lead reveal" style="--d:1">
         Not everything I make is a film. These are live sites and tools I built
@@ -1222,111 +1597,6 @@
         product's own code in miniature. Click in and use them.
       </p>
       <div class="lab-grid" id="lab-grid"></div>
-    </div>
-  </section>
-  <!-- ── 06 Rugs — the one paper section. Torn in from ink, torn out to night.
-       When the shoot lands: swap a <div class="rug-shot soon">…</div> for
-       <div class="rug-shot"><img src="rugs/piece-01.jpg" alt="…" loading="lazy"></div>
-       and nothing else needs to change. ── -->
-  <svg class="rip rip-from-night" viewBox="0 0 1200 42" preserveAspectRatio="none" aria-hidden="true">
-    <path d="M0,42 H1200 V12 L1188,8 L1166,18 L1149,7 L1125,8 L1101,7 L1083,28 L1071,16 L1059,18 L1044,11 L1030,22 L1014,27 L997,19 L984,18 L967,28 L943,25 L918,12 L902,19 L882,15 L857,11 L843,15 L822,9 L810,19 L789,12 L763,16 L750,11 L738,28 L713,11 L691,7 L675,16 L663,10 L645,13 L632,9 L613,24 L594,13 L576,9 L561,10 L550,14 L531,11 L507,23 L486,29 L474,28 L451,13 L437,14 L425,10 L400,9 L388,18 L373,15 L362,21 L339,9 L317,16 L303,8 L277,14 L262,8 L243,14 L232,10 L217,18 L197,17 L175,9 L154,21 L137,10 L120,15 L109,7 L90,29 L68,14 L46,8 L28,14 L11,27 L0,16 Z"/>
-  </svg>
-  <section id="rugs" class="bg-cream">
-    <div class="inner">
-      <div class="eyebrow"><span class="num">05</span><span>Rug</span><span class="rule"></span></div>
-      <h2 class="work-display-title reveal">Tufted <em>by hand</em>.</h2>
-      <p class="rug-lead reveal" style="--d:1">
-        A sketch goes on the frame, the yarn gets punched in by hand, then the pile
-        is carved back until the shape stands up off the floor. Slow work, and the
-        only part of what I make that you can walk on. Every piece is a one-off.
-      </p>
-
-      <div class="rug-grid">
-        <article class="rug-card wide reveal" style="--d:1">
-          <div class="rug-shot soon"><b>SOON</b><span>piece 01</span></div>
-          <div class="rug-info">
-            <h3 class="rug-title">Piece 01</h3>
-            <p class="rug-meta">Hand-tufted · one-off</p>
-          </div>
-        </article>
-        <article class="rug-card reveal" style="--d:2">
-          <div class="rug-shot soon"><b>SOON</b><span>piece 02</span></div>
-          <div class="rug-info">
-            <h3 class="rug-title">Piece 02</h3>
-            <p class="rug-meta">Hand-tufted · one-off</p>
-          </div>
-        </article>
-        <article class="rug-card reveal" style="--d:3">
-          <div class="rug-shot soon"><b>SOON</b><span>on the frame</span></div>
-          <div class="rug-info">
-            <h3 class="rug-title">Process</h3>
-            <p class="rug-meta">Frame to finished pile</p>
-          </div>
-        </article>
-        <article class="rug-card wide reveal" style="--d:4">
-          <div class="rug-shot soon"><b>SOON</b><span>pile detail</span></div>
-          <div class="rug-info">
-            <h3 class="rug-title">Detail</h3>
-            <p class="rug-meta">Carved edges, close up</p>
-          </div>
-        </article>
-      </div>
-
-      <dl class="rug-specs reveal" style="--d:2">
-        <div><dt>Technique</dt><dd>Hand-tufted</dd></div>
-        <div><dt>Edition</dt><dd>One-off, never repeated</dd></div>
-        <div><dt>Made in</dt><dd>Berlin</dd></div>
-        <div><dt>Commissions</dt><dd>Open</dd></div>
-      </dl>
-
-      <div class="rug-cta reveal" style="--d:3">
-        <span class="note">Want one made to your own design?</span>
-        <a class="btn-ink" href="#contact">Start a commission →</a>
-      </div>
-    </div>
-  </section>
-  <svg class="rip rip-out rip-from-night" viewBox="0 0 1200 42" preserveAspectRatio="none" aria-hidden="true">
-    <path d="M0,42 H1200 V12 L1188,8 L1166,18 L1149,7 L1125,8 L1101,7 L1083,28 L1071,16 L1059,18 L1044,11 L1030,22 L1014,27 L997,19 L984,18 L967,28 L943,25 L918,12 L902,19 L882,15 L857,11 L843,15 L822,9 L810,19 L789,12 L763,16 L750,11 L738,28 L713,11 L691,7 L675,16 L663,10 L645,13 L632,9 L613,24 L594,13 L576,9 L561,10 L550,14 L531,11 L507,23 L486,29 L474,28 L451,13 L437,14 L425,10 L400,9 L388,18 L373,15 L362,21 L339,9 L317,16 L303,8 L277,14 L262,8 L243,14 L232,10 L217,18 L197,17 L175,9 L154,21 L137,10 L120,15 L109,7 L90,29 L68,14 L46,8 L28,14 L11,27 L0,16 Z"/>
-  </svg>
-
-  <!-- ── 07 Königskarten — hand-drawn deck. Real art up top, more shots reserved ── -->
-  <section id="koenigskarten" class="bg-night">
-    <span class="bg-word" aria-hidden="true">KARTEN</span>
-    <div class="inner">
-      <div class="eyebrow"><span class="num">06</span><span>Königskarten</span><span class="rule"></span></div>
-
-      <div class="kk-top">
-        <div class="reveal">
-          <div class="kk-logo"><img src="carddeck/koenigskarten-logo.png" alt="Königskarten hand-lettered logo" width="558" height="418"></div>
-          <p class="kk-lead">
-            A full deck, drawn by hand. Graffiti court cards, a crown motif running
-            through every suit, and a back that tiles its own name. Taken from the
-            first pencil sketch all the way to a <strong>print-ready</strong> file.
-          </p>
-          <div class="kk-suits">
-            <span class="kk-suit"><i>♠</i>Spades</span>
-            <span class="kk-suit red"><i>♥</i>Hearts</span>
-            <span class="kk-suit red"><i>♦</i>Diamonds</span>
-            <span class="kk-suit"><i>♣</i>Clubs</span>
-            <span class="kk-suit">Hand-drawn</span>
-            <span class="kk-suit">Print-ready</span>
-          </div>
-        </div>
-        <div class="kk-hero reveal" style="--d:1">
-          <img src="carddeck/deck-fan.png" alt="Königskarten deck fanned out — the red crown-tiled back beside three hand-drawn court cards" width="954" height="818">
-        </div>
-      </div>
-
-      <div class="kk-grid">
-        <div class="kk-card soon reveal" style="--d:1"><b>SOON</b><span>court cards</span></div>
-        <div class="kk-card soon reveal" style="--d:2"><b>SOON</b><span>card backs</span></div>
-        <div class="kk-card soon reveal" style="--d:3"><b>SOON</b><span>full deck</span></div>
-      </div>
-
-      <div class="kk-cta reveal" style="--d:2">
-        <span class="note">Want a deck — or any print run — designed from scratch?</span>
-        <a class="btn-red" href="#contact">Talk to me →</a>
-      </div>
     </div>
   </section>
 
@@ -1337,7 +1607,7 @@
     </div>
   </div>
 
-  <!-- ── 08 Contact ── -->
+  <!-- ── 07 Contact ── -->
   <section id="contact" class="bg-ink">
     <span class="bg-word" aria-hidden="true">CONTACT</span>
     <div class="inner">
@@ -1353,7 +1623,7 @@
             <button class="copy-btn" id="copy-email">Copy</button>
           </div>
           <div class="contact-socials">
-            <a href="https://instagram.com" target="_blank" rel="noopener">Instagram</a>
+            <a href="https://www.instagram.com/li4m1/" target="_blank" rel="noopener me">Instagram</a>
             <a href="https://vimeo.com" target="_blank" rel="noopener">Vimeo</a>
             <a href="https://youtube.com" target="_blank" rel="noopener">YouTube</a>
             <a href="https://linkedin.com" target="_blank" rel="noopener">LinkedIn</a>
@@ -1384,15 +1654,18 @@
     <div class="v-stage" id="vStage">
       <div class="v-frame">
         <video id="vVideo" playsinline preload="auto" controls></video>
+        <div class="v-bar">
+        <div class="v-meta">
+          <h2 class="v-title" id="vTitle"></h2>
+          <p class="v-sub mono" id="vSub"></p>
+        </div>
+        <div class="v-tools">
+          <button class="v-btn mono" id="vSound" aria-pressed="true">Sound on</button>
+          <span class="v-pos mono" id="vPos"></span>
+        </div>
+        </div>
       </div>
-      <div class="v-meta">
-        <h2 class="v-title" id="vTitle"></h2>
-        <p class="v-sub mono" id="vSub"></p>
-      </div>
-      <div class="v-tools">
-        <button class="v-btn mono" id="vSound" aria-pressed="false">Sound off</button>
-        <span class="v-pos mono" id="vPos"></span>
-      </div>
+      <div class="lb-strip" id="vStrip" aria-label="All clips in this set"></div>
     </div>
   </div>
 
@@ -1712,6 +1985,187 @@
       tick(); setInterval(tick, 30000);
     })();
 
+    /* ============ TV — the visuals reel ============================
+       Plays the set straight through as soon as the TV scrolls into view.
+       Muted, because that is the only autoplay a browser starts without a
+       click; the screen itself is the sound toggle. Static noise holds the
+       screen until a frame has actually played. ==================== */
+    (() => {
+      const video = $("#reel-video"), screen = $("#tv-screen"),
+            canvas = $("#static-canvas"), song = $("#reel-song");
+      if (!video || !screen || !canvas) return;
+      video.muted = true;   // the clips are silent by design — the song carries the section
+      const ctx = canvas.getContext("2d");
+      /* Everything in clips/visuals — the channel runs the lot, then loops. */
+      const REEL = [
+        "clips/visuals/c4809.mp4",
+        "clips/visuals/cinematic-final.mp4",
+        "clips/visuals/cream-insta-2.mp4",
+        "clips/visuals/dips.mp4",
+        "clips/visuals/graded-haus.mp4",
+        "clips/visuals/haus-grade.mp4",
+        "clips/visuals/img-0006.mp4",
+        "clips/visuals/koh-samui-1.mp4",
+        "clips/visuals/muay-thai-fight.mp4",
+        "clips/visuals/ruben-finn.mp4",
+        "clips/visuals/sbahn-grade.mp4",
+        "clips/visuals/schoeneberg-edit.mp4",
+        "clips/visuals/shadowboxing.mp4",
+        "clips/visuals/sonne-apple.mp4",
+        "clips/visuals/zoom-transition.mp4",
+      ];
+      let raf = null, idx = 0;
+
+      function drawStatic() {
+        const w = canvas.offsetWidth | 0 || 2, h = canvas.offsetHeight | 0 || 2;
+        if (canvas.width !== w) canvas.width = w;
+        if (canvas.height !== h) canvas.height = h;
+        const img = ctx.createImageData(w, h), d = img.data;
+        for (let i = 0; i < d.length; i += 4) { const v = Math.random() * 255 | 0; d[i] = d[i+1] = d[i+2] = v; d[i+3] = 255; }
+        ctx.putImageData(img, 0, 0);
+        raf = requestAnimationFrame(drawStatic);
+      }
+      function stopStatic() { if (raf) cancelAnimationFrame(raf); raf = null; canvas.style.opacity = 0; }
+      if (!RM) drawStatic(); else canvas.style.opacity = 0.12;
+
+      /* The song plays only while the TV is actually on screen AND the tab is
+         in front. Browsers refuse unmuted audio until the page has had a real
+         gesture — a scroll does not count — so a cold load arms it on the
+         first click/key/touch and starts then, still subject to both gates. */
+      let wantSong = false, armed = false;
+      if (song) song.volume = 0.55;
+
+      const canPlaySong = () => wantSong && !document.hidden;
+
+      function songPlay() {
+        if (!song || !canPlaySong()) return;
+        song.play().catch(() => arm());
+      }
+      function songStop() { if (song) song.pause(); }
+
+      function arm() {
+        if (armed) return;
+        armed = true;
+        const go = () => {
+          armed = false;
+          ["pointerdown", "keydown", "touchstart"].forEach(ev => removeEventListener(ev, go));
+          songPlay();                       // re-checks both gates
+        };
+        ["pointerdown", "keydown", "touchstart"].forEach(
+          ev => addEventListener(ev, go, { passive: true }));
+      }
+
+      // leaving the tab is not "seeing the TV" either
+      document.addEventListener("visibilitychange", () => {
+        if (document.hidden) songStop(); else songPlay();
+      });
+
+      /* ── waveform ──────────────────────────────────────────────────
+         A real AnalyserNode tap on the song, so the bars move with the
+         actual audio rather than running a canned animation. Routing an
+         element through Web Audio makes the graph responsible for output,
+         so the source is connected straight to the destination as well —
+         miss that and the song goes silent. The whole thing is optional:
+         if the context can't be created the bars just stay flat and the
+         song is unaffected. ── */
+      const wave = $("#wave"), waveCap = $("#waveCap");
+      const waveBars = wave ? Array.from(wave.children) : [];
+      let actx = null, analyser = null, freq = null, waveRaf = null, silentFrames = 0;
+
+      function initAnalyser() {
+        if (actx || !song || !wave) return;
+        const AC = window.AudioContext || window.webkitAudioContext;
+        if (!AC) return;
+        try {
+          actx = new AC();
+          const src = actx.createMediaElementSource(song);
+          analyser = actx.createAnalyser();
+          analyser.fftSize = 128;
+          analyser.smoothingTimeConstant = 0.75;
+          src.connect(analyser);
+          analyser.connect(actx.destination);   // keep the song audible
+          freq = new Uint8Array(analyser.frequencyBinCount);
+        } catch (e) { actx = null; analyser = null; }
+      }
+
+      function waveTick() {
+        if (song.paused) { waveStop(); return; }
+        const n = waveBars.length;
+        if (analyser) {
+          analyser.getByteFrequencyData(freq);
+          /* An analyser can exist and still hand back pure silence — a
+             suspended context, no output device, a engine that won't tap the
+             element. Flat bars under a playing song look broken, so after a
+             beat of nothing, drop to the synthetic path for good. */
+          let peak = 0;
+          for (let i = 0; i < freq.length; i++) if (freq[i] > peak) peak = freq[i];
+          if (peak === 0) {
+            if (++silentFrames > 40) { analyser = null; }
+          } else silentFrames = 0;
+        }
+        if (analyser) {
+          for (let i = 0; i < n; i++) {
+            // low bins carry most of the energy, so skew the sampling upward
+            const bin = Math.floor(Math.pow(i / n, 1.6) * freq.length * 0.7);
+            waveBars[i].style.height = (6 + (freq[bin] / 255) * 30).toFixed(1) + "px";
+          }
+        } else {
+          /* No analyser (Web Audio blocked, or no output device). The song is
+             genuinely playing, so still show that — just without real data. */
+          const t = performance.now() / 320;
+          for (let i = 0; i < n; i++) {
+            const v = (Math.sin(t + i * 0.55) * 0.5 + 0.5) *
+                      (Math.sin(t * 0.37 + i * 0.21) * 0.35 + 0.65);
+            waveBars[i].style.height = (6 + v * 26).toFixed(1) + "px";
+          }
+        }
+        waveRaf = requestAnimationFrame(waveTick);
+      }
+      function waveStart() {
+        if (!wave) return;
+        initAnalyser();
+        if (actx && actx.state === "suspended") actx.resume().catch(() => {});
+        wave.classList.add("on"); waveCap && waveCap.classList.add("on");
+        if (!waveRaf) waveRaf = requestAnimationFrame(waveTick);
+      }
+      function waveStop() {
+        if (waveRaf) cancelAnimationFrame(waveRaf); waveRaf = null;
+        if (!wave) return;
+        wave.classList.remove("on"); waveCap && waveCap.classList.remove("on");
+        waveBars.forEach(b => b.style.height = "6px");
+      }
+      if (song) {
+        song.addEventListener("play", waveStart);
+        song.addEventListener("playing", waveStart);
+        song.addEventListener("pause", waveStop);
+        song.addEventListener("ended", waveStop);
+      }
+
+      const play = () => video.play().then(stopStatic).catch(() => {});
+
+      function load(i, go) {
+        idx = (i + REEL.length) % REEL.length;
+        video.src = REEL[idx];
+        if (go) play();
+      }
+      load(0, false);
+      video.addEventListener("ended", () => load(idx + 1, true));   // straight into the next
+
+      // buffer before it is needed so the first frame is ready on arrival
+      new IntersectionObserver((e, io) => {
+        if (e[0].isIntersecting) { video.preload = "auto"; video.load(); io.disconnect(); }
+      }, { rootMargin: "600px" }).observe(screen);
+
+      // start on arrival, stop on exit — nothing decodes off-screen
+      if (!RM) {
+        new IntersectionObserver(e => {
+          if (e[0].isIntersecting) { wantSong = true; play(); songPlay(); }
+          else { wantSong = false; video.pause(); songStop(); }
+        }, { threshold: 0.35 }).observe(screen);
+      }
+
+    })();
+
     /* WORK GRID handler removed: the grid now renders from portfolio/app.js.
        It also matched .filter-pill globally, which would have double-bound
        the new filters. */
@@ -1730,9 +2184,9 @@
     /* ============ CONTACT HEADLINE — words already wrapped; nothing to run ============ */
   </script>
   <script>window.PORTFOLIO_BASE = "portfolio/";</script>
-  <script src="portfolio/clips.js"></script>
-  <script src="portfolio/ai.js"></script>
-  <script src="portfolio/posts.js"></script>
+  <script src="portfolio/clips.js?v=20260924b"></script>
+  <script src="portfolio/ai.js?v=20260924b"></script>
+  <script src="portfolio/posts.js?v=20260924b"></script>
   <script>
   /* ═══════════════════════════════════════════════════════════════════
      JANSSON v3 — landing stage, grouped video index, stills rail.
@@ -1749,15 +2203,34 @@
   const TAGS = {
     /* social media content — grouped by client folder */
     "teaser-tempelhof": "social",
+    /* Milano Vice + MMAAH */
+    "cutdown-aftermovie": "social", "founder-interview": "social",
+    "mv-rudi-interview": "social", "pizzaturm-new-song": "social",
+    "rudi-preisvideo-final": "social", "wind-reel-u-berarbeitet": "social",
+    "hamburg-teaser-final": "social", "mmaah-interview": "social",
+    /* Takumi */
+    "indoor-outdoor-1-final": "social", "indoor-outdoor-2-final": "social",
+    "ugc-1": "social", "ugc-2": "social", "ugc-3": "social", "ugc-4": "social",
+    "vibe-1-final": "social", "vibe-2-final": "social",
+    "vibe-3-final": "social", "vibe-4-final": "social",
+    /* Iberia Eclipse */
+    "04-artist-caleb-jackson": "social", "artist-calabasa": "social",
+    "artist-freddy-k": "social", "artist-honeyluv": "social",
+    "artist-nacho": "social", "artist-natalie-robinson": "social",
+    "anna-final": "social", "bts-montage": "social", "0619": "social",
+    "0619-3": "social", "0619-4": "social", "emotional-1": "social",
+    "emotional-2": "social", "emotional-3": "social", "informative-3": "social",
+    "informative-4": "social", "viral-3": "social",
     /* shot & edited — filmed and cut as a piece */
     "4eva-1-new": "shot", "4eva-2-final": "shot", "aw26": "shot",
     "benni-1-6": "shot", "benni-1-7": "shot", "berkin-dreh-timeline": "shot",
-    "berlin-final": "shot", "berlin41": "shot", "bts-final": "shot",
-    "bts-ubahn-reel": "shot", "c4809": "shot", "crazy-vid-1": "shot",
+    "berlin-final": "shot", "berlin41": "shot",
+    "bts-ubahn-reel": "shot", "crazy-vid-1": "shot",
     "dreh-bts-1": "shot", "halo-new": "shot", "lichter": "shot",
     "malta-finall": "shot", "nev-2-resize": "shot", "nev-final": "shot",
     "soir-aftermovie": "shot", "song-scene": "shot", "thats-not-me-1": "shot",
     "trailer-4-week-2-2160-1": "shot", "where-is-he": "shot",
+    "mirage-intro": "shot",
   };
 
   /* the three runs inside Videos. Social splits one level further, by
@@ -1832,7 +2305,7 @@
     const PREVIEWS = [
       "berlin final", "4eva 1 new", "muay thai fight", "pool vid",
       "where is he", "bts final", "aw26", "Berlin41",
-      "C4809", "shadowboxing final",
+      "crazy-vid-1", "dreh-bts-1", "nev-2-resize", "song-scene",
     ];
 
     /* Where a tile flies in from. Each one is pushed straight out along the
@@ -2011,6 +2484,34 @@
       return card;
     };
 
+    /* A client as one card: cover frame from its first clip, the count, and a
+       stack of edges behind it so it reads as a set before you click. */
+    function makeClientCard(name, list) {
+      const cover = list[0];
+      const wrap = document.createElement("div");
+      wrap.className = "client-stack" + (list.length > 1 ? " is-many" : "");
+      const card = document.createElement("button");
+      card.className = "idx-card client-card"; card.type = "button";
+      card.setAttribute("aria-label", `${name} — ${list.length} clip${list.length === 1 ? "" : "s"}`);
+      card.innerHTML =
+        `<span class="idx-thumb" style="aspect-ratio:4 / 5">` +
+          `<img src="${cover.poster}" alt="" loading="lazy" decoding="async">` +
+          (!RM ? `<video muted loop playsinline preload="none" src="${cover.src}"></video>` : "") +
+        `</span>` +
+        `<span class="idx-shade"></span>` +
+        (list.length > 1 ? `<span class="client-count mono">${list.length} clips</span>` : "") +
+        `<span class="idx-meta"><span class="idx-title">${name}</span>` +
+        `<span class="idx-sub"><span>${cover.platform || ""}</span><span>${cover.year || ""}</span></span></span>`;
+      card.addEventListener("click", () => openViewer(list, 0));
+      if (FINE && !RM) {
+        const v = $("video", card);
+        card.addEventListener("mouseenter", () => { v.play().then(() => card.classList.add("playing")).catch(() => {}); });
+        card.addEventListener("mouseleave", () => { v.pause(); card.classList.remove("playing"); });
+      }
+      wrap.appendChild(card);
+      return wrap;
+    }
+
     /* A run of cards: four, then the rest peeking through a blur and a fade so
        it reads as "there is more" rather than as a hard edge. Four is fixed at
        every width — one row on desktop, two on a phone. The clip height is
@@ -2088,14 +2589,20 @@
             .sort((a, b) => (a[0] === UNLABELLED) - (b[0] === UNLABELLED) || b[1].length - a[1].length);
           if (entries.length === 1 && entries[0][0] === UNLABELLED) {
             renderRun(sec, entries[0][1]);        // nothing to label it against yet
-          } else
-          entries.forEach(([name, sub]) => {
-              const box = document.createElement("div");
-              box.className = "vsub";
-              box.innerHTML = `<h4 class="vsub-name mono">${name}<span>${sub.length}</span></h4>`;
-              renderRun(box, sub);
-              sec.appendChild(box);
-            });
+          } else {
+            /* One card per client. 36 loose cards was most of the page; a
+               client is now a single stacked card that opens into the player
+               with the whole set loaded behind it. */
+            const named = entries.filter(([n]) => n !== UNLABELLED);
+            const loose = entries.filter(([n]) => n === UNLABELLED).flatMap(([, v]) => v);
+            if (named.length) {
+              const grid = document.createElement("div");
+              grid.className = "idx-grid";
+              named.forEach(([name, sub]) => grid.appendChild(makeClientCard(name, sub)));
+              sec.appendChild(grid);
+            }
+            if (loose.length) renderRun(sec, loose);   // no company to stack under
+          }
         } else {
           renderRun(sec, list);
         }
@@ -2204,10 +2711,26 @@
 
     /* ── viewer: one video, arrow/swipe through the filtered set ── */
     const vw = $("#viewer"), vv = $("#vVideo");
-    let vList = [], vI = 0, sound = false;
+    let vList = [], vI = 0, sound = true;     // clips open with sound on
+    function buildVStrip() {
+      const strip = $("#vStrip"); if (!strip) return;
+      strip.innerHTML = "";
+      strip.hidden = vList.length < 2;      // a single clip needs no strip
+      if (strip.hidden) return;
+      vList.forEach((c, n) => {
+        const b = document.createElement("button");
+        b.className = "lb-thumb"; b.type = "button";
+        b.setAttribute("aria-label", `Clip ${n + 1} of ${vList.length}`);
+        b.innerHTML = `<img src="${c.poster}" alt="" loading="lazy" decoding="async">`;
+        b.addEventListener("click", () => { vI = n; loadV(); });
+        strip.appendChild(b);
+      });
+    }
+
     function openViewer(list, i) {
       vList = list.filter(x => x.kind === "video");
       vI = Math.max(0, vList.indexOf(list[i]));
+      buildVStrip();
       vw.hidden = false; document.body.style.overflow = "hidden";
       /* .viewer is opacity:0 until .open — without this the overlay is displayed
          but invisible, eats every click and leaves the page scroll-locked.
@@ -2216,13 +2739,40 @@
       vw.classList.add("open");
       loadV();
     }
+    const syncSoundBtn = () => {
+      const b = $("#vSound"); if (!b) return;
+      b.textContent = sound ? "Sound on" : "Sound off";
+      b.setAttribute("aria-pressed", String(sound));
+    };
     function loadV() {
       const c = vList[vI]; if (!c) return;
+      /* Size the frame to the clip's real shape. Declared `ar` is a hint that
+         is often wrong (dreh-bts claims 9/16 but is 4/3), so take it only as
+         the opening guess and correct from the decoded dimensions. Without
+         this every non-9:16 clip rendered letterboxed inside a portrait box. */
+      const frame = vv.closest(".v-frame");
+      if (frame) frame.style.setProperty("--ar", c.ar ? String(c.ar).replace("/", " / ") : "9 / 16");
       vv.src = c.src; vv.poster = c.poster; vv.muted = !sound;
-      vv.play().catch(() => {});
+      syncSoundBtn();
+      vv.play().catch(() => {
+        /* Opening the viewer is a click, so unmuted playback is normally
+           allowed — but if a browser refuses it, fall back to muted rather
+           than leave a frozen frame, and say so on the button. */
+        if (vv.muted) return;
+        vv.muted = true; sound = false; syncSoundBtn();
+        vv.play().catch(() => {});
+      });
       $("#vTitle").textContent = c.title;
       $("#vSub").textContent = [c.platform, c.year, c.dur].filter(Boolean).join(" · ");
       $("#vPos").textContent = `${vI + 1} / ${vList.length}`;
+      vv.addEventListener("loadedmetadata", () => {
+        if (frame && vv.videoWidth) frame.style.setProperty("--ar", vv.videoWidth + " / " + vv.videoHeight);
+      }, { once: true });
+      const strip = $("#vStrip");
+      if (strip && !strip.hidden) {
+        $$(".lb-thumb", strip).forEach((t, n) => t.classList.toggle("on", n === vI));
+        $(".lb-thumb.on", strip)?.scrollIntoView({ block: "nearest", inline: "center" });
+      }
     }
     const closeV = () => {
       vw.classList.remove("open");
@@ -2233,10 +2783,9 @@
     $("#vClose")?.addEventListener("click", closeV);
     $("#vPrev")?.addEventListener("click", () => stepV(-1));
     $("#vNext")?.addEventListener("click", () => stepV(1));
-    $("#vSound")?.addEventListener("click", (e) => {
+    $("#vSound")?.addEventListener("click", () => {
       sound = !sound; vv.muted = !sound;
-      e.currentTarget.textContent = sound ? "Sound on" : "Sound off";
-      e.currentTarget.setAttribute("aria-pressed", String(sound));
+      syncSoundBtn();
     });
     vw?.addEventListener("click", (e) => { if (e.target === vw) closeV(); });
 
@@ -2288,6 +2837,10 @@
       const f = lFrames[lF]; if (!f) return;
       lbImg.src = f.src;
       if (lbFrame && f.post.ar) lbFrame.style.setProperty("--ar", f.post.ar.replace("/", " / "));
+      lbImg.addEventListener("load", () => {
+        if (lbFrame && lbImg.naturalWidth)
+          lbFrame.style.setProperty("--ar", lbImg.naturalWidth + " / " + lbImg.naturalHeight);
+      }, { once: true });
       $("#lbTitle").textContent = f.post.title;
       $("#lbSub").textContent =
         `${[f.post.platform, f.post.year].filter(Boolean).join(" · ")} — ${lF + 1} / ${lFrames.length}`;

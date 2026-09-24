@@ -21,6 +21,7 @@ const AI_FILTERS = {
 
 const AI_CLIPS = [
   { slug: "ai-part", title: "AI Part", cat: "concept", platform: "Instagram", year: "2026", dur: "0:33", ar: "1280/720", client: "" },
+  { slug: "yakuza-2", title: "Yakuza 2", cat: "concept", platform: "Instagram", year: "2026", dur: "0:12", ar: "1280/1280", client: "" },
 ];
 
 /* ── stills that belong with the AI work rather than the social feed.

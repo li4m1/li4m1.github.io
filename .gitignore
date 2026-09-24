@@ -12,3 +12,9 @@ arcteryx shoot ai/
 # local backups — not site content
 /index-BEFORE-v3.html.bak
 /v3.html
+
+# raw footage staged for ingest — never published, only portfolio/media/ output is
+/Iberia Eclipse
+
+# Higgsfield working file — the keyed output in clips/fx/ is what ships
+/hf_*.mp4
