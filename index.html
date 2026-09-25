@@ -1091,16 +1091,7 @@
       padding: 0.5em 1.1em; border-radius: var(--pill);
       border: 1px solid var(--line); color: var(--text-mut);
     }
-    .about-keywords {
-      display: flex; flex-wrap: wrap; gap: 0.5rem;
-      margin-top: 0.7rem; padding: 0; list-style: none;
-    }
-    .about-keywords li {
-      font-size: var(--fs-label); letter-spacing: 0.12em; text-transform: uppercase;
-      padding: 0.5em 1.1em; border-radius: var(--pill);
-      border: 1px solid var(--line); color: var(--text-mut);
-    }
-    .tools-row { margin-top: 1.9rem; }
+    .tools-row { margin-top: 1.7rem; }
     .tools-label {
       display: block; font-size: var(--fs-label); letter-spacing: 0.16em;
       text-transform: uppercase; color: var(--text-mut); margin-bottom: 0.9rem;
@@ -1127,13 +1118,22 @@
     .tools-logos li:hover img { opacity: 1; }
     .tools-logos li:hover span { color: var(--cream); }
     @media (max-width: 720px) {
-      .tools-logos { grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 0.75rem 0.9rem; }
-      .tools-logos img { width: 23px; }
+      .tools-logos { grid-template-columns: repeat(auto-fit, minmax(132px, 1fr)); gap: 0.7rem 0.9rem; }
+      .tools-logos img { width: 22px; }
+      /* two columns at 132px can't hold "Claude Code & Design" on one line;
+         wrapping beats the ellipsis that was cutting it to "Claude Code & De…". */
+      .tools-logos span { white-space: normal; overflow: visible; line-height: 1.25; }
+      .about-facts { margin-top: 1.2rem; }
+      .tools-row { margin-top: 1.4rem; }
+      .ig-link { margin-top: 1rem; }
     }
     .about-facts .dot-live { width: 7px; height: 7px; border-radius: 50%; background: var(--gold); animation: pulse 2.4s ease-in-out infinite; }
     @media (max-width: 720px) {
-      .about-top { grid-template-columns: 1fr; }
-      .about-photo { max-width: 260px; margin: 0 auto; }
+      .about-top { grid-template-columns: 1fr; gap: 1.2rem; }
+      /* the PNG carries a lot of transparent headroom, so at 260px it read
+         as a gap under the eyebrow rather than as a portrait */
+      .about-photo { max-width: 218px; margin: 0 auto; }
+      .about-text .work-display-title { margin-bottom: 0.8rem; }
     }
     @media (prefers-reduced-motion: reduce) {
       .about-facts .dot-live { animation: none !important; }
@@ -1143,6 +1143,15 @@
     #showreel { overflow: hidden; }
     .reel-stage { position: relative; max-width: 980px; margin: 0 auto; }
     .tv { position: relative; width: 100%; max-width: 850px; margin: 0 auto; }
+    /* Laptop and up the set runs bigger — the section has 1320px of gutter to
+       give and at 850px the tube was a small object in a lot of empty wall.
+       Phones and tablets keep the old size, where width is already the
+       constraint. */
+    @media (min-width: 1100px) {
+      .reel-stage { max-width: 1240px; }
+      .tv { max-width: 1120px; }
+      .orbit-badge { top: -84px; right: -10px; width: 150px; }
+    }
     .tv-img { width: 100%; position: relative; z-index: 2; pointer-events: none; }
     .tv-crown { position: absolute; z-index: 3; width: 42%; top: -22%; right: -12%; pointer-events: none; }
     .tv-screen {
@@ -1150,7 +1159,17 @@
       position: absolute; z-index: 1; top: 16.2%; left: 12.5%; width: 58.4%; height: 61.2%;
       overflow: hidden; border-radius: 50% / 6%; background: #000; cursor: pointer;
     }
-    .tv-screen video { width: 100%; height: 100%; object-fit: cover; }
+    .tv-screen video {
+      position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+    }
+    /* only the armed buffer is visible; the other one sits behind it holding
+       the next clip's first frame */
+    .tv-screen video.reel-v {
+      opacity: 0; transition: opacity 140ms linear;
+      /* keeps the idle buffer out of the compositor's per-frame work */
+      content-visibility: auto;
+    }
+    .tv-screen video.reel-v.on { opacity: 1; content-visibility: visible; }
     /* ── CRT treatment ──────────────────────────────────────────────
        Built from the CRT-DUB research (~/CRT_DUB_AE_GUIDE.md). Two rules
        from it drive the whole stack:
@@ -1185,9 +1204,18 @@
     }
     /* c) bloom — above the mask, so highlights swallow the scanlines */
     .crt-bloom {
+      /* purple phosphor rather than the warm cream one — the whole tube
+         reads violet now, so a cream bloom fought the grade. */
       background: radial-gradient(ellipse at 50% 45%,
-        rgba(255,244,214,0.16), rgba(255,240,200,0.05) 45%, transparent 70%);
+        rgba(206,164,255,0.22), rgba(150,80,255,0.08) 45%, transparent 72%);
       mix-blend-mode: screen;
+    }
+    /* d) the purple cast itself. soft-light keeps the blacks black and only
+       pushes the midtones, so faces don't go magenta. */
+    .crt-tint {
+      background: linear-gradient(165deg,
+        rgba(128,44,235,0.40) 0%, rgba(78,26,160,0.26) 55%, rgba(40,12,96,0.30) 100%);
+      mix-blend-mode: soft-light;
     }
     /* g) vignette — corner darkening plus a gentle falloff */
     .crt-vig {
@@ -1205,15 +1233,22 @@
       0%,100% { opacity: 1; } 47% { opacity: 0.985; }
       48% { opacity: 0.955; } 49% { opacity: 0.99; }
     }
-    .tv-screen video#reel-video {
+    .tv-screen video.reel-v {
       /* f) overscan: real sets cut ~5% off every side */
       transform: scale(1.055);
-      /* the horizontal-only softness, plus a mild tube grade */
-      filter: url(#crtSmear) saturate(1.16) contrast(1.07) brightness(1.03);
+      /* colour-only part of the grade: cheap, and the idle buffer needs it so
+         it doesn't pop when it becomes visible */
+      filter: saturate(1.22) contrast(1.07) brightness(1.03) hue-rotate(-12deg);
+    }
+    /* The SVG filter is a full-frame pass every frame — at 1120px wide that is
+       the single most expensive thing on the page, so only the buffer actually
+       on screen pays for it. Applied to both, playback stuttered. */
+    .tv-screen video.reel-v.on {
+      filter: url(#crtSmear) saturate(1.22) contrast(1.07) brightness(1.03) hue-rotate(-12deg);
       animation: crtFlicker 5.5s steps(1, end) infinite;
     }
     @media (prefers-reduced-motion: reduce) {
-      .tv-screen video#reel-video { animation: none; }
+      .tv-screen video.reel-v, .tv-screen video.reel-v.on { animation: none; }
     }
     #static-canvas { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0.9; transition: opacity 0.5s ease; }
     .reel-meta {
@@ -1253,6 +1288,15 @@
       color: var(--text-mut);
     }
     .tv-title { text-align: center; margin-bottom: clamp(1.25rem, 3vw, 2rem); }
+    /* same crown-for-O swap as the landing wordmark */
+    .tv-title .crown-wrap { display: inline-block; margin: 0 -0.09em; }
+    .tv-title .crown-o {
+      width: 0.92em; display: inline-block; vertical-align: baseline;
+      transform: translateY(0.12em); transform-origin: 50% 80%;
+      transition: transform var(--dur) var(--eo);
+      filter: drop-shadow(0 2px 14px rgba(2,1,10,0.6));
+    }
+    .tv-title:hover .crown-o { transform: translateY(0.12em) rotate(-12deg); }
     .orbit-badge { position: absolute; top: -70px; right: -30px; width: 130px; z-index: 4; animation: orbitSpin 18s linear infinite; pointer-events: none; }
     .orbit-badge text { font-family: var(--font-mono); font-size: 11.5px; letter-spacing: 2.5px; fill: var(--gold); }
     @keyframes orbitSpin { to { transform: rotate(360deg); } }
@@ -1361,7 +1405,7 @@
       .rail { grid-auto-columns: minmax(132px, 1fr); }
       .rail-card { aspect-ratio: 3/4; }
       .home-name {
-        font-size: clamp(3.2rem, 17vw, 5rem); padding-left: 0.22em;
+        font-size: clamp(3.6rem, 20vw, 5.6rem); padding-left: 0.22em;
         /* Optical, not geometric: the box measures centred between the eyebrow
            and the strip below, but the crown-O is translated down 0.16em, so
            the wordmark's visual mass reads low. Transform, so the block height
@@ -1372,7 +1416,7 @@
          void above and below it. padding-top clears the fixed topbar, and
          moves the flex-centred wordmark down by half of it to match the
          strips' shift. */
-      #home { min-height: 60svh; padding-top: 72px; }
+      #home { min-height: 74svh; padding-top: 72px; }
     }
     @media (prefers-reduced-motion: reduce) {
       .stage-tile { opacity: 1 !important; transform: rotate(var(--rot)) !important; }
@@ -1386,7 +1430,7 @@
     .reveal, .hero-name .ch { opacity: 1; transform: none; }
   </style></noscript>
   <!-- portfolio section components (grids, player, lightbox) -->
-  <link rel="stylesheet" href="portfolio/components.css?v=11">
+  <link rel="stylesheet" href="portfolio/components.css?v=12">
 </head>
 <body>
   <div id="loader" aria-hidden="true">
@@ -1467,13 +1511,6 @@
           <div class="about-facts mono">
             <span><i class="dot-live"></i>Berlin, DE</span>
           </div>
-          <ul class="about-keywords mono">
-            <li>Video Editing</li>
-            <li>Filmmaking</li>
-            <li>AI-Production</li>
-            <li>Videography</li>
-            <li>Designing</li>
-          </ul>
           <div class="tools-row">
             <span class="tools-label mono">Tools</span>
             <ul class="tools-logos">
@@ -1562,17 +1599,22 @@
           <defs><path id="orbitPath" d="M55,55 m-40,0 a40,40 0 1,1 80,0 a40,40 0 1,1 -80,0"/></defs>
           <text><textPath href="#orbitPath">&#183; VISUALS &#183; ALWAYS ROLLING </textPath></text>
         </svg>
-        <h2 class="work-display-title videos-title reveal tv-title">Jansson <em>TV</em></h2>
+        <h2 class="work-display-title videos-title reveal tv-title" aria-label="Jansson TV">Janss<span class="crown-wrap"><img class="crown-o" src="crown.png" alt="o"></span>n <em>TV</em></h2>
         <div class="tv">
           <img src="tv.png" alt="" aria-hidden="true" class="tv-img">
           <img src="Asset 4.png" alt="" aria-hidden="true" class="tv-crown">
           <audio id="reel-song" src="clips/fx/peace-in-my-soul.mp3" loop preload="none"></audio>
           <div class="tv-screen" id="tv-screen">
-            <video id="reel-video" muted playsinline preload="metadata"></video>
+            <video id="reel-video" class="reel-v on" muted playsinline preload="metadata"></video>
+            <!-- the back buffer: the next clip decodes in here while this one
+                 is still playing, then the two swap. One element alone goes
+                 black for as long as the new src takes to open. -->
+            <video id="reel-video-b" class="reel-v" muted playsinline preload="auto" aria-hidden="true"></video>
             <canvas id="static-canvas" aria-hidden="true"></canvas>
             <div class="crt" aria-hidden="true">
               <div class="crt-scan"></div>
               <div class="crt-grille"></div>
+              <div class="crt-tint"></div>
               <div class="crt-bloom"></div>
               <div class="crt-vig"></div>
               <div class="crt-glare"></div>
@@ -1996,23 +2038,73 @@
       if (!video || !screen || !canvas) return;
       video.muted = true;   // the clips are silent by design — the song carries the section
       const ctx = canvas.getContext("2d");
-      /* Everything in clips/visuals — the channel runs the lot, then loops. */
+      /* Everything in clips/visuals, in a fixed shuffle — the channel runs
+         the lot, then loops. Order is baked rather than shuffled at load so
+         the sequence is the same thing everyone sees and can be reviewed. */
       const REEL = [
-        "clips/visuals/c4809.mp4",
-        "clips/visuals/cinematic-final.mp4",
-        "clips/visuals/cream-insta-2.mp4",
-        "clips/visuals/dips.mp4",
-        "clips/visuals/graded-haus.mp4",
-        "clips/visuals/haus-grade.mp4",
-        "clips/visuals/img-0006.mp4",
-        "clips/visuals/koh-samui-1.mp4",
-        "clips/visuals/muay-thai-fight.mp4",
-        "clips/visuals/ruben-finn.mp4",
-        "clips/visuals/sbahn-grade.mp4",
-        "clips/visuals/schoeneberg-edit.mp4",
-        "clips/visuals/shadowboxing.mp4",
-        "clips/visuals/sonne-apple.mp4",
-        "clips/visuals/zoom-transition.mp4",
+        "clips/visuals/v60.mp4",
+        "clips/visuals/v27.mp4",
+        "clips/visuals/v33.mp4",
+        "clips/visuals/v38.mp4",
+        "clips/visuals/v46.mp4",
+        "clips/visuals/v12.mp4",
+        "clips/visuals/v21.mp4",
+        "clips/visuals/v02.mp4",
+        "clips/visuals/v55.mp4",
+        "clips/visuals/v07.mp4",
+        "clips/visuals/v13.mp4",
+        "clips/visuals/v31.mp4",
+        "clips/visuals/v49.mp4",
+        "clips/visuals/v63.mp4",
+        "clips/visuals/v05.mp4",
+        "clips/visuals/v40.mp4",
+        "clips/visuals/v54.mp4",
+        "clips/visuals/v19.mp4",
+        "clips/visuals/v32.mp4",
+        "clips/visuals/v30.mp4",
+        "clips/visuals/v20.mp4",
+        "clips/visuals/v62.mp4",
+        "clips/visuals/v08.mp4",
+        "clips/visuals/v15.mp4",
+        "clips/visuals/v09.mp4",
+        "clips/visuals/v34.mp4",
+        "clips/visuals/v11.mp4",
+        "clips/visuals/v25.mp4",
+        "clips/visuals/v57.mp4",
+        "clips/visuals/v39.mp4",
+        "clips/visuals/v26.mp4",
+        "clips/visuals/v52.mp4",
+        "clips/visuals/v06.mp4",
+        "clips/visuals/v03.mp4",
+        "clips/visuals/v48.mp4",
+        "clips/visuals/v14.mp4",
+        "clips/visuals/v17.mp4",
+        "clips/visuals/v50.mp4",
+        "clips/visuals/v16.mp4",
+        "clips/visuals/v44.mp4",
+        "clips/visuals/v56.mp4",
+        "clips/visuals/v23.mp4",
+        "clips/visuals/v22.mp4",
+        "clips/visuals/v58.mp4",
+        "clips/visuals/v29.mp4",
+        "clips/visuals/v42.mp4",
+        "clips/visuals/v24.mp4",
+        "clips/visuals/v18.mp4",
+        "clips/visuals/v28.mp4",
+        "clips/visuals/v04.mp4",
+        "clips/visuals/v47.mp4",
+        "clips/visuals/v51.mp4",
+        "clips/visuals/v37.mp4",
+        "clips/visuals/v36.mp4",
+        "clips/visuals/v10.mp4",
+        "clips/visuals/v45.mp4",
+        "clips/visuals/v41.mp4",
+        "clips/visuals/v35.mp4",
+        "clips/visuals/v59.mp4",
+        "clips/visuals/v43.mp4",
+        "clips/visuals/v61.mp4",
+        "clips/visuals/v53.mp4",
+        "clips/visuals/v01.mp4",
       ];
       let raf = null, idx = 0;
 
@@ -2141,26 +2233,56 @@
         song.addEventListener("ended", waveStop);
       }
 
-      const play = () => video.play().then(stopStatic).catch(() => {});
+      /* ── channel: two buffers, never a black frame ──────────────────
+         Assigning a new src to a playing <video> tears down the old decode
+         and shows nothing until the new file has opened — with 63 short
+         clips that gap landed every few seconds. So the next clip is loaded
+         into the OTHER element while this one still plays, and at `ended`
+         the two just swap. ── */
+      const vA = video, vB = $("#reel-video-b");
+      let cur = vA, buf = vB;
+      const nextIdx = () => (idx + 1) % REEL.length;
 
-      function load(i, go) {
-        idx = (i + REEL.length) % REEL.length;
-        video.src = REEL[idx];
-        if (go) play();
+      function prime(el, i) {          // park a clip in a buffer, paused at 0
+        if (el.dataset.i === String(i)) return;
+        el.dataset.i = String(i);
+        el.src = REEL[i];
+        el.preload = "auto";
+        el.load();
       }
-      load(0, false);
-      video.addEventListener("ended", () => load(idx + 1, true));   // straight into the next
+
+      const play = () => cur.play().then(stopStatic).catch(() => {});
+
+      function advance() {
+        const n = nextIdx();
+        // the buffer may still be opening if a clip was very short — asking
+        // it to play anyway is correct, it starts as soon as it has data
+        [cur, buf] = [buf, cur];
+        idx = n;
+        cur.classList.add("on");
+        buf.classList.remove("on");
+        try { cur.currentTime = 0; } catch (e) { /* not seekable yet */ }
+        play();
+        buf.pause();
+        prime(buf, nextIdx());         // stage the one after this
+      }
+
+      idx = 0;
+      prime(vA, 0);
+      prime(vB, 1);
+      vA.addEventListener("ended", advance);
+      vB.addEventListener("ended", advance);
 
       // buffer before it is needed so the first frame is ready on arrival
       new IntersectionObserver((e, io) => {
-        if (e[0].isIntersecting) { video.preload = "auto"; video.load(); io.disconnect(); }
+        if (e[0].isIntersecting) { vA.preload = "auto"; vA.load(); io.disconnect(); }
       }, { rootMargin: "600px" }).observe(screen);
 
       // start on arrival, stop on exit — nothing decodes off-screen
       if (!RM) {
         new IntersectionObserver(e => {
           if (e[0].isIntersecting) { wantSong = true; play(); songPlay(); }
-          else { wantSong = false; video.pause(); songStop(); }
+          else { wantSong = false; cur.pause(); songStop(); }
         }, { threshold: 0.35 }).observe(screen);
       }
 

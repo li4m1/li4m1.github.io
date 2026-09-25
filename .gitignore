@@ -18,3 +18,7 @@ arcteryx shoot ai/
 
 # Higgsfield working file — the keyed output in clips/fx/ is what ships
 /hf_*.mp4
+
+# the 15 clips the TV used before the 63-clip reel — kept locally as a
+# fallback, but already in history under clips/visuals/, so not re-committed
+/_saved/visuals-old
