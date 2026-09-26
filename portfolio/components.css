@@ -117,6 +117,11 @@
 /* ── viewer ────────────────────────────────────────────────────── */
 .viewer {
   position: fixed; inset: 0; z-index: 90;
+  /* inset:0 alone sizes a fixed element to the LARGE viewport on iOS, so with
+     the URL bar on screen the bottom of the player — the caption and the whole
+     thumbnail strip — sat underneath the browser chrome. dvh tracks the
+     visible area as that bar shows and hides. */
+  height: 100dvh;
   background: rgba(2,1,10,0.94);
   backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
   display: grid; place-items: center;

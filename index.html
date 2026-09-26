@@ -1430,7 +1430,7 @@
     .reveal, .hero-name .ch { opacity: 1; transform: none; }
   </style></noscript>
   <!-- portfolio section components (grids, player, lightbox) -->
-  <link rel="stylesheet" href="portfolio/components.css?v=12">
+  <link rel="stylesheet" href="portfolio/components.css?v=13">
 </head>
 <body>
   <div id="loader" aria-hidden="true">
@@ -2905,6 +2905,30 @@
     $("#vClose")?.addEventListener("click", closeV);
     $("#vPrev")?.addEventListener("click", () => stepV(-1));
     $("#vNext")?.addEventListener("click", () => stepV(1));
+
+    /* Swipe through clips. The stills lightbox had this and the clip player
+       never did — but .v-nav is display:none under 640px on the promise of
+       "swipe instead", so on a phone the only way between clips was the
+       thumbnail strip. Either axis steps: the arrows read up/down, but a
+       fullscreen video invites a sideways swipe just as much. The tap-to-
+       pause overlay sits on top, so this binds to the frame's parent. */
+    (() => {
+      const stage = $(".v-stage", vw); if (!stage) return;
+      let x0 = null, y0 = 0, t0 = 0;
+      stage.addEventListener("touchstart", (e) => {
+        if (e.touches.length !== 1) { x0 = null; return; }
+        x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; t0 = Date.now();
+      }, { passive: true });
+      stage.addEventListener("touchend", (e) => {
+        if (x0 === null) return;
+        const dx = e.changedTouches[0].clientX - x0;
+        const dy = e.changedTouches[0].clientY - y0;
+        const far = Math.abs(dx) > Math.abs(dy) ? dx : dy;
+        // a slow drag is a scroll attempt, not a flick
+        if (Math.abs(far) > 45 && Date.now() - t0 < 700) stepV(far < 0 ? 1 : -1);
+        x0 = null;
+      }, { passive: true });
+    })();
     $("#vSound")?.addEventListener("click", () => {
       sound = !sound; vv.muted = !sound;
       syncSoundBtn();
