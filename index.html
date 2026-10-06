@@ -92,7 +92,16 @@
     }
 
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-    html { scroll-behavior: smooth; }
+    /* body's overflow-x:hidden clips the decorations that bleed off the right
+       edge in #reel — the orbit badge and the TV crown both sit on negative
+       right offsets — but it only clips their PAINT. They still count toward
+       the document's width, which on a phone pushes the initial containing
+       block about 23px past the screen. Every position:fixed overlay sizes to
+       that box, so the clip player was laid out wider than the display and lost
+       its right edge: half the close button, the sound toggle, and a slice of
+       the video itself. clip on the root keeps the bleed and takes it out of
+       the layout width too. */
+    html { scroll-behavior: smooth; overflow-x: clip; }
     body {
       background: var(--night);
       color: var(--text);
