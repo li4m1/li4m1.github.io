@@ -1126,6 +1126,14 @@
     }
     .tools-logos li:hover img { opacity: 1; }
     .tools-logos li:hover span { color: var(--cream); }
+    /* a second row under Tools — flagged live so it reads as "in progress"
+       rather than as part of the toolkit above */
+    .tools-row + .tools-row { margin-top: 1.35rem; }
+    .tools-label .dot-live {
+      display: inline-block; width: 6px; height: 6px; border-radius: 50%;
+      background: var(--gold); margin-right: 0.6em; vertical-align: middle;
+      animation: pulse 2.4s ease-in-out infinite;
+    }
     @media (max-width: 720px) {
       .tools-logos { grid-template-columns: repeat(auto-fit, minmax(132px, 1fr)); gap: 0.7rem 0.9rem; }
       .tools-logos img { width: 22px; }
@@ -1439,7 +1447,7 @@
     .reveal, .hero-name .ch { opacity: 1; transform: none; }
   </style></noscript>
   <!-- portfolio section components (grids, player, lightbox) -->
-  <link rel="stylesheet" href="portfolio/components.css?v=13">
+  <link rel="stylesheet" href="portfolio/components.css?v=14">
 </head>
 <body>
   <div id="loader" aria-hidden="true">
@@ -1562,6 +1570,15 @@
               <li>
                 <img src="logos/seedance.png" alt="" width="192" height="192" loading="lazy" decoding="async">
                 <span>Seedance</span>
+              </li>
+            </ul>
+          </div>
+          <div class="tools-row">
+            <span class="tools-label mono"><i class="dot-live"></i>Currently learning</span>
+            <ul class="tools-logos">
+              <li>
+                <img src="logos/blender.png" alt="" width="192" height="192" loading="lazy" decoding="async">
+                <span>Blender</span>
               </li>
             </ul>
           </div>
@@ -2356,6 +2373,7 @@
     "4eva-1-new": "shot", "4eva-2-final": "shot", "aw26": "shot",
     "benni-1-6": "shot", "benni-1-7": "shot", "berkin-dreh-timeline": "shot",
     "berlin-final": "shot", "berlin41": "shot",
+    "tm-party-final": "shot", "basketball-neue-sound": "shot", "rvni-final": "shot",
     "bts-ubahn-reel": "shot", "crazy-vid-1": "shot",
     "dreh-bts-1": "shot", "halo-new": "shot", "lichter": "shot",
     "malta-finall": "shot", "nev-2-resize": "shot", "nev-final": "shot",

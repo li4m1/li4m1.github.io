@@ -22,6 +22,9 @@ const FILTERS = {
 };
 
 const CLIPS = [
+  { slug: "tm-party-final",          title: "TM Party",          cat: "brand",  platform: "Instagram", year: "2026", dur: "0:27", ar: "1280/720",  client: "" },
+  { slug: "basketball-neue-sound",   title: "Basketball",        cat: "brand",  platform: "Instagram", year: "2026", dur: "0:17", ar: "1280/1006", client: "" },
+  { slug: "rvni-final",              title: "RVNI",              cat: "brand",  platform: "Instagram", year: "2026", dur: "1:05", ar: "1280/850",  client: "" },
   { slug: "berlin-final",            title: "Berlin",            cat: "brand",  platform: "Instagram", year: "2026", dur: "1:16", ar: "1280/720",  client: "" },
   { slug: "4eva-1-new",              title: "4eva",              cat: "music",  platform: "Instagram", year: "2026", dur: "0:11", ar: "1280/720",  client: "" },
   { slug: "nev-2-resize",            title: "Nev II",            cat: "music",  platform: "TikTok",    year: "2026", dur: "0:39", ar: "720/1280",  client: "" },

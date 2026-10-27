@@ -170,6 +170,13 @@
      eating 250px of an 863px window and the clip was rendering at 345px
      wide; trimming it hands that height back to the video. */
   grid-template-rows: minmax(0, 1fr) auto;
+  /* Definite single column, for the same reason the viewer has one. Left as an
+     implicit `auto` track, WebKit sized it from the video's intrinsic width —
+     a 1280px clip gave a 1151px column on a 414px phone, so the frame's
+     width:100% and max-width:100% both resolved against 1151px and the clip
+     ran off the right edge with only its left third on screen. Chrome
+     resolved the same percentages against the stage and never showed it. */
+  grid-template-columns: minmax(0, 1fr);
   justify-items: center; align-content: center;
   gap: 0.5rem;
   height: 100%; width: 100%;
@@ -245,8 +252,12 @@
     height: auto; width: 100%; align-self: center;
     /* room reserved for the caption, which sits BELOW the picture here
        instead of on top of it — a 16:9 clip is only ~240px tall on a phone
-       and the desktop scrim would cover a third of it. */
+       and the desktop scrim would cover a third of it. The margin, not just
+       the cap: the frame is centred in its row, so a clip shorter than the cap
+       sits low enough for the caption hanging off its bottom edge to reach the
+       thumbnail strip. Centring the margin box keeps that space under it. */
     max-height: calc(100% - 4.8rem);
+    margin-bottom: 4.8rem;
     overflow: visible;
   }
   .v-frame video { border-radius: inherit; }
@@ -347,6 +358,9 @@
 /* ── image lightbox ────────────────────────────────────────────── */
 .lb-stage {
   display: grid; grid-template-rows: minmax(0, 1fr) auto auto;
+  /* definite column, for the reason given on .v-stage — an implicit auto
+     track takes its width from the picture's intrinsic size in WebKit */
+  grid-template-columns: minmax(0, 1fr);
   justify-items: center; align-content: center; gap: 0.85rem;
   height: 100%; width: 100%;
   padding: clamp(1rem, 3vh, 2.5rem) 1rem;
